@@ -1,0 +1,33 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+die "Usage: $0 templd_file anno_with_chr_pos\n" unless @ARGV==2;
+
+my ($ld,$anno)=@ARGV;
+
+my $rpath=`which Rscript` or die "Cannot find Rscript.\n";
+chomp $rpath;
+
+my $rscript=
+"#!$rpath --vanilla\n".
+"ld=read.delim(\"$ld\",header=TRUE,quote=\"\",fill=TRUE)\n";
+
+my ($outfile)= $anno=~m/(.*?)\..*$/;
+$outfile.="_ld.txt";
+$rscript.=
+"anno=read.delim(\"$anno\",header=TRUE,quote=\"\",fill=TRUE)\n".
+"anno\$ldindex=paste(\"chr\",anno\$Chr,\":\",anno\$Start,sep=\"\")\n".
+"merge_result=merge(anno,ld,by.x=\"ldindex\",by.y=\"snp1\",all.x=TRUE)\n".
+"write.table(merge_result,\"$outfile\",row.names=FALSE,sep=\"\\t\",quote=FALSE)\n".
+"print (\"Output written to $outfile\")\n";
+
+#print $rscript and exit;
+my $tmp="rscript.tmp";
+open OUT,">",$tmp or die "$!";
+print OUT $rscript;
+close OUT;
+chmod 0755,$tmp;
+!system("./$tmp") or die "$!";
+unlink $tmp;
