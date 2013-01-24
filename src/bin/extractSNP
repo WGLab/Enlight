@@ -1,0 +1,63 @@
+#!/usr/bin/env perl
+#this script takes annovar input files as input.
+use strict;
+use warnings;
+
+use Utils;
+
+die "Usage: $0 [N:coordinate[:flank]] [snp_list_file] ...\n".
+	"Example: $0 1:1000000:500\n" if @ARGV < 1;
+
+my @list_file;
+my @chr;
+my @loci;
+my @flank;
+
+for my $option (@ARGV)
+{
+    if (-f $option)
+    {
+	push @list_file, $option;
+    } elsif ($option=~/([^:]+):([^:]+):*(.*)/)
+    {
+	push @chr,$1;
+	push @loci,$2;
+	push @flank,$3;
+    }
+}
+
+for my $file(@list_file)
+{
+    open IN,"< $file" or die "Failed reading $_\n";
+    while(<IN>)
+    {
+	if (/([^:]+):([^:]+):*(.*)/)
+	{
+	    push @chr,$1;
+	    push @loci,$2;
+	    push @flank,$3;
+	}
+    }
+	close IN;
+}
+
+map {$_ = $_ || 5e5} @flank;
+
+warn "Processing:\nchr\tcoordinate\tflank\n";
+for (1..@chr)
+{
+    warn "$chr[$_-1]\t$loci[$_-1]\t$flank[$_-1]\n";
+}
+warn "\n";
+
+my @output_list;
+for my $i(1..@chr)
+{
+    my ($n,$start,$end)=($chr[$i-1],($loci[$i-1]-$flank[$i-1]),($loci[$i-1]+$flank[$i-1]));
+    my $range="$n:$start-$end";
+    my $output="${n}_${start}_$end.vcf";
+    warn "Now executing: tabix ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20110521/ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites.vcf.gz $range > $output\n";
+    system 'tabix ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20110521/ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites.vcf.gz '.$range.' > '.$output;
+    push @output_list,$output if !$?;
+}
+warn "Output written to @output_list\n";
