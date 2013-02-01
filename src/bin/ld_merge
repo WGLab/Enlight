@@ -1,0 +1,17 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+my @items=glob "rs*";
+
+for my $element(@items)
+{
+	if (-d $element)
+	{
+		chomp(my $tmpld=`ls ${element}/templd*txt`);
+		my $anno="${element}_summary_mecc_ccfr.txt";
+		my $execution=system("./ld_merge_script_gen $tmpld $anno");
+		warn "$anno failed\n" if $execution;
+	}
+}
