@@ -1,0 +1,57 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+warn "Usage: $0 mecc ccfr\n" unless @ARGV==2;
+
+my %pool;
+my %count;
+my $mecc=$ARGV[0];
+my $ccfr=$ARGV[1];
+my $outfile="mecc_ccfr_subset.txt";
+
+$mecc="mecc_knownHits_analysis_plus.ccfr_match_2012-08-20.txt";
+$ccfr="ccfr_knownHits_analysis_plus_2012-08-20.txt";
+
+no strict;
+open IN,'cut -f 2,3,12,13,16-18 mecc_knownHits_analysis_plus.ccfr_match_2012-08-20.txt | tail -n+2|' or die;
+while(<IN>)
+{
+    #input format:chr    position        a1      a2      or      se      p
+    #x chr is X_nonPAR in mecc
+    ####WARN: some different SNPs can have same index theoretically, improve it in the future!
+
+    s/^X_nonPAR/X/;
+    my ($chr,$pos,$a1,$a2,$se,$or,$p);
+    warn "Invalid: $_\n" and next unless ($chr,$pos,$a1,$a2,$se,$or,$p)=/^([\w\.]+)\t(\d+)\t([\w\.\-]+)\t([\w\.\-]+)\t(.*?)\t(.*?)\t(.*)$/;
+    my $index="$chr$pos$pos$a1$a2";
+    die "Duplicate found: $index\n" if $count{$index}; 
+    $count{$index}++;
+    $pool{$index}="\tNA"x6 unless $pool{$index};
+    $pool{$index}=~s/^\tNA\tNA\tNA\t/\t$se\t$or\t$p\t/;
+}
+close IN;
+%count=(); #reset a hash while keeping its allocated memory
+open IN,'cut -f 2,19,20,21,24-26 ccfr_knownHits_analysis_plus_2012-08-20.txt | tail -n+2|' or die;
+while(<IN>)
+{
+    #input format:position	chr     a1      a2      or      se      p
+    #X chr is 23 in ccfr
+    s/\t23\t/\tX\t/;
+    my ($chr,$pos,$a1,$a2,$se,$or,$p);
+    warn "Invalid: $_\n" and next unless ($pos,$chr,$a1,$a2,$or,$se,$p)=/^(\d+)\t([\w\.]+)\t([\w\.\-]+)\t([\w\.\-]+)\t(.*?)\t(.*?)\t(.*)$/;
+    my $index="$chr$pos$pos$a1$a2";
+    die "Duplicate found: $index\n" if $count{$index}; 
+    $count{$index}++;
+    $pool{$index}="\tNA"x6 unless $pool{$index};
+    $pool{$index}=~s/\tNA\tNA\tNA$/\t$se\t$or\t$p/;
+}
+use strict;
+
+open OUT,">",$outfile or die;
+
+print OUT "Otherinfo\tmecc_or\tmecc_se\tmecc_p\tccfr_or\tccfr_se\tccfr_p\n";
+print OUT $_,$pool{$_},"\n" for keys %pool;
+close OUT;
+warn "Output writtent to $outfile\n";
