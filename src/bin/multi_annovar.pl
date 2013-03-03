@@ -11,9 +11,9 @@ my $LAST_CHANGED_DATE =	'$LastChangedDate: 2012-05-15 18:05:33 -0700 (Tue, 15 Ma
 my ($verbose, $help, $man);
 my ($queryfile, $dbloc);
 my ($outfile, $buildver, $anno, $checkfile, 
-    #$remove, $verdbsnp, $ver1000g, 
-    $genetype,
-    $gff3dbfile,$bedfile,
+    $remove,
+    #$verdbsnp, $ver1000g, 
+    $genetype,$gff3file,$bedfile,$custom_dbloc,
 );
 my @unlink; #global var containing files to be deleted
 #geneanno perhaps should exist
@@ -25,13 +25,14 @@ GetOptions(
     'outfile=s'		=>	\$outfile, 
     'buildver=s'	=>	\$buildver,
     'anno=s'		=>	\$anno, 
-    'gff3file=s'	=>	\$gff3dbfile,
+    'gff3file=s'	=>	\$gff3file,
     'bedfile=s'		=>	\$bedfile,
     'genetype=s'	=>	\$genetype,
     'checkfile!'	=>	\$checkfile,
+    'customdbloc=s'	=>	\$custom_dbloc,
     'remove'		=>	\$remove, 
 ) or pod2usage ();
-	
+
 $help and pod2usage (-verbose=>1, -exitval=>1, -output=>\*STDOUT);
 $man and pod2usage (-verbose=>2, -exitval=>1, -output=>\*STDOUT);
 @ARGV or pod2usage (-verbose=>0, -exitval=>1, -output=>\*STDOUT);
@@ -66,15 +67,49 @@ $genetype =~ m/^refgene|knowngene|ensgene|gencodegene$/i or $genetype =~ m/wgEnc
 
 if ($genetype eq 'gencodegene') 
 {
-	if ($buildver eq 'hg18') 
-	{
-		$genetype = 'wgEncodeGencodeManualV3';
-	} 
-	elsif ($buildver eq 'hg19') 
-	{
-		$genetype = 'wgEncodeGencodeManualV4';
-	}
+    if ($buildver eq 'hg18') 
+    {
+	$genetype = 'wgEncodeGencodeManualV3';
+    } 
+    elsif ($buildver eq 'hg19') 
+    {
+	$genetype = 'wgEncodeGencodeManualV4';
+    }
 }
+
+my %dbalias=(
+	'gene'=>'refGene', 
+	'refgene'=>'refGene', 
+	'knowngene'=>'knownGene', 
+	'ensgene'=>'ensGene', 
+	'band'=>'cytoBand', 
+	'cytoband'=>'cytoBand', 
+	'tfbs'=>'tfbsConsSites', 
+	'mirna'=>'wgRna',
+	'mirnatarget'=>'targetScanS', 
+	'segdup'=>'genomicSuperDups', 
+	'omimgene'=>'omimGene', 
+	'gwascatalog'=>'gwasCatalog',
+	'1000g_ceu'=>'CEU.sites.2009_04', 
+	'1000g_yri'=>'YRI.sites.2009_04', 
+	'1000g_jptchb'=>'JPTCHB.sites.2009_04',
+	'1000g2010_ceu'=>'CEU.sites.2010_03', 
+	'1000g2010_yri'=>'YRI.sites.2010_03', 
+	'1000g2010_jptchb'=>'JPTCHB.sites.2010_03',
+	'1000g2010jul_ceu'=>'CEU.sites.2010_07', 
+	'1000g2010jul_yri'=>'YRI.sites.2010_07', 
+	'1000g2010jul_jptchb'=>'JPTCHB.sites.2010_07',
+	'1000g2010nov_all'=>'ALL.sites.2010_11', 
+	'1000g2011may_all'=>'ALL.sites.2011_05'
+    );
+
+my @anno_names=split /,/,$anno;
+
+for (@anno_names)
+{
+    $_ =$dbalias{lc($_)} || lc($_);
+}
+
 #
 #if ($ver1000g eq '1000g') {
 #	$file1000g = '2009_04';
@@ -121,13 +156,14 @@ if ($genetype eq 'gencodegene')
 #	}
 #}
 
-$checkfile and checkFileExistence ($genetype,@anno_names);
 
+
+$checkfile and checkFileExistence ($genetype,@anno_names);
+#add functionality to check gff3 and bed files in the future
 
 #generate annotations
 #treat gene annotations and other annotations differently
 
-my $sc;
 #my @oute; #exome annotation output
 my @header; #genome annotation output
 my $otherinfo_file;
@@ -137,6 +173,7 @@ my %varanno; #varstring as key of 1st hash, anno_db as key of 2nd hash, anno as 
 if ($genetype)
 {
     #generate gene anno
+    my $sc;
     $sc = "annotate_variation.pl -geneanno -buildver $buildver -dbtype $genetype -outfile $outfile -exonsort $queryfile $dbloc";
     &run($sc);
     #read in gene anno
@@ -162,22 +199,23 @@ if ($genetype)
 	#$exonic = 1 if ($function =~ m/\b(splicing|exonic)\b/) 
 	#$exonic and print OUTE qq/"$function","$gene"/;
     }
+    close FUNCTION;
     while (<EFUNCTION>)
     {
 	m/^line\d+\t([^\t]+)\t(\S+)\t(\S+\s+\S+\s+\S+\s+\S+\s+\S+)/ or die "Error: invalid record found in annovar outputfile 2: <$_>\n";
-	my ($efun, $aachange, $varstring) = ($1, $2, $3);
+	my ($efunc, $aachange, $varstring) = ($1, $2, $3);
 	my @aachange = split (/:|,/, $aachange);
 
+	$varanno{$varstring}{ExonicFunc}=$efunc;
 	if (@aachange >= 5) 
-	    {
-		$varanno{$varstring}{ExonicFunc}=$efun;
-		$varanno{$varstring}{AAChange}="$aachange[1]:$aachange[3]:$aachange[4]"; #only output aachange in first transcript
-	    } else 
-	    {
-		$varanno{$varstring}{ExonicFunc}=$efun;
-		$varanno{$varstring}{AAChange}=$aachange;		#aachange could be "UNKNOWN"
-	    }
+	{
+	    $varanno{$varstring}{AAChange}="$aachange[1]:$aachange[3]:$aachange[4]"; #only output aachange in first transcript
+	} else 
+	{
+	    $varanno{$varstring}{AAChange}=$aachange;		#aachange could be "UNKNOWN"
+	}
     }
+    close EFUNCTION;
 }	
 
 #custom annotations
@@ -185,20 +223,19 @@ my @anno_outfile_list;
 #generate annotations
 if ($anno)
 {
-    my @anno_names=split /,/,$anno;
-    @anno_outfile_list,&_anno_gen("regular",@anno_names);
+    push @anno_outfile_list,&_anno_gen("regular",@anno_names);
 }
 if ($gff3file)
 {
     my @gff3file_names=split /,/,$gff3file;
     die "Only support 1 gff3 database\n" if @gff3file_names > 1;
-    @anno_outfile_list,&_anno_gen("gff3",@gff3file_names);
+    push @anno_outfile_list,&_anno_gen("gff3",@gff3file_names);
 }
 if ($bedfile)
 {
     my @bedfile_names=split /,/,$bedfile;
     die "Only support 1 bed database\n" if @bedfile_names > 1;
-    @anno_outfile_list,&_anno_gen("bed",@bedfile_names);
+    push @anno_outfile_list,&_anno_gen("bed",@bedfile_names);
 }
 
 if (@anno_outfile_list)
@@ -207,6 +244,7 @@ if (@anno_outfile_list)
     #-dbtype,-dbtype+-gff3dbfile,-dbtype+-bedfile
     for my $out (@anno_outfile_list)
     {
+	push @unlink,$out;
 	#read
 	$otherinfo_file=$out unless $otherinfo_file;
 	open IN,"<",$out or die "ERROR: Cannot read $out: $!\n";
@@ -234,27 +272,31 @@ if ($otherinfo_file)
 	m/^\S+\t[^\t]+\t(\S+\s+\S+\s+\S+\s+\S+\s+\S+)(.*)/ or die "Error: invalid record found in annovar outputfile: <$otherinfo_file>\n";
 	my ($varstring,$otherinfo)=($1,$2);
 	$varanno{$varstring}{Otherinfo}=$otherinfo;
-
     }
-    push @header,"Otherinfo"; #original header will be considered invalid input, so add header back after multi-anno result is given
+    push @header,"Otherinfo"; 
+    #original header will be considered invalid input
+    #in the future, add header back after multi-anno result is given
     close IN;
 }
 
 #prepare output
-my $final_out="$outfile.{$builver}_multianno.txt";
+my $final_out="$outfile.${buildver}_multianno.txt";
 open OUT,">",$final_out or die "Cannot write to $final_out: $!\n";
 
-print OUT,@header;
+print OUT join("\t",@header),"\n";
 for my $var(&chr_sort( keys %varanno))
 {
     my @oneline;
     for my $item (@header)
     {
-	push @oneline,$varanno{$var}{$item};
+	push @oneline,($varanno{$var}{$item} || "NA");
     }
-    print OUT,join ("\t",@oneline),"\n";
+    print OUT join ("\t",@oneline),"\n";
 }
 
+warn "NOTICE: Final output written to $final_out\n";
+
+map {unlink} @unlink if $remove;
 
 ##run step 1
 #if ($valistep{1}) {
@@ -688,34 +730,35 @@ for my $var(&chr_sort( keys %varanno))
 #		"$outfile.${buildver}_snp${verdbsnp}_dropped", "$outfile.${buildver}_avsift_dropped", "$outfile.${buildver}_ljb_all_dropped");
 #}
 
+#the below subroutine has problems!
 sub checkFileExistence 
 {
-     #   my @file = ("${buildver}_refGene.txt", "${buildver}_refLink.txt", "${buildver}_refGeneMrna.fa", "${buildver}_genomicSuperDups.txt", 
-     #   	"${buildver}_snp$verdbsnp.txt", "${buildver}_avsift.txt", "${buildver}_ljb_all.txt",  "${buildver}_esp5400_all.txt");
-     #   if ($buildver eq 'hg18') {
-     #   	push @file, "${buildver}_phastConsElements44way.txt";
-     #   	push @file, "${buildver}_CEU.sites.${file1000g}.txt", "${buildver}_YRI.sites.${file1000g}.txt", "${buildver}_JPTCHB.sites.${file1000g}.txt";
-     #   } elsif ($buildver eq 'hg19') {
-     #   	push @file, "${buildver}_phastConsElements46way.txt";
-     #   	push @file, "${buildver}_ALL.sites.${file1000g}.txt";
-     #   }
-     #   for my $i (0 .. @file-1) {
-     #   	my $dbfile = File::Spec->catfile ($dbloc, $file[$i]);
-     #   	-f $dbfile or die "Error: the required database file $dbfile does not exist. Please download it via -downdb argument by annotate_variation.pl.\n";
-     #   }
-my @anno_names=@_;
-my @anno_db_for_check;
+    #   my @file = ("${buildver}_refGene.txt", "${buildver}_refLink.txt", "${buildver}_refGeneMrna.fa", "${buildver}_genomicSuperDups.txt", 
+    #   	"${buildver}_snp$verdbsnp.txt", "${buildver}_avsift.txt", "${buildver}_ljb_all.txt",  "${buildver}_esp5400_all.txt");
+    #   if ($buildver eq 'hg18') {
+    #   	push @file, "${buildver}_phastConsElements44way.txt";
+    #   	push @file, "${buildver}_CEU.sites.${file1000g}.txt", "${buildver}_YRI.sites.${file1000g}.txt", "${buildver}_JPTCHB.sites.${file1000g}.txt";
+    #   } elsif ($buildver eq 'hg19') {
+    #   	push @file, "${buildver}_phastConsElements46way.txt";
+    #   	push @file, "${buildver}_ALL.sites.${file1000g}.txt";
+    #   }
+    #   for my $i (0 .. @file-1) {
+    #   	my $dbfile = File::Spec->catfile ($dbloc, $file[$i]);
+    #   	-f $dbfile or die "Error: the required database file $dbfile does not exist. Please download it via -downdb argument by annotate_variation.pl.\n";
+    #   }
+    my @db_names=@_;
+    my @db_for_check;
 
-map {push @anno_db_for_check,${buildver}_$_ } @anno_names;
+    map {push @db_for_check,"${buildver}_$_.txt" } @db_names;
 
 #to overcome case-sensitive matching problem, check file existence case-INsensitively
-my @all_db=glob File::Spec->catfile ($dbloc,"*");
-my $all_db_string = join (',',@all_db);
+    my @all_db=glob File::Spec->catfile ($dbloc,"*");
+    my $all_db_string = join (',',@all_db);
 
-for (@anno_db_for_check)
-{
-    $all_db_string =~ m/$_/i or die "Error: the required database file $dbfile does not exist. Please download it via -downdb argument by annotate_variation.pl.\n";
-}
+    for (@db_for_check)
+    {
+	$all_db_string =~ m/$_/i or die "Error: the required database file $_ does not exist. Please download it via -downdb argument by annotate_variation.pl.\n";
+    }
 }
 
 sub run
@@ -727,35 +770,34 @@ sub run
 
 sub _anno_gen
 {
-
     my ($type,@db)=@_;
+    die "No type for annotation!\n" unless $type;
     my $sc;
     my @out;
     if ($type eq "bed")
     {
 	for (@db)
 	{
-	    $sc = "annotate_variation.pl -regionanno -buildver $buildver -dbtype bed -bedfile $_ -outfile $outfile $queryfile $dbloc";
+	    $sc = "annotate_variation.pl -regionanno -buildver $buildver -dbtype bed -bedfile $_ -outfile $outfile $queryfile $custom_dbloc";
 	    &run($sc); 
-	    push @out,"$outfile.{$buildver}_bed";
+	    push @out,"$outfile.${buildver}_bed";
 	}
 
     }elsif ($type eq "gff3")
     {
 	for (@db)
 	{
-	    $sc = "annotate_variation.pl -regionanno -buildver $buildver -dbtype gff3 -bedfile $_ -outfile $outfile $queryfile $dbloc";
+	    $sc = "annotate_variation.pl -regionanno -buildver $buildver -dbtype gff3 -gff3dbfile $_ -outfile $outfile $queryfile $custom_dbloc";
 	    &run($sc); 
-	    push @out,"$outfile.{$buildver}_gff3";
+	    push @out,"$outfile.${buildver}_gff3";
 	}
-
     }else
     {
 	for (@db)
 	{
-	    $sc = "annotate_variation.pl -regionanno -buildver $buildver -dbtype $db -outfile $outfile $queryfile $dbloc";
+	    $sc = "annotate_variation.pl -regionanno -buildver $buildver -dbtype $_ -outfile $outfile $queryfile $dbloc";
 	    &run($sc);
-	    push @out,"$outfile.{$buildver}_$db";
+	    push @out,"$outfile.${buildver}_$_";
 	}
 
     }
@@ -768,20 +810,28 @@ sub chr_sort
     #sort chr1-22 numerically, X and others alphabetically
     my @varstring=@_;
     my @num_alpha_sorted;
+    my ($num_tmp,$alpha_tmp)=("tmp_num_$$","tmp_alpha_$$");
 
-    open NUM,"|sort -n - |" or die "Cannot open pipe to 'sort': $!\n";
-    open ALPHA,"|sort -k1 -d - | sort -k2,5 -n -| " or die "Cannot open pipe to 'sort': $!\n";
+    push @unlink,$num_tmp,$alpha_tmp;
+
+    open NUM,">",$num_tmp or die "Cannot open $num_tmp: $!\n";
+    open ALPHA,">",$alpha_tmp or die "Cannot open $alpha_tmp: $!\n";
 
     for (@varstring)
     {
 	if (/^\d/)
 	{
-	print NUM "$_\n";
-    } else
-    {
-	print ALPHA "$_\n";
+	    print NUM "$_\n";
+	} else
+	{
+	    print ALPHA "$_\n";
+	}
     }
-    }
+    close NUM;
+    close ALPHA;
+
+    open NUM,"sort -n $num_tmp |" or warn "Cannot open pipe to 'sort': $!\n";
+    open ALPHA,"sort -k1 -d $alpha_tmp | sort -k2,5 -n - |" or warn "Cannot open pipe to 'sort': $!\n";
 
     while (<NUM>)
     {
@@ -795,7 +845,7 @@ sub chr_sort
 	push @num_alpha_sorted,$_;
     }
     close ALPHA;
-    
+
     return @num_alpha_sorted; 
 }
 
@@ -838,13 +888,18 @@ sub chr_sort
 		    --ver1000g <string>		1000G version (default: 1000g2010nov)
 		    --genetype <string>		gene definition can be refgene (default), knowngene, ensgene
 		    --checkfile			check existence of database file (default: ON)
+    		    --anno <string>		comma-separated list of annotation items
+    		    --gff3file <string>		gff3 file for annotation
+    		    --bedfile <string>		bed file for annotation
+    		    --customdbloc <string>      database-location for gff3 and bed files
+		    --remove			remove temporary files
+		
+ Function: automatically annotate a list of variants with user selected 
+ databases and output results in a tab-delimited file, to be opened by 
+ Excel for further analysis.
 
- Function: automatically run a pipeline on a list of variants and summarize 
- their functional effects in a comma-delimited file, to be opened by Excel for 
- manual filtering
- 
- Example: summarize_annovar.pl ex2.human humandb/
- 
+ Example: multi_annovar.pl --anno mce44way,tfbs example.avinput humandb/
+
  Version: $LastChangedDate: 2012-05-15 18:05:33 -0700 (Tue, 15 May 2012) $
 
 =head1 OPTIONS
