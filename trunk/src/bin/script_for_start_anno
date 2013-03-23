@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for i in script_for_annotate_rs*
+do
+source $i
+done

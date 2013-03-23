@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+my @files=glob "*avinput";
+print "$files[1]\n";
+for my $file_name(@files) {
+	my ($rs_ID) = ($file_name =~ /(rs\d+)/);
+	print "\$rs_ID:$rs_ID\n";
+	if ($rs_ID) {
+		open FILE,">","script_for_annotate_$rs_ID" or die "Cannot create file script_for_annotate_$rs_ID: $!";
+	} else {
+		next;
+	}
+	print "Reading and editting $rs_ID script...\n";
+	open SOURCE_ANNO,"<","script_for_annotation_template";
+	while (<SOURCE_ANNO>) {
+		s/1Mb_SNP_merge\.avinput/$file_name/ig;
+		print FILE  $_;
+	}
+	close FILE;
+	close SOURCE_ANNO;
+}
+		
