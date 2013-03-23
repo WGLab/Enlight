@@ -1,0 +1,19 @@
+#######
+LOG file design
+FIELDS:		ID	DATE	TIME	IP	QUERYNAME	STATUS	ACS(access code)	PARAM
+CONTENT:	total+1	date	time	REMOTE_ADDR	userqueryname	queued/running/finished/aborted	UYT7UJH89	input=;plot=;anno=;
+
+##########
+Query cleaning mechanism
+create a script for cleaning finished queries at certain frequency
+a script for cleaning log file
+
+##########
+zombie cleaning
+controlling total number of running processes
+
+#########
+running duration stats (for estimating finishing time, kill proc that takes long time)
+
+######
+subroutines are written with returns values like those seen in system() (return 0 if failure,1 if success)

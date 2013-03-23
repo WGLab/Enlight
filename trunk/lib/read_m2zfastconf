@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+
+M2ZFAST_CONF="../conf/m2zfast.conf";
+
+class Conf(object):
+  def __init__(self,conf_file):
+    self._load(conf_file);
+
+  def _load(self,file):
+    conf_dict = {};
+    execfile(file,conf_dict);
+
+    for k,v in conf_dict.iteritems():
+      exec "self.%s = v" % str(k);
+
+def getConf(conf_file=M2ZFAST_CONF):
+  #conf_file = find_relative(conf_file);
+  conf = Conf(conf_file);
+  return conf;
+
+def getLDInfo(pop,source,build,ld_db):
+  if source in ld_db:
+    node = ld_db[source];
+    if build in node:
+      node = node[build];
+      if pop in node:
+        # Success! File paths are known for this DB/build/population trio.
+        return node[pop];
+
+  # If we make it here, the supplied combination of source/build/pop is not supported.
+  return "";
+
+conf = getConf();
+result = getLDInfo ("EUR","1000G_Nov2010","hg19",conf.LD_DB);
+
+print conf.LD_DB['1000G_Nov2010'];
