@@ -1,0 +1,30 @@
+#!/usr/bin/env perl
+#this script takes annovar input files as input.
+use strict;
+#use warnings;
+
+my %snp_loci;
+my %snp_chr;
+while (<>) {
+	chomp;
+	/(\d+|X|Y)\s+(\d+)\s+\d+\s+\w+\s+\w+\s+(\w+)/;
+#notice the opposite reference here!
+	my ($snp,$coord,$chr)=($3,$2,$1);
+#print "chr:$1,locus:$2,ID:$3\n";
+	not $snp_loci{$snp} and $snp_loci{$snp}=$coord;
+	not $snp_chr{$snp} and $snp_chr{$snp}=$chr;
+}
+print "Trying to retrieve SNPs near the following SNPs from 1000 genomes project database.\n
+chr\tcoordinate","\t" x 5,"rs#\n";
+foreach my $snp( keys %snp_loci) {
+	print "$snp_chr{$snp}\t$snp_loci{$snp}","\t" x 5,"$snp\n";
+}
+foreach my $snp( keys %snp_loci) {
+	my $range="$snp_chr{$snp}:".($snp_loci{$snp}-5e5)."-".($snp_loci{$snp}+5e5);
+	#print "range is $range\n";
+	open STDOUT,">","${snp}_nearby_SNP.vcf";
+	print STDERR "Now executing: tabix ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20110521/ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites.vcf.gz $range > ${snp}_nearby_SNP.vcf\n";
+	system "tabix","ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20110521/ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites.vcf.gz",$range;
+	close STDOUT;
+}
+#ATTENTION! SNPs retrieved by this method may have duplicates.

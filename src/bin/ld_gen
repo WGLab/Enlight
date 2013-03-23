@@ -1,0 +1,26 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+my @regions=("50kb","20kb");
+for my $region ( @regions)
+{
+    for my $file ( glob "rs*_summary_mecc_ccfr.txt" )
+    {
+	my $snp= $file;
+	$snp =~ s/_summary_mecc_ccfr.txt//;
+	my $result;
+	next if $snp eq 'rs5934683';
+	if ($snp eq 'rs7758229')
+	{
+	    $result=system("/home/yunfeiguo/projects/locuszoom-encode/bin/locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --generic wgEncodeUwDnaseCaco2HotspotsRep1,wgEncodeUwTfbsHct116CtcfStdHotspotsRep1 --pop ASN --prefix ${region}_region --metal $file --flank $region --refsnp $snp --pvalcol ccfr_p --no-date --no-cleanup");
+	    #print ("/home/yunfeiguo/projects/locuszoom-encode/bin/locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop ASN --metal $file --flank 500kb --refsnp $snp --pvalcol ccfr_p --no-date --no-cleanup\n");
+	} else
+	{
+	    #print ("/home/yunfeiguo/projects/locuszoom-encode/bin/locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --metal $file --flank 500kb --refsnp $snp --pvalcol ccfr_p --no-date --no-cleanup\n");
+	    $result=system("/home/yunfeiguo/projects/locuszoom-encode/bin/locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010  --generic wgEncodeUwDnaseCaco2HotspotsRep1,wgEncodeUwTfbsHct116CtcfStdHotspotsRep1 --pop EUR --metal $file --prefix ${region}_region --flank $region --refsnp $snp --pvalcol ccfr_p --no-date --no-cleanup");
+	}
+	die if $result;
+    }
+}

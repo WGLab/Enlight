@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for i in rs*.tmp.script
+do
+chmod 744 $i
+./$i &
+done

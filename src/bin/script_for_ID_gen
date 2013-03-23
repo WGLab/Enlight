@@ -1,0 +1,6 @@
+#!/bin/bash
+for i in *.avinput
+do
+awk '{print ""$1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$1$2$3$4$5"\n"}' $i > $i.tmp
+cat $i.tmp > $i
+done

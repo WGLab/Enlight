@@ -1,0 +1,200 @@
+summarize_annovar.pl -buildver hg19 -verdbsnp 135 -ver1000g 1000g2012feb -remove 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype burgeRnaSeqGemMapperAlignColonAllRawSignal 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype cosmic 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype cpgIslandExt -colsWanted 4,5,6,7,8,9,10 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype cytoBand 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype gwasCatalog -colsWanted 10,15,17,19,22 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype knownAlt 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype lincRNAsCTColon -colsWanted 4,6 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype rgdQtl 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype tfbsConsSites -colsWanted 4,7 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3CtcfStdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3CtcfStdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H2azPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H2azPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k04me1StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k04me1StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k09me3Pk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k09me3Pk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k27acStdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k27acStdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k27me3StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k27me3StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k36me3StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k36me3StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k4me2StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k4me2StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k4me3StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k4me3StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k79me2StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k79me2StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k9acStdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H3k9acStdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H4k20me1StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3H4k20me1StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3Pol2bStdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeBroadHistoneHelas3Pol2bStdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeGisChiaPetHct116Pol2InteractionsRep1 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeGisChiaPetHelas3Pol2InteractionsRep1 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibGenotypeCaco2RegionsRep1 -colsWanted 4,10 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibGenotypeHelas3RegionsRep2 -colsWanted 4,10 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethyl450Caco2SitesRep1 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethyl450Hct116HaibSitesRep1 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethyl450Hct116StanfordSitesRep1 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethyl450Helas3SitesRep1 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethylRrbsCaco2UwSitesRep1 -colsWanted 4,11 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethylRrbsCaco2UwSitesRep2 -colsWanted 4,11 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethylRrbsHct116StanfordSitesRep1 -colsWanted 4,11 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethylRrbsHct116StanfordSitesRep2 -colsWanted 4,11 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethylRrbsHct116YalegrowprotSitesRep1 -colsWanted 4,11 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethylRrbsHct116YalegrowprotSitesRep2 -colsWanted 4,11 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethylRrbsHelas3HaibSitesRep1 -colsWanted 4,11 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethylRrbsHelas3HaibSitesRep2 -colsWanted 4,11 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethylRrbsHelas3HudsonalphagrowprotSitesRep1 -colsWanted 4,11 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibMethylRrbsHelas3HudsonalphagrowprotSitesRep2 -colsWanted 4,11 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHct116Pol24h8V0416101PkRep1 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHct116Pol24h8V0416101PkRep2 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHct116Yy1sc281V0416101PkRep1 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHct116Yy1sc281V0416101PkRep2 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHct116Zbtb33V0416101PkRep1 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHct116Zbtb33V0416101PkRep2 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHelas3GabpPcr1xPkRep1 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHelas3GabpPcr1xPkRep2 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHelas3NrsfPcr1xPkRep1 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHelas3NrsfPcr1xPkRep2 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHelas3Pol2Pcr1xPkRep1 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHelas3Pol2Pcr1xPkRep2 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHelas3Taf1Pcr1xPkRep1 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeHaibTfbsHelas3Taf1Pcr1xPkRep2 -colsWanted 4,7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeOpenChromSynthHelas3Ifna4hPk -colsWanted 21 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeOpenChromSynthHelas3Pk -colsWanted 21 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeRegDnaseClustered -colsWanted 4 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeRegTfbsClusteredV2 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeRikenCageHelas3CellPapTssHmm -colsWanted 7,8 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeRikenCageHelas3CytosolPamTssHmmV2 -colsWanted 7,8 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeRikenCageHelas3NucleolusTotalTssHmmV2 -colsWanted 7,8 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeRikenCageHelas3NucleusPamTssHmm -colsWanted 7,8 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeRikenCageHelas3NucleusPapTssHmm -colsWanted 7,8 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSunyAlbanyGeneStHelas3Elavl1RbpAssocRnaV2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSunyAlbanyGeneStHelas3Pabpc1RbpAssocRnaV2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSunyAlbanyGeneStHelas3RipinputRbpAssocRnaV2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSunyAlbanyGeneStHelas3T7tagRbpAssocRnaV2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhHistoneHct116H3k04me1UcdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhHistoneHct116H3k27acUcdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHct116Pol2UcdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHct116Tcf7l2UcdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Ap2alphaStdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Ap2gammaStdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Baf155IggmusPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Baf170IggmusPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Bdp1StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Brca1a300IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Brf1StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Brf2StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Brg1IggmusPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3CebpbIggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3CfosStdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Chd2IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3CjunIggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3CmycStdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Corestsc30189IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3E2f1StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3E2f4StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3E2f6StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Elk112771IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Elk4UcdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Gcn5StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Gtf2f1ab28179IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Hae2f1StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Ini1IggmusPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Irf3IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3JundIggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3MafkIggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3MaxIggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3MaxStdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Mazab85725IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Mxi1af4185IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3NfyaIggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3NfybIggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Nrf1IggmusPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3P300sc584sc584IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Pol2s2IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Pol2StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Prdm19115IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Rad21IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Rfx5200401194IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Rpc155StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Smc3ab9263IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Spt20StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Stat1Ifng30StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Stat3IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3TbpIggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Tcf7l2c9b92565UcdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Tcf7l2UcdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Tf3c110StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Tr4StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Usf2IggmusPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Zkscan1hpa006672IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Znf143IggrabPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Znf274UcdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeSydhTfbsHelas3Zzz3StdPk -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwAffyExonArrayCaco2SimpleSignalRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwAffyExonArrayCaco2SimpleSignalRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwAffyExonArrayHct116SimpleSignalRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwAffyExonArrayHct116SimpleSignalRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwAffyExonArrayHelas3SimpleSignalRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwAffyExonArrayHelas3SimpleSignalRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwDnaseCaco2HotspotsRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwDnaseCaco2HotspotsRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwDnaseCaco2PkRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwDnaseCaco2PkRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwDnaseHct116HotspotsRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwDnaseHct116HotspotsRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwDnaseHct116PkRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwDnaseHct116PkRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwDnaseHelas3HotspotsRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwDnaseHelas3HotspotsRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwDnaseHelas3PkRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwDnaseHelas3PkRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneCaco2H3k27me3StdHotspotsRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneCaco2H3k27me3StdHotspotsRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneCaco2H3k27me3StdPkRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneCaco2H3k27me3StdPkRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneCaco2H3k36me3StdHotspotsRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneCaco2H3k36me3StdHotspotsRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneCaco2H3k36me3StdPkRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneCaco2H3k36me3StdPkRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneCaco2H3k4me3StdHotspotsRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneCaco2H3k4me3StdHotspotsRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneCaco2H3k4me3StdPkRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneCaco2H3k4me3StdPkRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHct116H3k4me3StdHotspotsRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHct116H3k4me3StdHotspotsRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHct116H3k4me3StdPkRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHct116H3k4me3StdPkRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHelas3H3k27me3StdHotspotsRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHelas3H3k27me3StdHotspotsRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHelas3H3k27me3StdPkRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHelas3H3k27me3StdPkRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHelas3H3k36me3StdHotspotsRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHelas3H3k36me3StdHotspotsRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHelas3H3k36me3StdPkRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHelas3H3k36me3StdPkRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHelas3H3k4me3StdHotspotsRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHelas3H3k4me3StdHotspotsRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHelas3H3k4me3StdPkRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwHistoneHelas3H3k4me3StdPkRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwRepliSeqHelas3PkRep1 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwRepliSeqHelas3ValleysRep1 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwTfbsCaco2CtcfStdHotspotsRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwTfbsCaco2CtcfStdHotspotsRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwTfbsCaco2CtcfStdPkRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwTfbsCaco2CtcfStdPkRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwTfbsHct116CtcfStdHotspotsRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwTfbsHct116CtcfStdHotspotsRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwTfbsHct116CtcfStdPkRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwTfbsHct116CtcfStdPkRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwTfbsHelas3CtcfStdHotspotsRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwTfbsHelas3CtcfStdHotspotsRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwTfbsHelas3CtcfStdPkRep1 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
+annotate_variation.pl -buildver hg19 -regionanno -dbtype wgEncodeUwTfbsHelas3CtcfStdPkRep2 -colsWanted 7,8,9 -scorecolumn 5 1Mb_SNP_merge.avinput ~/Downloads/annovar/humandb/
