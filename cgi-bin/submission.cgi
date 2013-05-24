@@ -1,5 +1,4 @@
-#!/usr/bin/perl
-#-T taint checking
+#!/usr/bin/perl -T
 
 use strict;
 use warnings;
@@ -11,19 +10,33 @@ use Utils;
 
 
 #read global configurations
-my %server_conf=Utils::readServConf("$RealBin/../conf/annoenlight_server.conf") or die "Reading server configuration file failed!\n";
-$CGI::POST_MAX = 1024 * 1024 * $server_conf{'maxupload'}; #max upload size
+my %server_conf=Utils::readServConf("$RealBin/../conf/annoenlight_server.conf","$RealBin/..")
+    or die "Reading server configuration file failed!\n";
 
-
-
-
-
-#create a webpage
 #read list of available locuszoom databases
-my @ref_source_pop=sort {$a <=> $b } (grep {/^\d/} (keys %server_conf)); #/^\d/ since only keys are numeric
-my %ref_source_pop_label=map {($_,$server_conf{$_})} @ref_source_pop; 
-my $flank_default="200kb";
+my $flank_default=$server_conf{"flank_default"};
+my $generic_table_max=$server_conf{"generic_table_max"};
 
+my @ref=('hg18','hg19');
+my $ref_default='hg19';
+my %ref_label=('hg19'=>'hg19','hg18'=>'hg18');
+
+my @source_ref_pop= sort (map {$server_conf{$_} if /^\d+$/} (keys %server_conf)); #/^\d/ since only keys are numeric, first one will be default
+my %source_ref_pop_label=map {($_,$_)} @source_ref_pop; 
+
+my @non_generic_table=('recomb_rate','refFlat','refsnp_trans', 'snp_pos');
+my $db=$server_conf{$ref_default."db"}; #only use table list from one db, don't forget to check the other one!
+my @generic_table=sort (Utils::listGeneric($db,@non_generic_table));
+push @generic_table,""; #no generic plot if using empty table
+my %generic_table_label=map {($_,$_)} @generic_table;
+my @generic_table_html;
+my @qformat=("whitespace","tab","comma");
+my %qformat_label=map {($_,$_)} @qformat;
+my $qformat_default="whitespace";
+my $dateSecurity=`date +%d`; #security number for human being detection
+chomp $dateSecurity;
+
+################html generation###############
 my $q=new CGI::Pretty;
 print $q->header;
 print $q->start_html(-title=>"AnnoEnlight Homepage");
@@ -31,17 +44,25 @@ print $q->start_form(-action=>"process.cgi",-method=>"post");
 print $q->table(
     {-border=>0},
     $q->Tr(
+	$q->td("Type \'$dateSecurity\' to prove you are a human being)"),
+	$q->td($q->textfield(-name=>"security_code")),
+    ),
+    $q->Tr(
 	$q->td("Input file"),
 	$q->td($q->filefield(-name=>"query")),
     ),
     $q->Tr(
+	$q->td("Field delimiter"),
+	$q->td($q->radio_group(-name=>"qformat",-values=>\@qformat,-labels=>\%qformat_label,-default=>$qformat_default)),
+    ),
+    $q->Tr(
 	$q->td("Marker Column"),
-	$q->td($q->textfield('markercol')),
+	$q->td($q->textfield(-name=>'markercol',-default=>'snpname')),
     ),
     $q->Tr(
 	$q->td('Genome Build/LD source/Population'),
 	$q->td(
-	    $q->popup_menu(-name=>'ref_source_pop',-values=> \@ref_source_pop,-labels=>\%ref_source_pop_label)
+	    $q->popup_menu(-name=>'source_ref_pop',-values=> \@source_ref_pop,-labels=>\%source_ref_pop_label)
 	),
     ),
     $q->Tr(
@@ -58,8 +79,30 @@ print $q->table(
     ),
     $q->Tr(
 	$q->td("P value column"),
-	$q->td($q->textfield("pvalcol")),
+	$q->td($q->textfield(-name=>"pvalcol",-default=>'p')),
     ),
+);
+
+print $q->table(
+    {-border=>1},
+    $q->caption("Generic plot (using UCSC BED tables)"),
+    $q->Tr(
+	$q->td(""),
+	$q->td($q->checkbox(-name=>'generic_toggle',-checked=>1,-label=>'Generic plot?')), #return 'ON' if checked
+    ),
+    $q->Tr(
+	$q->td(""),
+	$q->td($q->checkbox(-name=>'anno_toggle',-checked=>1,-label=>'Output annotation?')), #return 'ON' if checked
+    ),
+    $q->Tr(
+	$q->td("Genome Build"),
+	$q->td($q->radio_group(-name=>'ref',-values=>\@ref,-default=>$ref_default,-labels=>\%ref_label)),
+	),
+	#@generic_table_html,
+	$q->Tr(
+	    $q->td("Generic data track (Press Ctrl to select multiple tracks)"),
+	    $q->td($q->scrolling_list(-name=>'generic_table',-values=>\@generic_table,-multiple=>'true',-labels=>\%generic_table_label,-size=>10))
+	),
 );
 print $q->p($q->submit("submit"),$q->reset());
 print $q->end_form(),$q->end_html();
