@@ -52,48 +52,55 @@ sub getstore
 }
 
 #untars a package. Tries to use tar first then moves to the perl package untar Module.
-sub extract_archive 
+sub extract_archive
 {
     my $file = shift;
-    my $outfile = shift;
+    my $dir = shift;
     
-    return 0 unless ($file && $outfile);
+    return 0 unless ($file && $dir);
     
-    if ($file=~/\.zip$/i && &sys_which("unzip")) 
+    my $cwd=cwd;
+    chdir($dir);
+    
+    if ($file=~/\.zip$/ && &sys_which("unzip")) 
     {
 	my $command;
-	$command="unzip -p $file > $outfile";
-	return !system($command); 
-    } 
-    elsif ($file=~/tar\.gz$|\.tgz$|\.bz2?$|\.tbz2?$|\.tar$/i && &sys_which("tar"))
+	$command="unzip -o $file";
+	my $result=!system($command);
+	chdir($cwd);
+	return $result;
+    }
+    elsif ($file=~/tar\.gz$|\.tgz$|\.bz2?$|\.tbz2?$|\.tar$/ && &sys_which("tar"))
     {
 	my $command;
 	my $u = scalar getpwuid($>);
 	my $g = scalar getgrgid($));
 	if($file =~ /\.gz$|\.tgz$/){
-	    $command = "tar -zxmO -f $file > $outfile";
+	    $command = "tar -zxm -f $file";
 	}
 	elsif($file =~ /\.bz2?$|\.tbz2?$/){
-	    $command = "tar -jxmO -f $file > $outfile";
+	    $command = "tar -jxm -f $file";
 	}
 	elsif ($file=~/\.tar$/) {
-	    $command = "tar -xmO -f $file > $outfile";
+	    $command = "tar -xm -f $file";
 	}
 	$command .= " --owner $u --group $g";
 	$command .= " --overwrite";
 	
-	return !system($command);
-    } 
-    elsif ($file=~/\.gz$/i && &sys_which("gzip")) 
+	my $result=!system($command);
+	chdir($cwd);
+	return $result;
+    }
+    elsif ($file=~/\.gz$/ && &sys_which("gunzip"))
     {
-	my $command="gzip -cd $file > $outfile";
-	return !system($command);
-
+	my $command="gunzip -f $file";
+	my $result=!system($command);
+	chdir($cwd);
+	return $result;
     }
     else
     {
-	warn "Unknown filetype or cannot find gunzip, or tar or unzip, please unpack $file manually\n";
-	return 0;
+	die "Incorrect filename suffix or failed to find gunzip, or tar or unzip, please unpack $file manually\n";
     }
 
 }
@@ -379,6 +386,7 @@ sub sys_which
 sub readServConf
 {
     my $conf=shift;
+    my $install_dir=shift;
     my %param;
     open IN,"<",$conf or die "Cannot open server configuration $conf\n";
     while (<IN>)
@@ -393,6 +401,7 @@ sub readServConf
 	my ($key,$value)=($1,$2);
 	$key=~s/\s+//g;
 	$value=~s/\s+//g;
+	$value=~s/^install_dir/$install_dir/;
 	if ($param{$key})
 	{
 	    warn "Duplicate paramter!\n";
@@ -408,11 +417,25 @@ sub readServConf
     return %param;
 }
 
-
-
-
+sub listGeneric
+{
+    #return tables of db, non_generic ones removed
+    my $db=shift;
+    my @non_generic=@_;
+    &sys_which('sqlite3') or die "Cannot find SQLite3\n";
+    &sys_which('xargs') or die "Cannot find xargs\n";
+    my $table_list=`sqlite3 $db .tables 2>/dev/null | xargs`;
+    chomp $table_list;
+    map {$table_list =~ s/$_//gi} @non_generic;
+    $table_list =~ s/^\s+|\s+$//; #del leading or trailing whitespaces
+    return (split /\s+/,$table_list);
+}
+  
+    
+    
+    
 1;
-
+    
 =head1 Utils
 
 Utils: package with various utilities for downloading, untar,
@@ -421,23 +444,23 @@ Utils: package with various utilities for downloading, untar,
 
 use Utils;
 
-Utils::getstore($url,$file_name,$user,$pass);
-Utils::extract_archive($file,$outfile);
-Utils::config_edit({
-		programs        =>      ["P_test","p_postprocess"],
-		level           =>      4,
-		file            =>      "/home/yunfeiguo/tmp",
-		del             =>      15,
-	});
-Utils::search_db({
-			type => "dbsnp",
-			target => $dbsnp,
-			build => $buildver,
-			version => $dbsnpver,
-			install_dir => $install_dir,
-		})
-Utils::search($install_dir,"Rscript","local")
-$phred_scheme=Utils::phred_score_check(threshold,readcount,@files);
+ Utils::getstore($url,$file_name,$user,$pass);
+ Utils::extract_archive($file,$outfile);
+ Utils::config_edit({
+ programs        =>      ["P_test","p_postprocess"],
+ level           =>      4,
+ file            =>      "/home/yunfeiguo/tmp",
+ del             =>      15,
+ });
+ Utils::search_db({
+ type => "dbsnp",
+ target => $dbsnp,
+ build => $buildver,
+ version => $dbsnpver,
+ install_dir => $install_dir,
+ })
+ Utils::search($install_dir,"Rscript","local")
+ $phred_scheme=Utils::phred_score_check(threshold,readcount,@files);
 
 =head1 AUTHOR
 
