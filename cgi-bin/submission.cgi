@@ -7,6 +7,7 @@ use CGI::Carp qw/fatalsToBrowser/;
 use FindBin qw/$RealBin/;
 use lib "$RealBin/../lib";
 use Utils;
+use Captcha::reCAPTCHA;
 
 
 #read global configurations
@@ -33,20 +34,23 @@ my @generic_table_html;
 my @qformat=("whitespace","tab","comma");
 my %qformat_label=map {($_,$_)} @qformat;
 my $qformat_default="whitespace";
-my $dateSecurity=`date +%d`; #security number for human being detection
-chomp $dateSecurity;
 
 ################html generation###############
 my $q=new CGI::Pretty;
+my $c=new Captcha::reCAPTCHA;
 print $q->header;
 print $q->start_html(-title=>"AnnoEnlight Homepage");
+#change reCAPTCHA theme here
+print <<RECAPTCHA;
+<script type="text/javascript">
+ var RecaptchaOptions = {
+    theme : 'clean'
+ };
+ </script>
+RECAPTCHA
 print $q->start_form(-action=>"process.cgi",-method=>"post");
 print $q->table(
     {-border=>0},
-    $q->Tr(
-	$q->td("Type \'$dateSecurity\' to prove you are a human being)"),
-	$q->td($q->textfield(-name=>"security_code")),
-    ),
     $q->Tr(
 	$q->td("Input file"),
 	$q->td($q->filefield(-name=>"query")),
@@ -104,6 +108,7 @@ print $q->table(
 	    $q->td($q->scrolling_list(-name=>'generic_table',-values=>\@generic_table,-multiple=>'true',-labels=>\%generic_table_label,-size=>10))
 	),
 );
+print $c->get_html("reCAPTCHA_public_key");
 print $q->p($q->submit("submit"),$q->reset());
 print $q->end_form(),$q->end_html();
 
