@@ -8,10 +8,11 @@ use FindBin qw/$RealBin/;
 use lib "$RealBin/../lib";
 use Utils;
 use Captcha::reCAPTCHA;
+use File::Spec;
 
 
 #read global configurations
-my %server_conf=Utils::readServConf("$RealBin/../conf/annoenlight_server.conf","$RealBin/..")
+my %server_conf=&Utils::readServConf("$RealBin/../conf/annoenlight_server.conf","$RealBin/..")
     or die "Reading server configuration file failed!\n";
 
 #read list of available locuszoom databases
@@ -22,15 +23,17 @@ my @ref=('hg18','hg19');
 my $ref_default='hg19';
 my %ref_label=('hg19'=>'hg19','hg18'=>'hg18');
 
-my @source_ref_pop= sort (map {$server_conf{$_} if /^\d+$/} (keys %server_conf)); #/^\d/ since only keys are numeric, first one will be default
+my @source_ref_pop= sort (map {$server_conf{$_}} grep { /^\d+$/ } (keys %server_conf) ); #/^\d/ since only keys are numeric, first one will be default
 my %source_ref_pop_label=map {($_,$_)} @source_ref_pop; 
 
 my @non_generic_table=('recomb_rate','refFlat','refsnp_trans', 'snp_pos');
 my $db=$server_conf{$ref_default."db"}; #only use table list from one db, don't forget to check the other one!
-my @generic_table=sort (Utils::listGeneric($db,@non_generic_table));
-push @generic_table,""; #no generic plot if using empty table
+my @generic_table= sort &Utils::listGeneric (
+					   File::Spec->catfile($RealBin,"..",$db),@non_generic_table
+				          );
+push @generic_table,"" unless @generic_table; #no generic plot if using empty table
+
 my %generic_table_label=map {($_,$_)} @generic_table;
-my @generic_table_html;
 my @qformat=("whitespace","tab","comma");
 my %qformat_label=map {($_,$_)} @qformat;
 my $qformat_default="whitespace";
@@ -101,12 +104,11 @@ print $q->table(
     $q->Tr(
 	$q->td("Genome Build"),
 	$q->td($q->radio_group(-name=>'ref',-values=>\@ref,-default=>$ref_default,-labels=>\%ref_label)),
-	),
-	#@generic_table_html,
-	$q->Tr(
-	    $q->td("Generic data track (Press Ctrl to select multiple tracks)"),
-	    $q->td($q->scrolling_list(-name=>'generic_table',-values=>\@generic_table,-multiple=>'true',-labels=>\%generic_table_label,-size=>10))
-	),
+    ),
+    $q->Tr(
+	$q->td("Generic data track (Press Ctrl to select multiple tracks)"),
+	$q->td($q->scrolling_list(-name=>'generic_table',-values=>\@generic_table,-multiple=>'true',-labels=>\%generic_table_label,-size=>10)),
+    ),
 );
 print $c->get_html("reCAPTCHA_public_key");
 print $q->p($q->submit("submit"),$q->reset());
