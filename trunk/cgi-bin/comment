@@ -1,7 +1,7 @@
 #######
 serverdb file design
-FIELDS:		ID	DATE	TIME	IP	QUERYNAME	STATUS	ACS(access code)	PARAM
-CONTENT:	total+1	date	time	REMOTE_ADDR	userqueryname	queued/running/finished/aborted	UYT7UJH8	input=;plot=;anno=;
+FIELDS:		ID	DATE	TIME	IP		QUERYNAME	PID	STATUS	ACS(access code)	PARAM
+CONTENT:	total+1	date	time	REMOTE_ADDR	userqueryname	12345	q/r/f/e	UYT7UJH8D81SDJ	input=;plot=;anno=;
 
 ##########
 Query cleaning mechanism
