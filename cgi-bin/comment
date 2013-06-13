@@ -17,3 +17,7 @@ running duration stats (for estimating finishing time, kill proc that takes long
 
 ######
 subroutines are written with returns values like those seen in system() (return 0 if failure,1 if success)
+
+
+######
+tables in both hg18 and hg19 database must have same list of names
