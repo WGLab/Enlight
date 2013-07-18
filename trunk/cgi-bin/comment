@@ -1,7 +1,7 @@
 #######
 serverdb file design
-FIELDS:		ID	DATE	TIME	IP		QUERYNAME	PID	STATUS	ACS(access code)	PARAM
-CONTENT:	total+1	date	time	REMOTE_ADDR	userqueryname	12345	q/r/f/e	UYT7UJH8D81SDJ	input=;plot=;anno=;
+FIELDS:		ID	DATE	TIME	IP		QUERYNAME	PID	STATUS	BEGIN	ACS(access code)	PARAM
+CONTENT:	total+1	date	time	REMOTE_ADDR	userqueryname	12345	q/r/f/e/c	1374169609	UYT7UJH8D81SDJ	input=;plot=;anno=;
 
 ##########
 Query cleaning mechanism
@@ -17,7 +17,6 @@ running duration stats (for estimating finishing time, kill proc that takes long
 
 ######
 subroutines are written with returns values like those seen in system() (return 0 if failure,1 if success)
-
 
 ######
 tables in both hg18 and hg19 database must have same list of names
