@@ -3,6 +3,12 @@ package Utils;
 use strict;
 use warnings;
 
+sub rndStr
+{
+    #usage: &rndStr(INT,@stringOfchar)
+    #output random string of length INT consisting of characters from @stringOfchar
+    join '',@_[ map {rand @_} 1 .. shift ];
+}
 sub readServConf
 {
     my $conf=shift;
@@ -21,17 +27,12 @@ sub readServConf
 	my ($key,$value)=($1,$2);
 	$key=~s/\s+//g;
 	$value=~s/\s+//g;
-	$value=~s/^install_dir/$install_dir/;
 	if ($param{$key})
 	{
 	    warn "Duplicate paramter!\n";
 	    return undef;
 	}
-	unless ( ($key && $value) )
-	{
-	    warn "Missing parameter or its value\n";
-	    return undef;
-	}
+	next unless $key;
 	$param{$key}=$value;
     }
     return %param;
@@ -56,11 +57,11 @@ sub listGeneric
     $table_list =~ s/^\s+|\s+$//; #del leading or trailing whitespaces
     return (split /\s+/,$table_list);
 }
-    
-    
-    
+
+
+
 1;
-    
+
 =head1 Utils
 
 Utils: package with various utilities for downloading, untar,
