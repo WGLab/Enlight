@@ -1,8 +1,8 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -T
 
 use strict;
 use warnings;
-use CGI::Pretty;
+use CGI;
 use CGI::Carp qw/fatalsToBrowser/;
 use FindBin qw/$RealBin/;
 use lib "$RealBin/../lib";
@@ -12,7 +12,7 @@ use File::Spec;
 
 
 #read global configurations
-my %server_conf=&Utils::readServConf("$RealBin/../conf/annoenlight_server.conf","$RealBin/..")
+my %server_conf=&Utils::readServConf("$RealBin/../conf/enlight_server.conf","$RealBin/..")
     or die "Reading server configuration file failed!\n";
 
 #read list of available locuszoom databases
@@ -28,10 +28,8 @@ my %source_ref_pop_label=map {($_,$_)} @source_ref_pop;
 
 my @non_generic_table=('recomb_rate','refFlat','refsnp_trans', 'snp_pos');
 my $db=$server_conf{$ref_default."db"}; #only use table list from one db, don't forget to check the other one!
-my @generic_table= sort &Utils::listGeneric (
-					   File::Spec->catfile($RealBin,"..",$db),@non_generic_table
-				          );
-push @generic_table,"" unless @generic_table; #no generic plot if using empty table
+my @generic_table= sort &listGeneric (  File::Spec->catfile($RealBin,"..",$db),@non_generic_table      );
+push @generic_table,"" unless @generic_table; #no generic plot if using empty database
 
 my %generic_table_label=map {($_,$_)} @generic_table;
 my @qformat=("whitespace","tab","comma");
@@ -39,10 +37,10 @@ my %qformat_label=map {($_,$_)} @qformat;
 my $qformat_default="whitespace";
 
 ################html generation###############
-my $q=new CGI::Pretty;
+my $q=new CGI;
 my $c=new Captcha::reCAPTCHA;
-print $q->header;
-print $q->start_html(-title=>"AnnoEnlight Homepage");
+
+print $q->header,$q->start_html(-title=>"Enlight Homepage");
 #change reCAPTCHA theme here
 print <<RECAPTCHA;
 <script type="text/javascript">
@@ -54,6 +52,10 @@ RECAPTCHA
 print $q->start_form(-action=>"process.cgi",-method=>"post");
 print $q->table(
     {-border=>0},
+    $q->Tr(
+	$q->td("Email (optional)"),
+	$q->td($q->textfield(-name=>'email')),
+    ),
     $q->Tr(
 	$q->td("Input file"),
 	$q->td($q->filefield(-name=>"query")),
@@ -90,15 +92,21 @@ print $q->table(
     ),
 );
 
+print $q->p($q->b("Generic plot (using UCSC BED tables)"));
 print $q->table(
-    {-border=>1},
-    $q->caption("Generic plot (using UCSC BED tables)"),
     $q->Tr(
-	$q->td(""),
 	$q->td($q->checkbox(-name=>'generic_toggle',-checked=>1,-label=>'Generic plot?')), #return 'ON' if checked
     ),
     $q->Tr(
-	$q->td(""),
+	$q->td($q->checkbox(-name=>'anno_toggle',-checked=>1,-label=>'Output annotation?')), #return 'ON' if checked
+    ),
+);
+print $q->table(
+    {-border=>1},
+    $q->Tr(
+	$q->td($q->checkbox(-name=>'generic_toggle',-checked=>1,-label=>'Generic plot?')), #return 'ON' if checked
+    ),
+    $q->Tr(
 	$q->td($q->checkbox(-name=>'anno_toggle',-checked=>1,-label=>'Output annotation?')), #return 'ON' if checked
     ),
     $q->Tr(
@@ -115,10 +123,27 @@ print $q->p($q->submit("submit"),$q->reset());
 print $q->end_form(),$q->end_html();
 
 
+#--------------SUBROUTINE-----------------
+sub listGeneric
+{
+    #return tables of db, non_generic ones removed
+    my $db=shift;
+    my @non_generic=@_;
+    &Utils::sys_which('sqlite3') or die "Cannot find SQLite3\n";
+    &Utils::sys_which('xargs') or die "Cannot find xargs\n";
+    my $table_list=`sqlite3 $db .tables 2>/dev/null | xargs`;
+    chomp $table_list;
+    map {$table_list =~ s/$_//gi} @non_generic;
+    $table_list =~ s/^\s+|\s+$//; #del leading or trailing whitespaces
+    return (split /\s+/,$table_list);
+}
+
+}
+
 ###############
 =head
 21March2013
-return output via webpage, no email
+return output via webpage, and optionally, email
 
 =head
 To use generic plot in locuszoom
