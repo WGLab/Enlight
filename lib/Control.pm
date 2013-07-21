@@ -1,239 +1,190 @@
-#!/usr/bin/perl -T
+package Control;
 
 use strict;
 use warnings;
 use CGI qw/:standard/;
-use CGI::Carp qw/fatalsToBrowser/;
 use DBI;
-use FindBin qw/$RealBin/;
-use lib "$RealBin/../lib";
-use Utils;
-use Captcha::reCAPTCHA;
 use IPC::System::Simple;
+use Carp;
 
-chdir "$RealBin/../"; #go here for safety
+sub new
+{
+    my ($class,%arg)=@_;
+    $arg{'maxjobnum'} > 0 or croak ("maxjobnum must be positive!");
+    $arg{'maxjobhist'} > 0 or croak ("maxjobhist must be positive!");
+    $arg{'wait_time'} > 0 or croak ("wait_time must be positive!");
+    $arg{'max_per_ip'} > 0 or croak ("max_per_ip must be positive!");
+    $arg{'maxtime'} > 0 or croak ("maxtime must be positive!");
+    $arg{'max_run_time'} > 0 or croak ("max running time must be positive!");
 
-my %server_conf=&Utils::readServConf("$RealBin/../conf/annoenlight_server.conf","$RealBin/..")
-    or die ("Reading server configuration file failed!\n"); #no slash after ..
-$CGI::POST_MAX = 1024 * 1024 * $server_conf{'maxupload'}; #max upload size
-my $upload_dir=$server_conf{'tmp'}; #!!!debug add default values
-my $buffersize=$server_conf{'buffersize'};
-my $dbname=$server_conf{'dbname'};
-my $dbuser=$server_conf{'dbuser'};
-my $dbpassword=$server_conf{'dbpassword'};
-my $log=$server_conf{'serverlog'};
-my $email=$server_conf{'admin'};
-my $generic_table_max=$server_conf{'generic_table_max'};
-my $maxjobnum=$server_conf{'maxjobnum'};
-my $maxjobhist=$server_conf{'maxjobhist'};
-my $wait_time=$server_conf{'waittime'};
-my $max_per_ip=$server_conf{'maxperip'};
-my $outdir=$server_conf{'outdir'};
-my $maxtime=$server_conf{'maxtime'};
-my $max_run_time=$server_conf{'max_run_time'};
-my $private_key=$server_conf{'private_key'};
-my $lz_exe=$server_conf{'locuszoom_exe'};
-
-
-my $time=`date +%H:%M:%S`;
-chomp $time;
-my $date=`date +%m/%d/%Y`;
-chomp $date;
-
-my $q=new CGI;
-
-#check if user is a human
-my $c=new Captcha::reCAPTCHA;
-my $challenge=$q->param('recaptcha_challenge_field');
-my $response=$q->param('recaptcha_response_field');
-my $recaptcha_result=$c->check_answer(
-    $private_key,$ENV{'REMOTE_ADDR'},
-    $challenge,$response
-);
-&error ("Incorrect verification code.") unless ($recaptcha_result->{is_valid});
-
-
-#check upload
-my $fh=$q->upload('query');
-
-&error($q->cgi_error) if ($q->cgi_error);
-&error("ERROR: No uploaded file") unless $fh;
-
-#if filehandle ok, check other paratemeters
-#never trust any data from user input!!!!!
-
-my $input=$q->tmpFileName($q->param('query'));
-my $file_format=$q->param('qformat');
-my $markercol=$q->param('markercol');
-my $source_ref_pop=$q->param('source_ref_pop');
-my $flank=$q->param('flank');
-my $refsnp=$q->param('refsnp');
-my $pvalcol=$q->param('pvalcol');
-my $generic_toggle=$q->param('generic_toggle');
-my $anno_toggle=$q->param('anno_toggle');
-my $ref=$q->param("ref");
-my @generic_table=$q->param('generic_table');
-my $ip=$ENV{'REMOTE_ADDR'};
-
-&error ("Too many generic tracks (max: $generic_table_max)") if @generic_table > $generic_table_max;
-
-
-my $dsn="DBI:mysql:database=$dbname"; #data source name
-my $dbh=DBI->connect($dsn,$dbuser,$dbpassword,{
-	RaiseError=>1, #report error via die
-    	PrintError=>0, #do not report error via warn
-    },) or die "Cannot connect: $DBI::errstr\n";
-
-#job status: (q)ueued, (e)rror, (r)unning, (f)inish, (c)leaned
-mkdir $outdir unless -d $outdir;
-chdir $outdir;
-my $jobid=&jobRegister($dbh);
-&jobControl($dbh,$jobid,$maxjobnum);
-&jobClean($maxjobhist);
-&jobCheck($maxtime);
-
-
-
-
-$dbh->disconnect();
-
-#----------------subroutines--------------------------
+    return bless {
+	'dbh'		=>$arg{'dbh'} || croak ("No database handle\n"),
+	'tablename'	=>$arg{'tablename'} || croak ("No table name\n"),
+	'date'		=>$arg{'date'}	|| croak ("No date\n"), 
+	'time'		=>$arg{'time'} || croak ("No time\n"),
+	'ip'		=>$arg{'ip'}		|| croak ("No IP\n"),
+	'query'		=>$arg{'query'}		|| croak ("No query file\n"),
+	'access'		=>$arg{'access'} || croak("No access code\n"), 
+	'maxjobnum'	=>$arg{'maxjobnum'} || croak("Specify maximum number of jobs\n"),
+	'maxjobhist'      =>$arg{'maxjobhist'} || croak ("Specify maximum number of jobs in history"),
+	'wait_time'       =>$arg{'wait_time'} || croak ("Specify waiting time before retry"),
+	'max_per_ip'      =>$arg{'max_per_ip'} || croak("Specify maximum running jobs per IP"),
+	'outdir'          =>$arg{'outdir'} || croak ("No output directory"),
+	'maxtime'        =>$arg{'maxtime'} || croak("Specify maximum time for a job to remain in 'running' status"),
+	'max_run_time'    =>$arg{'max_run_time'} || croak ("Specify maximum running time for a job"),
+	'command'         =>$arg{'command'} || croak("No command for execution"),
+	'param'           =>$arg{'param'} || croak("No parameter"),
+	'id'		=>undef, #jobID
+    }, $class;
+}
 
 sub jobControl
 {
-    #usage: &jobControl($dbh,$id, INT)
-    #check if there are more than INT jobs running, if not, run $id and return 1 after successful execution, otherwise, check every 5s util successful execution (return 1)
-    	my $dbh=shift @_;
-	my ($id,$max)=@_;
-	my $tablename="submission";
+    #usage: &jobControl()
+    #check if there are more than INT jobs running, if not, run $id and return 1 after successful execution, otherwise, check every few sec util successful execution (return 1)
+    	my $self=shift;
+	my $dbh=$self->{'dbh'};
+	my $max=$self->{'maxjobnum'};
+	my $id=$self->{'id'};
+	my $max_per_ip=$self->{'max_per_ip'};
+	my $tablename=$self->{'tablename'};
+	my $ip=$self->{'ip'};
+	my $wait_time=$self->{'wait_time'};
+
 	while (1)
 	{
 	    my $sth=$dbh->prepare("SELECT * FROM $tablename WHERE status = 'r'");
 	    $sth->execute();
 	    my $nrunning=$sth->rows;
-
 	    if ($nrunning >= $max)
 	    {
 		sleep $wait_time and next;
 	    }
 
-	    $sth=$dbh->prepare("SELECT * FROM $tablename WHERE id = $id");
-	    $sth->execute();
-	    my $ip=${$sth->fetchrow_hashref}{'ip'};
 	    $sth=$dbh->prepare("SELECT * FROM $tablename WHERE ip = '$ip' AND status = 'r' ");
 	    $sth->execute();
-	    my $jobsperip=$sth->rows;
-
-	    if ($jobsperip >= $max_per_ip)
+	    my $jobsPerIP=$sth->rows;
+	    if ($jobsPerIP >= $max_per_ip)
 	    {
 		sleep $wait_time and next; #wait a moment and check again
 	    }
 
-	    &jobRun($id);
+	    $self->jobRun();
 	    last;
 	}
 }
 
 sub jobRun()
 {
-    #usage: &jobRun($id)
-    my $id=shift;
-    my $exe="echo"; #for test only !!!!debug
-    #my $exe=$lz_exe;
-    #my #anno_table_exe=$table_annovar; #!!!debug add table annovar
-    my $tablename="submission";
-    my $command;
-    my $result;
-    my $begin_time=`date +%s`; #seconds from 1970-1-1
-    my $msg;
+    #usage: &jobRun()
+    #run @command
+    my $self=shift;
+    my $id=$self->{'id'};
+    my $tablename=$self->{'tablename'};
+    my @command=@{$self->{'command'}};
+    my $dbh=$self->{'dbh'};
+    my $query=$self->{'query'};
+    my $access=$self->{'access'};
+    my $param=$self->{'param'};
+    my $outdir=$self->{'outdir'};
+    my $max_run_time=$self->{'max_run_time'};
+
+    my $begin_time=time; #seconds from epoch
+    my $error;
+
+    mkdir $outdir or die "$outdir doesn't exist and cannot be created\n" unless -d $outdir;
+    chdir $outdir or die "Cannot enter $outdir\n";
+    mkdir $access or die "$access doesn't exist and cannot be created\n" unless -d $access;
+    chdir $access or die "Cannot enter $access";
 
 
-    chomp $begin_time;
-    my $sth=$dbh->prepare("SELECT queryname, access, param FROM $tablename WHERE id = $id"); #!!!dbh is global
-    $sth->execute();
-    my ($query,$access,$param)=$sth->fetchrow_array();
-    mkdir $access unless -d $access;
-    chdir $access;
-    $command="$exe $param";
-    $command=~s/>|<|\*|\?|\[|\]|`|\$|\||;|&|\(|\)|\#|\/|'|"//g; #remove shell metacharacters
     $dbh->do("UPDATE $tablename SET status = 'r', begin = $begin_time WHERE id = $id");
     #record beginning time, kill long-running process later
-    eval {
-	local $SIG{ALRM}=sub { die "Exceeding maxium time ($max_run_time) allowed." };
-	alarm $max_run_time;
-    	$result=! IPC::System::Simple::system($command); #using IPC::System::Simple's system to avoid zombies
-	alarm 0;
-    };
-    $msg.=$@ if $@; #capture eval block message
-    $msg.=$! unless $result; #capture system error message
-    $result? &runFinish($id): &runError($id,$msg);
+    for my $cmd(@command)
+    {
+	$cmd=~s/>|<|\*|\?|\[|\]|`|\$|\||;|&|\(|\)|\#|\/|'|"//g; #remove shell metacharacters
+	eval {
+	    local $SIG{ALRM}=sub { die "Exceeding maxium time ($max_run_time) allowed." };
+	    alarm $max_run_time;
+	    IPC::System::Simple::system($cmd); #use this to avoid zombies. It dies upon failures
+	    alarm 0;
+	};
+	$error.=$@ if $@; #capture eval block message
+    }
+
     chdir $outdir;
+
+    $error? $self->runFinish() : $self->runError($msg);
+
 }
 
 sub runFinish
 {
-    #usage: &runFinish($id)
+    #usage: &runFinish()
     #change job status to 'f', print result page
-    my $id=shift;
-    my $tablename="submission";
-    $dbh->do("UPDATE $tablename SET status = 'f' WHERE id = $id"); #!!!dbh is global
-    &showResult($dbh->selectrow_array("SELECT access FROM $tablename WHERE id = $id"));
-}
+    my $self=shift;
+    my $id=$self->{'id'};
+    my $tablename=$self->{'tablename'};
+    my $dbh=$self->{'dbh'};
+    my $end_time=time;
 
-sub showResult
-{
-    my $access=shift;
-    my $result_url=$q->url(-base=>1);
-    $result_url.="/$outdir/$access";
-    print $q->redirect($result_url);
+    $dbh->do("UPDATE $tablename SET status = 'f',end = $end_time WHERE id = $id");
 }
 
 sub runError
 {
-    my $id=shift;
+    #usage: $self->runError($msg)
+    my $self=shift;
     my $msg=shift;
-    my $tablename="submission";
+    my $id=$self->{'id'};
+    my $tablename=$self->{'tablename'};
+    my $dbh=$self->{'dbh'};
+
     $dbh->do("UPDATE $tablename SET status = 'e' WHERE id = $id");
-    &error("Failed to run.\n$msg");
+    die ("Failed to run.\n$msg");
 }
 
 sub jobClean
 {
-    #usage: &jobClean(INT)
+    #usage: $self->jobClean()
     #check if there are more than INT jobs finished, but not deleted from server, if yes, delete the oldest job until there are only INT jobs on server
-    my $check=`date +%w%M`;
-    chomp $check;
-    return unless $check eq '001'; #run this at certain time 001 means, sunday, 01 min
-    my $max=shift;
-    my $tablename="submission";
-    my @clean;
-    my $sth=$dbh->prepare("SELECT id access FROM $tablename WHERE (status = 'f' OR status = 'e') ORDER BY id"); #fetch finished jobs, sorted by id, ascending
-    #!!!debug dbh is global
+    my $self=shift;
+    my $max=$self->{'maxjobhist'};
+    my $tablename=$self->{'tablename'};
+    my $dbh=$self->{'dbh'};
+    my $outdir=$self->{'outdir'};
 
+    my $check=time;
+    return if $check % 360; #clean at most every 1hr
+    my @clean;
+    my $sth=$dbh->prepare("SELECT id,access FROM $tablename WHERE (status = 'f' OR status = 'e') ORDER BY id"); #fetch finished jobs, sorted by id, ascending
     $sth->execute();
     if ($sth->rows() > $max)
     {
 	for my $row ( @{$sth->fetchall_arrayref()} )
 	{
 	    my ($id, $access)=@{$row};
-	    chdir $outdir;
+	    chdir $outdir or die "Cannot enter $outdir\n";
 	    push @clean,$id;
-	    ! system("rm -rf $access") or &error ("cannot remove $access: $!");
+	    ! system("rm -rf $access") or die ("Cannot remove $access: $!");
 	}
     }
-    $dbh->do("UPDATE $tablename SET status = 'c' WHERE id = '$_'") for @clean;
+    map {$dbh->do("UPDATE $tablename SET status = 'c' WHERE id = '$_'")} @clean;
 }
 
 sub jobCheck
 {
-    #usage: &jobCheck($maxtime)
+    #usage: $self->jobCheck()
     #check how long job's been running, change job status with running time exceeding threshold
     #this is for unexpected exit (like server crash)
-    my $maxtime=shift;
-    my $tablename="submission";
-    my $current_time=`date +%s`;
-    chomp $current_time;
-    my $sth=$dbh->prepare("SELECT id begin FROM $tablename WHERE status = 'r'");
+    my $self=shift;
+    my $maxtime=$self->{'maxtime'};
+    my $tablename=$self->{'tablename'};
+    my $dbh=$self->{'dbh'};
+
+    my $current_time=time;
+    my $sth=$dbh->prepare("SELECT id,begin FROM $tablename WHERE status = 'r'");
+    $sth->execute();
 
     for my $row (@{$sth->fetchall_arrayref()})
     {
@@ -248,49 +199,123 @@ sub jobCheck
 
 sub jobRegister
 {
-    #register submission in server database, return job id
-    my $dbh=shift;
-    my $tablename="submission";
-    my $serverdb_gen="CREATE TABLE IF NOT EXISTS $tablename (id INTEGER PRIMARY KEY AUTO_INCREMENT,date TEXT,time TEXT,ip TEXT,queryname TEXT,status TEXT,begin INTEGER UNSIGNED, access TEXT,param TEXT)";
-    my $access=&Utils::rndStr(16,'a'..'z',0..9);
-    my ($ld_source,$ld_ref,$ld_pop)=split(',',$source_ref_pop);
-    &error("Genome builds don't match ($ref vs $source_ref_pop).") unless (lc($ld_ref) eq lc($ref));
-    my $param;
+    #register submission in server database, set job id
+    my $self=shift;
+    my $dbh=$self->{'dbh'};
+    my $tablename=$self->{'submission'};
 
-    $param.=" --build $ref" if $ref;
-    $param.=" --markercol $markercol" if $markercol;
-    $param.=" --source $ld_source" if $ld_source;
-    $param.=" --generic ".join (',',@generic_table) if @generic_table;
-    $param.=" --pop $ld_pop" if $ld_pop;
-    $param.=" --metal $$input" if ($upload_dir && $input);
-    $param.=" --flank $flank" if $flank;
-    $param.=" --refsnp $refsnp" if $refsnp;
-    $param.=" --pvalcol $pvalcol" if $pvalcol;
-    $param.=" --metal $query" if $query;
+    my $access=$self->{'access'};
+    my $param=$self->{'param'};
+    my $date=$self->{'date'};
+    my $time=$self->{'time'};
+    my $ip=$self->{'ip'};
+    my $query=$self->{'query'};
 
-    my $newsub="INSERT INTO $tablename (date, time, ip, queryname, status, access, param) VALUES ('$date','$time','$ip','$query','q','$access','$param')";
-    #!!!!debug consider quote_identifier, quote methods for SQL statement
+    my $serverdb_gen="CREATE TABLE IF NOT EXISTS $tablename (id INTEGER PRIMARY KEY AUTO_INCREMENT,date TEXT,time TEXT,ip TEXT,query TEXT,status TEXT,begin INTEGER UNSIGNED, end INTEGER UNSIGNED,access TEXT,param TEXT)";
+
+    my $newsub="INSERT INTO $tablename (date, time, ip, query, status, access, param) VALUES ('$date','$time','$ip','$query','q','$access','$param')";
     $dbh->do($serverdb_gen);
     $dbh->do($newsub);
-    my $id=$dbh->last_insert_id("","",$tablename,"") or &error("Cannot find ID of last submitted job");
-    return $id;
+    my $id=$dbh->last_insert_id("","",$tablename,"") or die("Cannot find ID of last submitted job\n");
+    $self->_setID($id);
 }
 
 
-sub error
+sub jobMonitor
 {
-    #usage: &error("message")
-    #generate a HTML webpage displaying error message, log error and exit
-    my $msg=shift;
-    open ERR,'>',$log or die "Cannot open log file\n";
-    my $output=$q->header;
-    $output .=$q->start_html(-title=>'AnnoEnlight Server ERORR');
-    $output .=$q->p($msg);
-    $output .=$q->p("Please contact $email");
-    $output .=$q->end_html;
-    my $timestamp=`date`;
-    chomp $timestamp;
-    print ERR "$timestamp\t$msg\n";
-    print $output;
-    exit 0;
+    my $self=shift;
+    my $dbh=shift or die ("No database handle\n");
+    my $tablename=shift die ("No table name\n");
+
+    my $content;
+    my $ref=$dbh->selectall_arrayref(
+    "SELECT id,status,query,time,date FROM $tablename WHERE (status = 'r' OR status = 'q') ORDER BY status");
+
+    $content=th(['jobID','status','filesize','submission time','submission date']);
+
+    for my $row (@{$ref})
+    {
+	my ($id,$status,$query,$time,$date)=@{$row};
+	my $filesize=-s $query;
+	$filesize= scalar ($self->_formatsize($filesize));
+	$content.= Tr(
+	              td([$id,$status,$filesize,$time,$date]),
+	             ).",";
+    }
+
+    print header(),
+          start_html("Server monitor"),
+	  h1("Server status"),
+	  table($content),
+	  end_html();
 }
+
+sub _formatsize 
+{
+    my $self=shift;
+    my $size = shift;
+    my $exp = 0;
+    my $units = [qw(b kb mb gb tb pb)];
+    for (@$units) 
+    {
+	last if $size < 1024;
+	$size /= 1024;
+	$exp++;
+    }
+    return wantarray ? ($size, $units->[$exp]) : sprintf("%.2f %s", $size, $units->[$exp]);
+}
+
+
+sub _setID
+{
+    #change or set job ID
+    my $self=shift;
+    my $id=shift;
+    $self->{'id'}=$id if $id;
+}
+
+sub access
+{
+    my $self=shift;
+    return $self->{'access'};
+}
+
+1;
+
+=head1 Control
+
+Control: package for managing jobs, reporting errors, and returning results
+
+=head1 SYNOPSIS
+
+use Control;
+
+my $c=Control->new(
+    dbh                     =>$dbh,
+    tablename               =>"submission",
+    maxjobnum               =>$server_conf{'maxjobnum'},
+    maxjobhist              =>$server_conf{'maxjobhist'},
+    wait_time               =>$server_conf{'waittime'},
+    max_per_ip              =>$server_conf{'maxperip'},
+    outdir                  =>$server_conf{'outdir'},
+    maxtime                 =>$server_conf{'maxtime'},
+    max_run_time            =>$server_conf{'max_run_time'},
+    command                 =>\@command,
+    access                  =>&Utils::rndStr(16,'a'..'z',0..9),
+    ip                      =>$ENV{'REMOTE_ADDR'},
+    date                    =>$date,
+    'time'                  =>$time,
+    query                   =>$input,
+    param                   =>$param,
+);
+
+
+=head1 AUTHOR
+
+Yunfei Guo
+
+=head1 COPYRIGHT
+
+GPLv3
+
+=cut
