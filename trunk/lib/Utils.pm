@@ -179,7 +179,7 @@ sub genResultPage
 
     open OUT,'>',$page or die "Cannot open $page\n";
     print OUT header(),start_html("Result");
-    print OUT table($content);
+    print OUT table($html);
     print OUT end_html();
     close OUT;
 }
