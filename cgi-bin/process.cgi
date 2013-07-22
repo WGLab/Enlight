@@ -59,7 +59,6 @@ my $fh=$q->upload('query');
 die ($q->cgi_error) if ($q->cgi_error);
 die ("ERROR: No uploaded file\n") unless $fh;
 
-#if filehandle ok, check other paratemeters
 #never trust any data from user input
 
 my $user_email=$q->param('email');
