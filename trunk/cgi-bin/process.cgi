@@ -50,7 +50,7 @@ my $q=new CGI;
 #check if user is a human
 die ("Incorrect verification code.\n") unless 
 	&Utils::humanCheck(
-	    $q->param('recaptcha_challenge_field'),$q->param('recaptcha_response_field') 
+	    $private_key,$q->param('recaptcha_challenge_field'),$q->param('recaptcha_response_field') 
 	);
 
 #check upload

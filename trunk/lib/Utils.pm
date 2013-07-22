@@ -19,6 +19,7 @@ sub rndStr
 
 sub humanCheck
 {
+    my $private_key=shift;
     my $challenge=shift;
     my $response=shift;
     my $captcha=new Captcha::reCAPTCHA;
