@@ -1,4 +1,4 @@
-#!/usr/bin/perl -T
+#!/usr/bin/env perl
 
 use strict;
 use warnings;
@@ -6,7 +6,6 @@ use CGI qw/:standard/;
 use CGI::Carp qw/fatalsToBrowser/;
 use DBI;
 use FindBin qw/$RealBin/;
-use Captcha::reCAPTCHA;
 
 use lib "$RealBin/../lib";
 use Utils;
