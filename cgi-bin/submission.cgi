@@ -139,8 +139,6 @@ sub listGeneric
     return (split /\s+/,$table_list);
 }
 
-}
-
 ###############
 =head
 21March2013
