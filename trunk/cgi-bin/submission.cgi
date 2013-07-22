@@ -18,6 +18,7 @@ my %server_conf=&Utils::readServConf("$RealBin/../conf/enlight_server.conf","$Re
 #read list of available locuszoom databases
 my $flank_default=$server_conf{"flank_default"};
 my $generic_table_max=$server_conf{"generic_table_max"};
+my $public_key=$server_conf{'public_key'};
 
 my @ref=('hg18','hg19');
 my $ref_default='hg19';
@@ -118,7 +119,7 @@ print $q->table(
 	$q->td($q->scrolling_list(-name=>'generic_table',-values=>\@generic_table,-multiple=>'true',-labels=>\%generic_table_label,-size=>10)),
     ),
 );
-print $c->get_html("reCAPTCHA_public_key");
+print $c->get_html($public_key);
 print $q->p($q->submit("submit"),$q->reset());
 print $q->end_form(),$q->end_html();
 

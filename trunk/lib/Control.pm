@@ -93,8 +93,10 @@ sub jobRun()
     my $error;
 
     mkdir $outdir or die "$outdir doesn't exist and cannot be created\n" unless -d $outdir;
+    chmod 0777,$outdir;
     chdir $outdir or die "Cannot enter $outdir\n";
     mkdir $access or die "$access doesn't exist and cannot be created\n" unless -d $access;
+    chmod 0777,$access;
     chdir $access or die "Cannot enter $access";
 
 
