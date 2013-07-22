@@ -29,7 +29,7 @@ my %source_ref_pop_label=map {($_,$_)} @source_ref_pop;
 
 my @non_generic_table=('recomb_rate','refFlat','refsnp_trans', 'snp_pos');
 my $db=$server_conf{$ref_default."db"}; #only use table list from one db, don't forget to check the other one!
-my @generic_table= sort &listGeneric (  File::Spec->catfile($RealBin,"..",$db),@non_generic_table      );
+my @generic_table= sort &listGeneric (  $db,@non_generic_table );
 push @generic_table,"" unless @generic_table; #no generic plot if using empty database
 
 my %generic_table_label=map {($_,$_)} @generic_table;
@@ -104,12 +104,6 @@ print $q->table(
 );
 print $q->table(
     {-border=>1},
-    $q->Tr(
-	$q->td($q->checkbox(-name=>'generic_toggle',-checked=>1,-label=>'Generic plot?')), #return 'ON' if checked
-    ),
-    $q->Tr(
-	$q->td($q->checkbox(-name=>'anno_toggle',-checked=>1,-label=>'Output annotation?')), #return 'ON' if checked
-    ),
     $q->Tr(
 	$q->td("Genome Build"),
 	$q->td($q->radio_group(-name=>'ref',-values=>\@ref,-default=>$ref_default,-labels=>\%ref_label)),
