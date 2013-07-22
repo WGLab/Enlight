@@ -28,7 +28,6 @@ sub humanCheck
     $captcha->check_answer(
 	    $private_key,$ENV{'REMOTE_ADDR'},
 	        $challenge,$response );
-    );
     return $recaptcha_result->{is_valid};
 }
 
