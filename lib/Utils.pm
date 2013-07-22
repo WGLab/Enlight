@@ -75,7 +75,7 @@ sub error
     my $q=new CGI;
     my $output;
 
-    open ERR,'>',$log or die "Cannot open $log: $!\n";
+    open ERR,'>>',$log or die "Cannot open $log: $!\n";
     $output=$q->header(-status=>'error');
     $output .=$q->start_html(-title=>'Server ERORR');
     $output .=$q->p($msg);
