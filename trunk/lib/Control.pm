@@ -116,7 +116,7 @@ sub jobRun()
 
     chdir $outdir;
 
-    $error? $self->runFinish() : $self->runError($msg);
+    $error? $self->runFinish() : $self->runError($error);
 
 }
 
@@ -282,6 +282,11 @@ sub access
     return $self->{'access'};
 }
 
+sub outdir
+{
+    my $self=shift;
+    return $self->{'outdir'};
+}
 1;
 
 =head1 Control
