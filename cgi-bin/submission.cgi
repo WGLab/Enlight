@@ -26,6 +26,7 @@ my %ref_label=('hg19'=>'hg19','hg18'=>'hg18');
 
 my @source_ref_pop= sort (map {$server_conf{$_}} grep { /^\d+$/ } (keys %server_conf) ); #/^\d/ since only keys are numeric, first one will be default
 my %source_ref_pop_label=map {($_,$_)} @source_ref_pop; 
+my ($default_source_ref_pop)=grep {/$ref_default/ and /EUR/i} @source_ref_pop;
 
 my @non_generic_table=('recomb_rate','refFlat','refsnp_trans', 'snp_pos');
 my $db=$server_conf{$ref_default."db"}; #only use table list from one db, don't forget to check the other one!
@@ -72,7 +73,7 @@ print $q->table(
     $q->Tr(
 	$q->td('Genome Build/LD source/Population'),
 	$q->td(
-	    $q->popup_menu(-name=>'source_ref_pop',-values=> \@source_ref_pop,-labels=>\%source_ref_pop_label)
+	    $q->popup_menu(-name=>'source_ref_pop',-values=> \@source_ref_pop,-labels=>\%source_ref_pop_label,-default=>[$default_source_ref_pop])
 	),
     ),
     $q->Tr(
