@@ -85,7 +85,7 @@ die ("Too many generic tracks (max: $generic_table_max)\n")
 die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_ref) eq lc($ref));
 
 #parameter ok, generate command
-my $param,$lz_cmd,$anno_table_cmd;
+my ($param,$lz_cmd,$anno_table_cmd);
 my @command;
 
 $param.=" --build $ref" if $ref;
@@ -97,7 +97,7 @@ $param.=" --metal $input" if ($upload_dir && $input);
 $param.=" --flank $flank" if $flank;
 $param.=" --refsnp $refsnp" if $refsnp;
 $param.=" --pvalcol $pvalcol" if $pvalcol;
-$param.=" --metal $query" if $query;
+$param.=" --metal $input" if $input;
 
 &Utils::generateFeedback();
 
@@ -152,7 +152,7 @@ $c->jobCheck();
 $dbh->disconnect();
 
 my $base_url=$q->url(-base=>1);
-my $result_url=$base_url."/output/".$c->access(); #Don't forget to map /output URL to $outdir
+my $result_url=$base_url."/output/".$c->access(); #Don't forget to map /output URL to output dir
 
 &Utils::sendEmail({
 	'admin'		=>$admin_email,
@@ -165,5 +165,5 @@ my $result_url=$base_url."/output/".$c->access(); #Don't forget to map /output U
 
 &Utils::error($@,$log,$admin_email) if $@;
 
-&Utils::genResultPage( File::Spec->catdir($outdir,$c->access()),$result_url ); #generate an index.html page with hyperlinks for all files in $access dir
+&Utils::genResultPage( File::Spec->catdir($c->outdir(),$c->access()),$result_url ); #generate an index.html page with hyperlinks for all files in $access dir
 &Utils::showResult($result_url);
