@@ -92,6 +92,7 @@ sub error
 sub generateFeedback 
 {
     my $submission_time=scalar localtime;
+    my $q=new CGI;
     print $q->header ("text/html");
     print $q->start_html('Submission status');
     print $q->h1 ("Submission received");
@@ -110,11 +111,11 @@ sub sendEmail
     my $admin=$hash{'admin'} or croak "No admin email";
     my $subject = $hash{'subject'} or croak "No email subject";
 
-    my $email_header
+    my $email_header;
     my $email_body;
     my $email_tail;
 
-    $email_header= "Dear user,\n" 
+    $email_header= "Dear user,\n";
     $email_header =~ s/(.{1,69})\s/$1\n/g;
 
     if ($error) 
