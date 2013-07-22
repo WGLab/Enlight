@@ -78,10 +78,8 @@ my @generic_table=$q->param('generic_table');
 my $generic_toggle=$q->param('generic_toggle');
 my $anno_toggle=$q->param('anno_toggle');
 
-die ("Too many generic tracks (max: $generic_table_max)\n") 
-	if @generic_table > $generic_table_max;
-
-
+die ("Too many generic tracks (max: $generic_table_max)\n") if @generic_table > $generic_table_max;
+die ("No generic tracks selected\n") if ($generic_toggle && (! @generic_table));
 die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_ref) eq lc($ref));
 
 #parameter ok, generate command
