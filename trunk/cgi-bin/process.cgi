@@ -77,6 +77,7 @@ my @generic_table=$q->param('generic_table');
 my $generic_toggle=$q->param('generic_toggle');
 my $anno_toggle=$q->param('anno_toggle');
 
+die ("Illegal email address\n") if $user_email !~ /.+\@.+\..+/;
 die ("Too many generic tracks (max: $generic_table_max)\n") if @generic_table > $generic_table_max;
 die ("No generic tracks selected\n") if ($generic_toggle || $anno_toggle && (! @generic_table) );
 die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_ref) eq lc($ref));
@@ -144,23 +145,26 @@ $c->jobRegister(); #job ID will be saved with the object
 $c->jobControl(); #job status totally controlled by Control.pm
 $c->jobClean();
 $c->jobCheck();
-}; #capture error message
+}; #capture error message rather than just die, since user might have left our website
 #We do not care about the return value from Control.pm, it just dies if anything goes wrong
 $dbh->disconnect();
 
+#return results
 my $base_url=$q->url(-base=>1);
 my $result_url=$base_url."/output/".$c->access(); #Don't forget to map /output URL to output dir
+my $error;
 
+$error=$@ if $@;
 &Utils::sendEmail({
 	'admin'		=>$admin_email,
 	'email'		=>$user_email,
 	'base_url'	=>$base_url,
 	'url'		=>$result_url,
 	'subject'	=>'Enlight Result',
-	'error'		=>$@,
+	'error'		=>($error || undef),
     }) if $user_email;
 
-&Utils::error($@,$log,$admin_email) if $@;
+&Utils::error($error,$log,$admin_email) if $error;
 
 &Utils::genResultPage( File::Spec->catdir($c->outdir(),$c->access()),$result_url ); #generate an index.html page with hyperlinks for all files in $access dir
 &Utils::showResult($result_url);

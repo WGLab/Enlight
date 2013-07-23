@@ -74,19 +74,12 @@ sub error
     my $log=shift || 'serverlog';
     my $email=shift || 'admin@localhost';
     my $q=new CGI;
-    my $output;
+    my $timestamp=scalar localtime;
 
     open ERR,'>>',$log or die "Cannot open $log: $!\n";
-    $output=$q->header(-status=>'error');
-    $output .=$q->start_html(-title=>'Server ERORR');
-    $output .=$q->p($msg);
-    $output .=$q->p("Please contact $email for help");
-    $output .=$q->end_html;
-    my $timestamp=`date`;
-    chomp $timestamp;
     print ERR "$timestamp\t$msg\n";
-    print $output;
     close ERR;
+    die "ERROR:$msg\nPlease contact $email for help\n";
     exit 0;
 }
 
@@ -98,6 +91,7 @@ sub generateFeedback
     print $q->start_html('Submission status');
     print $q->h1 ("Submission received");
     print $q->p ("Your submission has been received by us at <b>$submission_time</b>.");
+    print $q->p("You will be redirected to result page in a few seconds.");
     print $q->end_html();
 }
 
@@ -130,7 +124,7 @@ sub sendEmail
 	$email_tail =~ s/(.{1,69})\s/$1\n/g;
     }
 
-    return unless $email =~ /.+\@.+\..+/; #User should be responsible for correcting email address
+    die "Illegal email address\n" unless $email =~ /.+\@.+\..+/; #User should be responsible for correcting email address
     my $message = Email::MIME->create(
 	header_str => [
 	From    => $admin,
@@ -180,7 +174,7 @@ sub genResultPage
     }
 
     open OUT,'>',$page or die "Cannot open $page\n";
-    print OUT header(),start_html("Result");
+    #print OUT header(),start_html("Result"); #for generating a html document, header is not required
     print OUT table($html);
     print OUT end_html();
     close OUT;
@@ -189,7 +183,7 @@ sub genResultPage
 sub showResult
 {
     my $url=shift;
-    print redirect($url);
+    print "<META HTTP-EQUIV=refresh CONTENT=\"10;URL=$url\">\n";
 }
 
 
