@@ -204,7 +204,7 @@ sub jobRegister
     #register submission in server database, set job id
     my $self=shift;
     my $dbh=$self->{'dbh'};
-    my $tablename=$self->{'submission'};
+    my $tablename=$self->{'tablename'};
 
     my $access=$self->{'access'};
     my $param=$self->{'param'};
