@@ -5,6 +5,7 @@ use warnings;
 use CGI qw/:standard/;
 use CGI::Carp qw/fatalsToBrowser/;
 use File::Spec;
+use File::Basename qw/basename/;
 use Captcha::reCAPTCHA;
 use Email::Sender::Simple qw(sendmail);
 use Email::MIME;
@@ -162,6 +163,7 @@ sub genResultPage
     @files=glob File::Spec->catfile($dir,'*');
     if (@files)
     {
+    	@files=map {basename($_)} @files;
 	for my $file(@files)
 	{
 	    my $link="$url/$file";
