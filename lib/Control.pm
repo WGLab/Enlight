@@ -116,7 +116,7 @@ sub jobRun()
 
     chdir $outdir;
 
-    $error? $self->runFinish() : $self->runError($error);
+    $error? $self->runError($error) : $self->runFinish();
 
 }
 
