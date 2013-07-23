@@ -106,12 +106,12 @@ sub jobRun()
     {
 	$cmd=~s/>|<|\*|\?|\[|\]|`|\$|\||;|&|\(|\)|\#|\/|'|"//g; #remove shell metacharacters
 	eval {
-	    local $SIG{ALRM}=sub { die "Exceeding maxium time ($max_run_time) allowed." };
+	    local $SIG{ALRM}=sub { die "Exceeding maxium time ($max_run_time seconds) allowed.\n" };
 	    alarm $max_run_time;
 	    IPC::System::Simple::system($cmd); #use this to avoid zombies. It dies upon failures
 	    alarm 0;
 	};
-	$error.=$@ if $@; #capture eval block message
+	$error.="CMD:$cmd\nERR:$@\n" if $@; #capture eval block message
     }
 
     chdir $outdir;
