@@ -151,15 +151,16 @@ sub jobClean
     #usage: $self->jobClean()
     #check if there are more than INT jobs finished, but not deleted from server, if yes, delete the oldest job until there are only INT jobs on server
     my $self=shift;
+    my $force=shift;
     my $max=$self->{'maxjobhist'};
     my $tablename=$self->{'tablename'};
     my $dbh=$self->{'dbh'};
     my $outdir=$self->{'outdir'};
 
     my $check=time;
-    return if $check % 360; #clean at most every 1hr
+    #return if $check % 360; #clean at most every 1hr
     my @clean;
-    my $sth=$dbh->prepare("SELECT id,access FROM $tablename WHERE (status = 'f' OR status = 'e') ORDER BY id"); #fetch finished jobs, sorted by id, ascending
+    my $sth=$dbh->prepare("SELECT id,access FROM $tablename WHERE (status = 'f' OR status = 'e') ORDER BY id DESC LIMIT $max,18446744073709551615"); #fetch finished jobs, sorted by id,descending
     $sth->execute();
     if ($sth->rows() > $max)
     {
@@ -171,7 +172,22 @@ sub jobClean
 	    ! system("rm -rf $access") or die ("Cannot remove $access: $!");
 	}
     }
+    if ($force)
+    {
+	#remove queued and running jobs
+	$sth=$dbh->prepare("SELECT id,access,status FROM $tablename WHERE (status = 'r' OR status = 'q')"); #fetch finished jobs, sorted by id, ascending
+	$sth->execute();
+	for my $row ( @{$sth->fetchall_arrayref()} )
+	{
+	    my ($id, $access,$status)=@{$row};
+	    chdir $outdir or die "Cannot enter $outdir\n";
+	    push @clean,$id;
+	    ! system("rm -rf $access") or die ("Cannot remove $access: $!")
+	    							if $status=~/r/;
+	}
+    }
     map {$dbh->do("UPDATE $tablename SET status = 'c' WHERE id = '$_'")} @clean;
+
 }
 
 sub jobCheck
@@ -212,10 +228,11 @@ sub jobRegister
     my $time=$self->{'time'};
     my $ip=$self->{'ip'};
     my $query=$self->{'query'};
+    my $filesize=-s $query;
 
-    my $serverdb_gen="CREATE TABLE IF NOT EXISTS $tablename (id INTEGER PRIMARY KEY AUTO_INCREMENT,date TEXT,time TEXT,ip TEXT,query TEXT,status TEXT,begin INTEGER UNSIGNED, end INTEGER UNSIGNED,access TEXT,param TEXT)";
+    my $serverdb_gen="CREATE TABLE IF NOT EXISTS $tablename (id INTEGER PRIMARY KEY AUTO_INCREMENT,date TEXT,time TEXT,ip TEXT,query TEXT,filesize BIGINT UNSIGNED,status TEXT,begin INTEGER UNSIGNED, end INTEGER UNSIGNED,access TEXT,param TEXT)";
 
-    my $newsub="INSERT INTO $tablename (date, time, ip, query, status, access, param) VALUES ('$date','$time','$ip','$query','q','$access','$param')";
+    my $newsub="INSERT INTO $tablename (date, time, ip, query, filesize,status, access, param) VALUES ('$date','$time','$ip','$query',$filesize,'q','$access','$param')";
     $dbh->do($serverdb_gen);
     $dbh->do($newsub);
     my $id=$dbh->last_insert_id("","",$tablename,"") or die("Cannot find ID of last submitted job\n");
@@ -227,18 +244,17 @@ sub jobMonitor
 {
     my $self=shift;
     my $dbh=shift or die ("No database handle\n");
-    my $tablename=shift die ("No table name\n");
+    my $tablename=shift or die ("No table name\n");
 
     my $content;
     my $ref=$dbh->selectall_arrayref(
-    "SELECT id,status,query,time,date FROM $tablename WHERE (status = 'r' OR status = 'q') ORDER BY status");
+    "SELECT id,status,query,filesize,time,date FROM $tablename WHERE (status = 'r' OR status = 'q') ORDER BY status");
 
     $content=th(['jobID','status','filesize','submission time','submission date']);
 
     for my $row (@{$ref})
     {
-	my ($id,$status,$query,$time,$date)=@{$row};
-	my $filesize=-s $query;
+	my ($id,$status,$query,$filesize,$time,$date)=@{$row};
 	$filesize= scalar ($self->_formatsize($filesize));
 	$content.= Tr(
 	              td([$id,$status,$filesize,$time,$date]),
@@ -257,7 +273,7 @@ sub _formatsize
     my $self=shift;
     my $size = shift;
     my $exp = 0;
-    my $units = [qw(b kb mb gb tb pb)];
+    my $units = [qw(B KB MB GB TB PB)];
     for (@$units) 
     {
 	last if $size < 1024;

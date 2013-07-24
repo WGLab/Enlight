@@ -115,7 +115,7 @@ sub sendEmail
 
     if ($error) 
     {
-	$email_body = "We were unable to generate results for your submission due to an '$error' error.\n";
+	$email_body = "We were unable to generate results for your submission due to the following error:\n'$error'";
     } else 
     {
 	$email_body = "Your submission is done: $url\n\n";

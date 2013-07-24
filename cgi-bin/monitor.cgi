@@ -6,13 +6,14 @@ use CGI qw/:standard/;
 use CGI::Carp qw/fatalsToBrowser/;
 use DBI;
 use FindBin qw/$RealBin/;
+use File::Spec;
 
-use lib "$RealBin/../lib";
+use lib File::Spec->catdir($RealBin,"../lib");
 use Utils;
 use Control;
 
-my %server_conf=&Utils::readServConf("$RealBin/../conf/annoenlight_server.conf")
-    or &error ("Reading server configuration file failed!\n");
+my %server_conf=&Utils::readServConf(File::Spec->catfile($RealBin,"../conf/enlight_server.conf"))
+    or &Utils::error ("Reading server configuration file failed!\n");
 
 my $dbname=$server_conf{'dbname'} || &Utils::error("No MySQL database name\n");
 my $dbuser=$server_conf{'dbuser'} || &Utils::error("No MySQL database user\n");

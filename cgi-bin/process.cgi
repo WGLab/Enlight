@@ -141,10 +141,10 @@ my $c=Control->new(
 );
 
 eval {
+$c->jobCheck();
+$c->jobClean();
 $c->jobRegister(); #job ID will be saved with the object
 $c->jobControl(); #job status totally controlled by Control.pm
-$c->jobClean();
-$c->jobCheck();
 }; #capture error message rather than just die, since user might have left our website
 #We do not care about the return value from Control.pm, it just dies if anything goes wrong
 $dbh->disconnect();
@@ -160,7 +160,7 @@ $error=$@ if $@;
 	'email'		=>$user_email,
 	'base_url'	=>$base_url,
 	'url'		=>$result_url,
-	'subject'	=>'Enlight Result',
+	'subject'	=>'Enlight Result '.$date,
 	'error'		=>($error || undef),
     }) if $user_email;
 
