@@ -5,3 +5,4 @@ When setting up the server, the /output URL must be mapped to the location of ou
 There is a index.html inside installation folder, pointing to cgi-bin/submission.cgi. When you access index.html, you actually run submission.cgi, however, some server adds a trailing slash for the cgi URL, subsequently I used '../process.cgi' in submission.cgi for form action, if your server doesn't add the trailing slash, use 'process.cgi' instead.
 SQLite3 must be installed and put in system PATH because LocusZoom utilizes this database engine.
 DBI DBD::mysql Captcha::reCAPTCHA IPC::System::Simple Email::Sender::Simple Email::MIME perl modules are required. Don't forget to tell all CGIs where libs are located, or just put local perl in front of built-in perl in PATH
+to force all queued and running jobs quit, just put '1' in jobClean() subroutine and submit a dummy job, all jobs will quit before this dummy job runs
