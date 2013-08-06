@@ -16,9 +16,9 @@ my %server_conf=&Utils::readServConf("$RealBin/../conf/enlight_server.conf","$Re
     or die "Reading server configuration file failed!\n";
 
 #read list of available locuszoom databases
-my $flank_default=$server_conf{"flank_default"};
-my $generic_table_max=$server_conf{"generic_table_max"};
-my $public_key=$server_conf{'public_key'};
+my $flank_default=$server_conf{"flank_default"} || "200kb";
+my $generic_table_max=$server_conf{"generic_table_max"} || 10;
+my $public_key=$server_conf{'public_key'} or die "No public key for reCAPTCHA\n";
 
 my @ref=('hg18','hg19');
 my $ref_default='hg19';
@@ -51,7 +51,7 @@ print <<RECAPTCHA;
  };
  </script>
 RECAPTCHA
-print $q->start_form(-action=>"process.cgi",-method=>"post");
+print $q->start_form(-action=>"/cgi-bin/process.cgi",-method=>"post");
 print $q->table(
     {-border=>0},
     $q->Tr(
@@ -92,6 +92,10 @@ print $q->table(
 	$q->td("P value column"),
 	$q->td($q->textfield(-name=>"pvalcol",-default=>'p')),
     ),
+    $q->Tr(
+	$q->td("Missing value"),
+	$q->td($q->textfield(-name=>'nastring',-default=>'NA')),
+    ),
 );
 
 print $q->p($q->b("Generic plot (using UCSC BED tables)"));
@@ -111,7 +115,7 @@ print $q->table(
     ),
     $q->Tr(
 	$q->td("Generic data track (Press Ctrl to select multiple tracks)"),
-	$q->td($q->scrolling_list(-name=>'generic_table',-values=>\@generic_table,-multiple=>'true',-labels=>\%generic_table_label,-size=>10)),
+	$q->td($q->checkbox_group(-name=>'generic_table',-values=>\@generic_table,-linebreak=>'true',-labels=>\%generic_table_label)),
     ),
 );
 print $c->get_html($public_key);
@@ -133,36 +137,3 @@ sub listGeneric
     $table_list =~ s/^\s+|\s+$//; #del leading or trailing whitespaces
     return (split /\s+/,$table_list);
 }
-
-###############
-=head
-21March2013
-return output via webpage, and optionally, email
-
-=head
-To use generic plot in locuszoom
-
-~/projects/locuszoom-encode/bin/locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --metal rs10318_summary_mecc_ccfr.txt --flank 150kb --refsnp rs10318 --pvalcol ccfr_p --generic wgEncodeHaibMethyl450Caco2SitesRep1,wgEncodeHaibMethyl450Hct116HaibSitesRep1,wgEncodeRegTfbsClusteredV2,wgEncodeUwDnaseCaco2HotspotsRep1 --no-date --prefix xxx --plotonly
-
-
-To plot w/o generic tracks
-
-~/projects/locuszoom-encode/bin/locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --metal rs10318_summary_mecc_ccfr.txt --flank 500kb --refsnp rs10318 --pvalcol ccfr_p --no-date --prefix xxx --no-cleanup
-
-
-#submission administration database
-serverdb=/home/yunfeiguo/projects/annoenlight/log/server.db
-#error log file
-serverlog=/home/yunfeiguo/projects/annoenlight/log/error.log
-#executable dir
-exedir=/home/yunfeiguo/projects/annoenlight/bin
-#temporary dir
-tmp=/tmp
-#output dir
-outdir=/home/yunfeiguo/projects/annoenlight/done
-#max submission per IP
-maxcount=4
-#max upload size (in MB)
-maxupload=200
-
-=cut

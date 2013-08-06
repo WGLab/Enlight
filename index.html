@@ -1,1 +1,41 @@
-<meta http-equiv="refresh" content="0; url=http://your_domain_name/cgi-bin/submission.cgi/">
+<!DOCTYPE html
+	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<title>Enlight Homepage</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+</head>
+<body>
+<script type="text/javascript">
+ var RecaptchaOptions = {
+    theme : 'clean'
+ };
+ </script>
+<h1>Enlight Homepage (!!Under construction!!)</h1><form method="post" action="/cgi-bin/process.cgi" enctype="multipart/form-data"><table border="0"><tr><td>Email (optional)</td> <td><input type="text" name="email"  /></td></tr> <tr><td>Input file</td> <td><input type="file" name="query"  /></td></tr> <tr><td>Field delimiter</td> <td><label><input type="radio" name="qformat" value="whitespace" checked="checked" />whitespace</label> <label><input type="radio" name="qformat" value="tab" />tab</label> <label><input type="radio" name="qformat" value="comma" />comma</label></td></tr> <tr><td>Marker Column</td> <td><input type="text" name="markercol" value="snpname" /></td></tr> <tr><td>Genome Build/LD source/Population</td> <td><select name="source_ref_pop" >
+<option value="1000G_Aug2009,hg18,CEU">1000G_Aug2009,hg18,CEU</option>
+<option value="1000G_Aug2009,hg18,JPT+CHB">1000G_Aug2009,hg18,JPT+CHB</option>
+<option value="1000G_Aug2009,hg18,YRI">1000G_Aug2009,hg18,YRI</option>
+<option value="1000G_June2010,hg18,CEU">1000G_June2010,hg18,CEU</option>
+<option value="1000G_June2010,hg18,JPT+CHB">1000G_June2010,hg18,JPT+CHB</option>
+<option value="1000G_June2010,hg18,YRI">1000G_June2010,hg18,YRI</option>
+<option value="1000G_Nov2010,hg19,AFR">1000G_Nov2010,hg19,AFR</option>
+<option value="1000G_Nov2010,hg19,ASN">1000G_Nov2010,hg19,ASN</option>
+<option selected="selected" value="1000G_Nov2010,hg19,EUR">1000G_Nov2010,hg19,EUR</option>
+<option value="hapmap,hg18,CEU">hapmap,hg18,CEU</option>
+<option value="hapmap,hg18,JPT+CHB">hapmap,hg18,JPT+CHB</option>
+<option value="hapmap,hg18,YRI">hapmap,hg18,YRI</option>
+</select></td></tr> <tr><td>Flanking region</td> <td><input type="text" name="flank" value="200kb" /></td></tr> <tr><td>Reference SNP</td> <td><input type="text" name="refsnp"  /></td></tr> <tr><td>P value column</td> <td><input type="text" name="pvalcol" value="p" /></td></tr></table><p><b>Generic plot (using UCSC BED tables)</b></p><table><tr><td><label><input type="checkbox" name="generic_toggle" value="on" checked="checked" />Generic plot?</label></td></tr> <tr><td><label><input type="checkbox" name="anno_toggle" value="on" checked="checked" />Output annotation?</label></td></tr></table><table border="1"><tr><td>Genome Build</td> <td><label><input type="radio" name="ref" value="hg18" />hg18</label> <label><input type="radio" name="ref" value="hg19" checked="checked" />hg19</label></td></tr> <tr><td>Generic data track (Press Ctrl to select multiple tracks)</td> <td><select name="generic_table"  size="10" multiple="multiple">
+<option value="wgEncode">wgEncode</option>
+<option value="wgEncodeHaibMethyl450Caco2SitesRep1">wgEncodeHaibMethyl450Caco2SitesRep1</option>
+<option value="wgEncodeHaibMethyl450Hct116HaibSitesRep1">wgEncodeHaibMethyl450Hct116HaibSitesRep1</option>
+<option value="wgEncodeRegTfbsClusteredV2">wgEncodeRegTfbsClusteredV2</option>
+<option value="wgEncodeUwDnaseCaco2HotspotsRep1">wgEncodeUwDnaseCaco2HotspotsRep1</option>
+<option value="wgEncodeUwHistoneCaco2H3k27me3StdHotspotsRep1">wgEncodeUwHistoneCaco2H3k27me3StdHotspotsRep1</option>
+<option value="wgEncodeUwTfbsCaco2CtcfStdHotspotsRep1">wgEncodeUwTfbsCaco2CtcfStdHotspotsRep1</option>
+<option value="wgEncodeUwTfbsHct116CtcfStdHotspotsRep1">wgEncodeUwTfbsHct116CtcfStdHotspotsRep1</option>
+</select></td></tr></table><script src="http://www.google.com/recaptcha/api/challenge?k=6LffzOISAAAAAEt_0rwABKLj9O4M1X2MONtSfYPH" type="text/javascript"></script>
+<noscript><iframe frameborder="0" height="300" src="http://www.google.com/recaptcha/api/noscript?k=6LffzOISAAAAAEt_0rwABKLj9O4M1X2MONtSfYPH" width="500"></iframe><textarea cols="40" name="recaptcha_challenge_field" rows="3"></textarea><input name="recaptcha_response_field" type="hidden" value="manual_challenge" /></noscript>
+<p><input type="submit" name="submit" value="submit" /> <input type="reset"  name=".reset" /></p><div><input type="hidden" name=".cgifields" value="qformat"  /><input type="hidden" name=".cgifields" value="anno_toggle"  /><input type="hidden" name=".cgifields" value="generic_table"  /><input type="hidden" name=".cgifields" value="generic_toggle"  /><input type="hidden" name=".cgifields" value="ref"  /></div></form>
+</body>
+</html>

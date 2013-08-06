@@ -11,25 +11,14 @@ use lib "$RealBin/../lib";
 use Utils;
 use Control;
 
-my %op=( #!!!debug: incomplete list; also consider all possible encode data tracks
-    refGene=>'g',
-    phastConsElements44way=>'r',
-    genomicSuperDups=>'r',
-    esp6500si_all=>'f',
-    '1000g2012apr_all'=>'f',
-    snp135=>'f',
-    avsift=>'f',
-    ljb_all=>'f', 
-);
-
-chdir "$RealBin/../" or die ("Cannot enter installation directory\n"); #go to installation dir for safety
+chdir File::Spec->catdir($RealBin,"..") or die ("Cannot enter installation directory\n"); #go to installation dir for safety
 
 my %server_conf=&Utils::readServConf("$RealBin/../conf/enlight_server.conf")
     or &Utils::error ("Reading server configuration file failed!\n");
 
-$CGI::POST_MAX = 1024 * 1024 * $server_conf{'maxupload'};
+$CGI::POST_MAX = 1024 * 1024 * ($server_conf{'maxupload'}||200);
 #all paths should be FULL path
-my $log=$server_conf{'serverlog'} || "serverlog";
+my $log=$server_conf{'serverlog'} || File::Spec->catfile($RealBin,"../serverlog");
 my $admin_email=$server_conf{'admin'} || &Utils::error("No administrator email\n",$log);
 my $upload_dir=$server_conf{'tmp'} || "/tmp";
 my $dbname=$server_conf{'dbname'} || &Utils::error("No MySQL database name\n",$log,$admin_email);
@@ -39,6 +28,7 @@ my $generic_table_max=$server_conf{'generic_table_max'} || 10;
 my $private_key=$server_conf{'private_key'} || &Utils::error("No RECAPTCHA private key\n",$log,$admin_email);
 my $lz_exe=$server_conf{'locuszoom_exe'} || &Utils::error("No locuszoom executable path\n",$log,$admin_email);
 my $anno_exe=$server_conf{'annotable_exe'} || &Utils::error("No table_annovar executable path\n",$log,$admin_email);
+my $anno_dir=$server_conf{'annovar_dir'} || $Utils::error("No ANNOVAR database directory\n",$log,$admin_email);
 
 my $time=`date +%H:%M:%S`;
 chomp $time;
@@ -61,7 +51,7 @@ die ("ERROR: No uploaded file\n") unless $fh;
 
 #never trust any data from user input
 
-my $user_email=$q->param('email');
+my $user_email=$q->param('email'); 
 my $input=$q->tmpFileName($q->param('query'));
 
 my $file_format=$q->param('qformat');
@@ -73,9 +63,10 @@ my $refsnp=$q->param('refsnp');
 my $pvalcol=$q->param('pvalcol');
 my $ref=$q->param("ref");
 my @generic_table=$q->param('generic_table');
+my $nastring=$q->param('nastring');
 
-my $generic_toggle=$q->param('generic_toggle');
-my $anno_toggle=$q->param('anno_toggle');
+my $generic_toggle=1 if $q->param('generic_toggle') eq 'ON';
+my $anno_toggle=1 if $q->param('anno_toggle') eq 'ON';
 
 die ("Illegal email address\n") if $user_email !~ /.+\@.+\..+/;
 die ("Too many generic tracks (max: $generic_table_max)\n") if @generic_table > $generic_table_max;
@@ -96,20 +87,21 @@ $param.=" --flank $flank" if $flank;
 $param.=" --refsnp $refsnp" if $refsnp;
 $param.=" --pvalcol $pvalcol" if $pvalcol;
 $param.=" --metal $input" if $input;
+$param.=" --plotonly";
 
-&Utils::generateFeedback();
-
-# !!!debug the command is incorrect and needs more arguments
-#$lz_cmd="$lz_exe $param";
-$lz_cmd="echo 'locuszoom program'> lz.txt";
+$lz_cmd="$lz_exe $param";
+push @command,$lz_cmd;
 #/home/username/locuszoom-encode-beta/bin/locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --metal tab_Metal_file.txt --flank 150kb --refsnp rsSNP --pvalcol ccfr_p --generic ENCODEtable1,ENCODEtable2
-#$anno_table_cmd="$anno_exe $input $anno_dir -protocol ".join(',',@generic_table)." -operation ".map {$op{$_}} @generic_table."-nastring ".$q->param('NAstring');
-$anno_table_cmd="echo 'table_annovar example' > anno.txt";
+if ($anno_toggle && @generic_table)
+{
+    $anno_table_cmd="$anno_exe $input $anno_dir -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table)." -operation g,f,".join(',',map {'r'} @generic_table);
+    $anno_table_cmd=." -nastring $nastring" if $nastring;
+    $anno_table_cmd=." -buildver $ref" if $ref;
+    push @command,$anno_table_cmd if $anno_toggle;
+}
 #table_annovar.pl ex1.human humandb/ -protocol refGene,phastConsElements44way,genomicSuperDups,esp6500si_all,1000g2012apr_all,snp135,avsift,ljb_all -operation g,r,r,f,f,f,f,f -nastring NA
 
-push @command,$lz_cmd;
-push @command,$anno_table_cmd if $anno_toggle;
-
+&Utils::generateFeedback();
 
 #prepare database, it records job status
 #job status: (q)ueued, (e)rror, (r)unning, (f)inish, (c)leaned
@@ -148,13 +140,12 @@ $c->jobControl(); #job status totally controlled by Control.pm
 }; #capture error message rather than just die, since user might have left our website
 #We do not care about the return value from Control.pm, it just dies if anything goes wrong
 $dbh->disconnect();
+my $error=$@ if $@;
 
 #return results
 my $base_url=$q->url(-base=>1);
-my $result_url=$base_url."/output/".$c->access(); #Don't forget to map /output URL to output dir
-my $error;
+my $result_url=$base_url."/output/".$c->access(); #Don't forget to map /output URL to output dir, or just create 'output' dir inside document root
 
-$error=$@ if $@;
 &Utils::sendEmail({
 	'admin'		=>$admin_email,
 	'email'		=>$user_email,
