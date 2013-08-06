@@ -1,0 +1,30 @@
+File format: tab-delimited, 4 columns, with a header, score starts from 0,
+socre must be integer, chr column must be converted to numeric values, eg chrX->23,chrY->24,chrmito->25,chrXY->26
+
+An example shown below:
+
+##############################################
+chr	start	end	score
+1	564489	564677	104
+1	565260	566075	125
+1	566746	567267	137
+1	567504	567892	118
+1	568072	568573	108
+1	569803	570195	131
+1	713901	714642	242
+1	762485	762999	189
+1	805091	805598	131
+##############################################
+
+To insert generic table into locuszoom SQlite database
+
+/home/yunfeiguo/Downloads/locus_zoom/bin/dbmeister_mod.py --db locuszoom_ENCODE.db --tablefile hg19_wgEncodeUwDnaseCaco2HotspotsRep1.txt.generic --tablename wgEncodeUwDnaseCaco2HotspotsRep1
+
+To use generic plot in locuszoom
+
+~/projects/locuszoom-encode/bin/locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --metal rs10318_summary_mecc_ccfr.txt --flank 150kb --refsnp rs10318 --pvalcol ccfr_p --generic wgEncodeHaibMethyl450Caco2SitesRep1,wgEncodeHaibMethyl450Hct116HaibSitesRep1,wgEncodeRegTfbsClusteredV2,wgEncodeUwDnaseCaco2HotspotsRep1 --no-date --prefix xxx --plotonly
+
+
+To plot w/o generic tracks
+
+~/projects/locuszoom-encode/bin/locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --metal rs10318_summary_mecc_ccfr.txt --flank 500kb --refsnp rs10318 --pvalcol ccfr_p --no-date --prefix xxx --no-cleanup

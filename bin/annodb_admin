@@ -1,0 +1,170 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Pod::Usage qw/pod2usage/;
+use Getopt::Long;
+use FindBin qw/$RealBin/;
+use lib "$RealBin/../lib";
+use Utils;
+
+my ($inslst, 	#insert list
+    $dellst, 	#delete list
+    $db,   	#db 
+    $filelst,	#filelist
+    $hg18,	#use hg18 if true
+);
+
+@ARGV or pod2usage();
+GetOptions(
+    "insert|i=s"	=>	\$inslst,
+    "delete|d=s"	=>	\$dellst,
+    "file|f=s"		=>	\$filelst,
+    "hg18"		=>	\$hg18,
+) or pod2usage ();
+
+#insert BED tables from a specific db
+#delete tables from a specific db
+my %chr2no=(
+    'chr1' => '1',
+    'chr2' => '2',
+    'chr3' => '3',
+    'chr4' => '4',
+    'chr5' => '5',
+    'chr6' => '6',
+    'chr7' => '7',
+    'chr8' => '8',
+    'chr9' => '9',
+    'chr10' => '10',
+    'chr11' => '11',
+    'chr12' => '12',
+    'chr13' => '13',
+    'chr14' => '14',
+    'chr15' => '15',
+    'chr16' => '16',
+    'chr17' => '17',
+    'chr18' => '18',
+    'chr19' => '19',
+    'chr20' => '20',
+    'chr21' => '21',
+    'chr22' => '22',
+    'chrx' => '23',
+    'chry' => '24',
+    'chrmito' => '25',
+    'chrxy' => '26',
+);
+
+$db=shift @ARGV;
+my @ins=split /,/,$inslst if $inslst;
+my @del=split /,/,$dellst if $dellst;
+my @file=split /,/,$filelst if $filelst;
+my $executedb="$RealBin/../src/executeDB.py";
+my @unlink;
+
+#first process deletion
+if (@del)
+{
+    for my $del_table(@del)
+    {
+	system("$executedb --db $db --delete $del_table") and 
+	die "Cannot delete $del_table from $db\n";
+    }
+}
+
+#then process insertion
+
+if (@ins)
+{
+    ##resolve table file for each table name
+    @file=&filecheck(\@ins,\@file) or die "ERROR: not every insertion table corresponds to a file\n";
+    for my $i (0..$#file)
+    {
+	system("$executedb --db $db --tablefile $file[$i] --tablename $ins[$i]")
+	    and die "Cannot insert $ins[$i] ($file[$i]) into $db\n";
+    }
+}
+
+#cleanup
+unlink @unlink;
+
+##########################SUBROUTINES########################
+sub bed2generic
+{
+    my @generic_tables;
+    for my $table (@_)
+    {
+	open IN, "<", $table or die "Cannot open $table\n";
+	my @output;
+	while (<IN>)
+	{
+	    next if /^(track|#|browser)/i; #skip header
+	    my @line=split;
+	    $line[1]=lc($line[1]);
+	    push @output, join("\t",$chr2no{$line[1]},$line[2],$line[3],$line[5]),"\n";
+	}
+	close IN;
+	my $outfile="/tmp/$table.$$.generic";
+	open OUT, ">", $outfile or die "Cannot create $outfile\n";
+	print OUT join("\t",'chr','start','end','score'),"\n";
+	print OUT @output;
+	close OUT;
+	push @unlink,$outfile;
+	push @generic_tables,$outfile;
+    }
+    return @generic_tables;
+}
+
+sub filecheck
+{
+
+    my @names=@{shift @_};
+    my @tables=@{shift @_};
+    if (@names == @tables)
+    {
+	return @tables;
+    } elsif (@tables == 0)
+    {
+	warn ("No file supplied, try to download from UCSC genome browser\n");
+	for my $item (@names)
+	{
+	    my $url="hgdownload.cse.ucsc.edu/goldenPath/".($hg18? "hg18":"hg19")."/database/$item.txt.gz";
+	    my $file="$item.txt.gz";
+	    my $unpack_file="$item.txt";
+	    push @unlink,$file;
+	    Utils::getstore($url,$file) or die "Cannot download $file from UCSC\n";
+	    warn "Unpacking ...\n";
+	    Utils::extract_archive($file,$unpack_file) or die "Cannot unpack $file\n";
+	    warn "Extracting chr,start,end,score ...\n";
+	    my ($convert_file)=&bed2generic($unpack_file);
+	    push @tables,$convert_file;
+	}
+
+    } else
+    {
+	return 0;
+    }
+    return @tables;
+}
+
+
+__END__
+
+
+=head1 NAME
+
+annodb_admin
+
+=head1 SYNOPSIS
+
+annodb_admin [options] <database>
+
+ -insert,-i	table names to be inserted
+ -delete,-d	table names to be deleted
+ -file,-f	table files to be inserted
+ -hg18		use it if build version is hg18
+
+ NOTE: All list must be comma-separated.
+ NOTE: Each table file, if supplied, must has a corresponding table name.
+ NOTE: If no table file supplied, it will be downloaded from UCSC server.
+
+=cut
