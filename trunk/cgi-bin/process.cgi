@@ -154,6 +154,7 @@ my $c=Control->new(
 );
 
 eval {
+$c->tablePrepare(); #make sure the table exists
 $c->jobCheck();
 $c->jobClean();
 $c->jobRegister(); #job ID will be saved with the object
