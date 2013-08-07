@@ -93,7 +93,7 @@ print $q->table(
 	$q->td($q->textfield(-name=>"pvalcol",-default=>'p')),
     ),
     $q->Tr(
-	$q->td("Missing value"),
+	$q->td("Missing value for OUTPUT"),
 	$q->td($q->textfield(-name=>'nastring',-default=>'NA')),
     ),
 );
