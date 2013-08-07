@@ -62,7 +62,7 @@ print $q->table(
 	$q->td("Input file (first line must be header)"),
 	$q->td($q->filefield(-name=>"query")),
 	$q->td(
-	    $q->p($q->a("/example/rs10318.txt"),"example file")
+	    $q->p($q->a({-href=>"/example/rs10318.txt"},"example file"))
 	    ),
     ),
     $q->Tr(
