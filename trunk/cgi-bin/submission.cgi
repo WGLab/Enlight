@@ -34,7 +34,7 @@ my @generic_table= sort &listGeneric (  $db,@non_generic_table );
 push @generic_table,"" unless @generic_table; #no generic plot if using empty database
 
 my %generic_table_label=map {($_,$_)} @generic_table;
-my @qformat=("whitespace","tab","comma");
+my @qformat=("whitespace","space","comma");
 my %qformat_label=map {($_,$_)} @qformat;
 my $qformat_default="whitespace";
 
@@ -59,7 +59,7 @@ print $q->table(
 	$q->td($q->textfield(-name=>'email')),
     ),
     $q->Tr(
-	$q->td("Input file"),
+	$q->td("Input file (first line must be header)"),
 	$q->td($q->filefield(-name=>"query")),
     ),
     $q->Tr(

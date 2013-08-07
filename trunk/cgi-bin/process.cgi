@@ -52,7 +52,8 @@ die ("ERROR: No uploaded file\n") unless $fh;
 #never trust any data from user input
 
 my $user_email=$q->param('email'); 
-my $input=$q->tmpFileName($q->param('query'));
+my $filename=$q->param('query');
+my $input=$q->tmpFileName($filename);
 
 my $file_format=$q->param('qformat');
 my $markercol=$q->param('markercol');
@@ -64,6 +65,7 @@ my $pvalcol=$q->param('pvalcol');
 my $ref=$q->param("ref");
 my @generic_table=$q->param('generic_table');
 my $nastring=$q->param('nastring');
+my $delim=$q->param('qformat');
 
 my $generic_toggle=1 if $q->param('generic_toggle') eq 'ON';
 my $anno_toggle=1 if $q->param('anno_toggle') eq 'ON';
@@ -77,6 +79,7 @@ die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_re
 my ($param,$lz_cmd,$anno_table_cmd);
 my @command;
 
+#-------------------------------------------------------------------------------------------
 $param.=" --build $ref" if $ref;
 $param.=" --markercol $markercol" if $markercol;
 $param.=" --source $ld_source" if $ld_source;
@@ -87,19 +90,37 @@ $param.=" --flank $flank" if $flank;
 $param.=" --refsnp $refsnp" if $refsnp;
 $param.=" --pvalcol $pvalcol" if $pvalcol;
 $param.=" --metal $input" if $input;
+$param.=" --delim $delim" if $delim;
 $param.=" --plotonly";
 
 $lz_cmd="$lz_exe $param";
 push @command,$lz_cmd;
-#/home/username/locuszoom-encode-beta/bin/locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --metal tab_Metal_file.txt --flank 150kb --refsnp rsSNP --pvalcol ccfr_p --generic ENCODEtable1,ENCODEtable2
+#/home/username/locuszoom-encode-beta/bin/locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --metal tab_Metal_file.txt --flank 150kb --refsnp rsSNP --pvalcol ccfr_p --generic ENCODEtable1,ENCODEtable2 --plotonly
+#-------------------------------------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------------
 if ($anno_toggle && @generic_table)
 {
-    $anno_table_cmd="$anno_exe $input $anno_dir -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table)." -operation g,f,".join(',',map {'r'} @generic_table);
-    $anno_table_cmd=." -nastring $nastring" if $nastring;
-    $anno_table_cmd=." -buildver $ref" if $ref;
+    if ($delim eq 'comma')
+    {
+	$anno_table_cmd.="perl -ne 's/,/\\t/g;print unless \$.==1' $input > $filename";
+    } else
+    {
+	$anno_table_cmd.="perl -ne 'print unless \$.==1' $input > $filename";
+    }
+    $anno_table_cmd.=";";
+    $anno_table_cmd.="$anno_exe $filename $anno_dir -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table)." -operation g,f,".join(',',map {'r'} @generic_table);
+    $anno_table_cmd.=" -nastring $nastring" if $nastring;
+    $anno_table_cmd.=" -buildver $ref" if $ref;
+    $anno_table_cmd.=" -remove";
+    $anno_table_cmd.=";";
+    $anno_table_cmd.="rm $filename";
     push @command,$anno_table_cmd if $anno_toggle;
 }
-#table_annovar.pl ex1.human humandb/ -protocol refGene,phastConsElements44way,genomicSuperDups,esp6500si_all,1000g2012apr_all,snp135,avsift,ljb_all -operation g,r,r,f,f,f,f,f -nastring NA
+#table_annovar.pl ex1.human humandb/ -protocol refGene,phastConsElements44way,genomicSuperDups,esp6500si_all,1000g2012apr_all,snp135,avsift,ljb_all -operation g,r,r,f,f,f,f,f -nastring NA -remove
+#-------------------------------------------------------------------------------------------
 
 &Utils::generateFeedback();
 

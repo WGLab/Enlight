@@ -6,4 +6,6 @@ use the html output of cgi-bin/submission.cgi as your index.html
 SQLite3 must be installed and put in system PATH because LocusZoom utilizes this database engine.
 DBI DBD::mysql Captcha::reCAPTCHA IPC::System::Simple Email::Sender::Simple Email::MIME perl modules are required. Don't forget to tell all CGIs where libs are located, or just put local perl in front of built-in perl in PATH
 to force all queued and running jobs quit, just put '1' in jobClean() subroutine and submit a dummy job, all jobs will quit before this dummy job runs
-
+make sure to have functional locuszoom and table_annovar.pl before setting up the server
+read and modify enlight_server.conf and m2zfast.conf wherever necessary
+add data tracks to both locuszoom database and annovar database folder
