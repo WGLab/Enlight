@@ -28,7 +28,7 @@ my $generic_table_max=$server_conf{'generic_table_max'} || 10;
 my $private_key=$server_conf{'private_key'} || &Utils::error("No RECAPTCHA private key\n",$log,$admin_email);
 my $lz_exe=$server_conf{'locuszoom_exe'} || &Utils::error("No locuszoom executable path\n",$log,$admin_email);
 my $anno_exe=$server_conf{'annotable_exe'} || &Utils::error("No table_annovar executable path\n",$log,$admin_email);
-my $anno_dir=$server_conf{'annovar_dir'} || $Utils::error("No ANNOVAR database directory\n",$log,$admin_email);
+my $anno_dir=$server_conf{'annovar_dir'} || &Utils::error("No ANNOVAR database directory\n",$log,$admin_email);
 
 my $time=`date +%H:%M:%S`;
 chomp $time;
