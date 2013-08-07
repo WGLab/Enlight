@@ -95,7 +95,7 @@ $param.=" --plotonly";
 
 $lz_cmd="$lz_exe $param";
 push @command,$lz_cmd;
-#/home/username/locuszoom-encode-beta/bin/locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --metal tab_Metal_file.txt --flank 150kb --refsnp rsSNP --pvalcol ccfr_p --generic ENCODEtable1,ENCODEtable2 --plotonly
+#locuszoom --metal rs10318.txt --pval p --refsnp rs10318 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 150kb --build hg19 --generic wgEncodeHaibMethyl450Caco2SitesRep1,wgEncodeRegTfbsClusteredV2 --plotonly
 #-------------------------------------------------------------------------------------------
 
 
@@ -119,7 +119,7 @@ if ($anno_toggle && @generic_table)
     $anno_table_cmd.="rm $filename";
     push @command,$anno_table_cmd if $anno_toggle;
 }
-#table_annovar.pl ex1.human humandb/ -protocol refGene,phastConsElements44way,genomicSuperDups,esp6500si_all,1000g2012apr_all,snp135,avsift,ljb_all -operation g,r,r,f,f,f,f,f -nastring NA -remove
+#perl -ne 'print unless $.==1' rs10318.txt > tmp ; ~/Downloads/annovar/table_annovar.pl tmp ~/Downloads/annovar/humandb/ -protocol refGene,1000g2012apr_all,wgEncodeRegTfbsClusteredV2 -operation g,f,r -nastring NA --buildver hg19 --remove
 #-------------------------------------------------------------------------------------------
 
 &Utils::generateFeedback();
