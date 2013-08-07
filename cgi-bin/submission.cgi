@@ -61,6 +61,7 @@ print $q->table(
     $q->Tr(
 	$q->td("Input file (first line must be header)"),
 	$q->td($q->filefield(-name=>"query")),
+	$q->td($q->url(-base=>1)."/example/rs10318.txt"),
     ),
     $q->Tr(
 	$q->td("Field delimiter"),
@@ -104,7 +105,8 @@ print $q->table(
 	$q->td($q->checkbox(-name=>'generic_toggle',-checked=>1,-label=>'Generic plot?')), #return 'ON' if checked
     ),
     $q->Tr(
-	$q->td($q->checkbox(-name=>'anno_toggle',-checked=>1,-label=>'Output annotation?')), #return 'ON' if checked
+	$q->td($q->checkbox(-name=>'anno_toggle',-checked=>0,-label=>'Output annotation?')), #return 'ON' if checked
+	$q->td("First 5 columns must be chr, start, end, ref and alt as described in ANNOVAR documentation. Header is allowed."),
     ),
 );
 print $q->table(
