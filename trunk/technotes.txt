@@ -1,7 +1,7 @@
 MySQL is required
 reCAPTCHA will help prevent DoS attack
 By default, serverlog file in installation root directory records all warnings and errors.
-When setting up the server, the /output URL must be mapped to the location of output folder in the filesystem, or simply just use 'output' as the output folder name.
+When setting up the server, the /output URL must be mapped to the location of output folder in the filesystem, or simply just use 'output' as the output folder name. Same case for example, cgi-bin.
 use the html output of cgi-bin/submission.cgi as your index.html
 SQLite3 must be installed and put in system PATH because LocusZoom utilizes this database engine.
 DBI DBD::mysql Captcha::reCAPTCHA IPC::System::Simple Email::Sender::Simple Email::MIME perl modules are required. Don't forget to tell all CGIs where libs are located, or just put local perl in front of built-in perl in PATH

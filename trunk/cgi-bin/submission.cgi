@@ -61,7 +61,9 @@ print $q->table(
     $q->Tr(
 	$q->td("Input file (first line must be header)"),
 	$q->td($q->filefield(-name=>"query")),
-	$q->td($q->url(-base=>1)."/example/rs10318.txt"),
+	$q->td(
+	    $q->p($q->a("/example/rs10318.txt"),"example file")
+	    ),
     ),
     $q->Tr(
 	$q->td("Field delimiter"),
