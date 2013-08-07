@@ -215,6 +215,16 @@ sub jobCheck
     }
 }
 
+sub tablePrepare
+{
+    my $self=shift;
+    my $dbh=$self->{'dbh'};
+    my $tablename=$self->{'tablename'};
+
+    my $serverdb_gen="CREATE TABLE IF NOT EXISTS $tablename (id INTEGER PRIMARY KEY AUTO_INCREMENT,date TEXT,time TEXT,ip TEXT,query TEXT,filesize BIGINT UNSIGNED,status TEXT,begin INTEGER UNSIGNED, end INTEGER UNSIGNED,access TEXT,param TEXT)";
+
+    $dbh->do($serverdb_gen);
+}
 sub jobRegister
 {
     #register submission in server database, set job id
@@ -230,10 +240,7 @@ sub jobRegister
     my $query=$self->{'query'};
     my $filesize=-s $query;
 
-    my $serverdb_gen="CREATE TABLE IF NOT EXISTS $tablename (id INTEGER PRIMARY KEY AUTO_INCREMENT,date TEXT,time TEXT,ip TEXT,query TEXT,filesize BIGINT UNSIGNED,status TEXT,begin INTEGER UNSIGNED, end INTEGER UNSIGNED,access TEXT,param TEXT)";
-
     my $newsub="INSERT INTO $tablename (date, time, ip, query, filesize,status, access, param) VALUES ('$date','$time','$ip','$query',$filesize,'q','$access','$param')";
-    $dbh->do($serverdb_gen);
     $dbh->do($newsub);
     my $id=$dbh->last_insert_id("","",$tablename,"") or die("Cannot find ID of last submitted job\n");
     $self->_setID($id);
