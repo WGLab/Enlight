@@ -105,19 +105,18 @@ if ($anno_toggle && @generic_table)
 {
     if ($delim eq 'comma')
     {
-	$anno_table_cmd.="perl -ne 's/,/\\t/g;print unless \$.==1' $input > $filename";
+	push @command,"perl -ne 's/,/\\t/g;print unless \$.==1' $input > $filename";
     } else
     {
-	$anno_table_cmd.="perl -ne 'print unless \$.==1' $input > $filename";
+	push @command,"perl -ne 'print unless \$.==1' $input > $filename";
     }
-    $anno_table_cmd.=";";
     $anno_table_cmd.="$anno_exe $filename $anno_dir -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table)." -operation g,f,".join(',',map {'r'} @generic_table);
     $anno_table_cmd.=" -nastring $nastring" if $nastring;
     $anno_table_cmd.=" -buildver $ref" if $ref;
     $anno_table_cmd.=" -remove";
-    $anno_table_cmd.=";";
-    $anno_table_cmd.="rm $filename";
-    push @command,$anno_table_cmd if $anno_toggle;
+
+    push @command,$anno_table_cmd;
+    push @command,"rm $filename";
 }
 #perl -ne 'print unless $.==1' rs10318.txt > tmp ; ~/Downloads/annovar/table_annovar.pl tmp ~/Downloads/annovar/humandb/ -protocol refGene,1000g2012apr_all,wgEncodeRegTfbsClusteredV2 -operation g,f,r -nastring NA --buildver hg19 --remove
 #-------------------------------------------------------------------------------------------
