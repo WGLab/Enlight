@@ -331,6 +331,7 @@ def findCol(header_elements,col_name):
 
 def is_gzip(file):
   b = False;
+  
   try:
     f = gzip.open(file);
     f.read(1024);
