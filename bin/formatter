@@ -1,0 +1,58 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+die "Usage: $0 <rmheader|csv2tab> <infile> <outfile>\n" unless @ARGV==3;
+my ($op,$in,$out)=@ARGV;
+
+if ($op =~ /rmheader/i)
+{
+    &rmHeader($in,$out);
+} elsif ($op =~ /csv2tab/i)
+{
+    &csv2tab($in,$out);
+} else
+{
+    die "Unrecognized operation\n";
+}
+
+
+#-------------------------------------------------------------------------
+sub rmHeader
+{
+#Usage: &rmHeader($infile,$outfile)
+#remove header (1st line)
+    my $file=shift;
+    my $outfile=shift;
+    my $out;
+
+    open IN,'<',$file or die "Cannot open $file\n";
+    while (<IN>)
+    {
+	next if $.==1;
+	$out.=$_;
+    }
+    close IN;
+    open OUT,'>',$outfile or die "Cannot write to $outfile\n";
+    print OUT $out;
+}
+
+sub csv2tab
+{
+#Usage: &csv2tab($infile,$outfile)
+#replace all commas with tabs
+    my $file=shift;
+    my $outfile=shift;
+    my $out;
+
+    open IN,'<',$file or die "Cannot open $file\n";
+    while (<IN>)
+    {
+	s/,/\t/g;
+	$out.=$_;
+    }
+    close IN;
+    open OUT,'>',$outfile or die "Cannot write to $outfile\n";
+    print OUT $out;
+}
