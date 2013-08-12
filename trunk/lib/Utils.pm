@@ -175,8 +175,8 @@ sub genResultPage
 
     open OUT,'>',$page or die "Cannot open $page\n";
     #print OUT header();
-    print start_html("Result"); #for generating a html document, header is not required
-    print p("Right click and save");
+    print OUT start_html("Result"); #for generating a html document, header is not required
+    print OUT p("Right click and save");
     print OUT table($html);
     print OUT end_html();
     close OUT;
@@ -187,45 +187,6 @@ sub showResult
     my $url=shift;
     print "<META HTTP-EQUIV=refresh CONTENT=\"10;URL=$url\">\n";
 }
-
-sub rmHeader
-{
-    #Usage: &rmHeader($infile,$outfile)
-    #remove header (1st line)
-    my $file=shift;
-    my $outfile=shift;
-    my $out;
-
-    open IN,'<',$file or die "Cannot open $file\n";
-    while (<IN>)
-    {
-        next if $.==1;
-	$out.=$_;
-    }
-    close IN;
-    open OUT,'>',$outfile or die "Cannot write to $outfile\n";
-    print OUT $out;
-}
-
-sub csv2tab
-{
-    #Usage: &csv2tab($infile,$outfile)
-    #replace all commas with tabs
-    my $file=shift;
-    my $outfile=shift;
-    my $out;
-
-    open IN,'<',$file or die "Cannot open $file\n";
-    while (<IN>)
-    {
-	s/,/\t/g;
-	$out.=$_;
-    }
-    close IN;
-    open OUT,'>',$outfile or die "Cannot write to $outfile\n";
-    print OUT $out;
-}
-
 
 1;
 
