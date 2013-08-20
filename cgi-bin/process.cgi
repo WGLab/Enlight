@@ -65,19 +65,22 @@ my $pvalcol=$q->param('pvalcol');
 my $ref=$q->param("ref");
 my @generic_table=$q->param('generic_table');
 my $nastring=$q->param('nastring');
-my $delim=$q->param('qformat');
 
-my $generic_toggle=1 if $q->param('generic_toggle') eq 'ON';
-my $anno_toggle=1 if $q->param('anno_toggle') eq 'ON';
+my $generic_toggle=1 if $q->param('generic_toggle') eq 'on';
+my $anno_toggle=1 if $q->param('anno_toggle') eq 'on';
 
 die ("Illegal email address\n") if $user_email !~ /.+\@.+\..+/;
 die ("Too many generic tracks (max: $generic_table_max)\n") if @generic_table > $generic_table_max;
-die ("No generic tracks selected\n") if ($generic_toggle || $anno_toggle && (! @generic_table) );
+die ("No generic tracks selected\n") if ( ($generic_toggle || $anno_toggle) && (! @generic_table) );
 die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_ref) eq lc($ref));
 
 #parameter ok, generate command
 my ($param,$lz_cmd,$anno_table_cmd);
 my @command;
+
+#let server know where to find correct exe if necessary
+#$ENV{PATH}="/home/yunfeiguo/Downloads/python-2.7/bin:".$ENV{PATH};
+#$ENV{PATH}="/home/yunfeiguo/Downloads/annovar:".$ENV{PATH};
 
 #-------------------------------------------------------------------------------------------
 $param.=" --build $ref" if $ref;
@@ -85,15 +88,15 @@ $param.=" --markercol $markercol" if $markercol;
 $param.=" --source $ld_source" if $ld_source;
 $param.=" --generic ".join (',',@generic_table) if $generic_toggle && @generic_table;
 $param.=" --pop $ld_pop" if $ld_pop;
-$param.=" --metal $input" if ($upload_dir && $input);
 $param.=" --flank $flank" if $flank;
 $param.=" --refsnp $refsnp" if $refsnp;
 $param.=" --pvalcol $pvalcol" if $pvalcol;
 $param.=" --metal $input" if $input;
-$param.=" --delim $delim" if $delim;
+$param.=" --delim $file_format" if $file_format;
 $param.=" --plotonly";
 
 $lz_cmd="$lz_exe $param";
+
 push @command,$lz_cmd;
 #locuszoom --metal rs10318.txt --pval p --refsnp rs10318 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 150kb --build hg19 --generic wgEncodeHaibMethyl450Caco2SitesRep1,wgEncodeRegTfbsClusteredV2 --plotonly
 #-------------------------------------------------------------------------------------------
@@ -103,20 +106,15 @@ push @command,$lz_cmd;
 #-------------------------------------------------------------------------------------------
 if ($anno_toggle && @generic_table)
 {
-    if ($delim eq 'comma')
-    {
-	push @command,"perl -ne 's/,/\\t/g;print unless \$.==1' $input > $filename";
-    } else
-    {
-	push @command,"perl -ne 'print unless \$.==1' $input > $filename";
-    }
+    push @command, "$RealBin/../bin/formatter rmheader $input $filename";
+    push @command, "$RealBin/../bin/formatter csv2tab $input $filename" if $file_format eq 'comma';
+
     $anno_table_cmd.="$anno_exe $filename $anno_dir -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table)." -operation g,f,".join(',',map {'r'} @generic_table);
     $anno_table_cmd.=" -nastring $nastring" if $nastring;
     $anno_table_cmd.=" -buildver $ref" if $ref;
     $anno_table_cmd.=" -remove";
 
     push @command,$anno_table_cmd;
-    push @command,"rm $filename";
 }
 #perl -ne 'print unless $.==1' rs10318.txt > tmp ; ~/Downloads/annovar/table_annovar.pl tmp ~/Downloads/annovar/humandb/ -protocol refGene,1000g2012apr_all,wgEncodeRegTfbsClusteredV2 -operation g,f,r -nastring NA --buildver hg19 --remove
 #-------------------------------------------------------------------------------------------

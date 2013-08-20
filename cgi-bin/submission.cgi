@@ -42,7 +42,8 @@ my $qformat_default="whitespace";
 my $q=new CGI;
 my $c=new Captcha::reCAPTCHA;
 
-print $q->header,$q->start_html(-title=>"Enlight Homepage");
+#print $q->header; #not useful unless read by APACHE directly
+print $q->start_html(-title=>"Enlight Homepage");
 #change reCAPTCHA theme here
 print <<RECAPTCHA;
 <script type="text/javascript">
@@ -70,8 +71,8 @@ print $q->table(
 	$q->td($q->radio_group(-name=>"qformat",-values=>\@qformat,-labels=>\%qformat_label,-default=>$qformat_default)),
     ),
     $q->Tr(
-	$q->td("Marker Column"),
-	$q->td($q->textfield(-name=>'markercol',-default=>'snpname')),
+	$q->td("Marker Column (SNP name)"),
+	$q->td($q->textfield(-name=>'markercol',-default=>'dbSNP135')),
     ),
     $q->Tr(
 	$q->td('Genome Build/LD source/Population'),
@@ -88,7 +89,7 @@ print $q->table(
     $q->Tr(
 	$q->td("Reference SNP"),
 	$q->td(
-	    $q->textfield("refsnp")
+	    $q->textfield(-name=>"refsnp",-default=>"rs10318")
 	),
     ),
     $q->Tr(
@@ -108,7 +109,7 @@ print $q->table(
     ),
     $q->Tr(
 	$q->td($q->checkbox(-name=>'anno_toggle',-checked=>0,-label=>'Output annotation?')), #return 'ON' if checked
-	$q->td("First 5 columns must be chr, start, end, ref and alt as described in ANNOVAR documentation. Header is allowed."),
+	$q->td("First 5 columns must be chr, start, end, ref and alt as described in ANNOVAR documentation. Header is required."),
     ),
 );
 print $q->table(
@@ -118,7 +119,7 @@ print $q->table(
 	$q->td($q->radio_group(-name=>'ref',-values=>\@ref,-default=>$ref_default,-labels=>\%ref_label)),
     ),
     $q->Tr(
-	$q->td("Generic data track (Press Ctrl to select multiple tracks)"),
+	$q->td("Generic data track"),
 	$q->td($q->checkbox_group(-name=>'generic_table',-values=>\@generic_table,-linebreak=>'true',-labels=>\%generic_table_label)),
     ),
 );
