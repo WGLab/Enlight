@@ -6,7 +6,7 @@ use CGI qw/:standard/;
 use CGI::Carp qw/fatalsToBrowser/;
 use File::Spec;
 use File::Basename qw/basename/;
-use Captcha::reCAPTCHA;
+#use Captcha::reCAPTCHA;
 use Email::Sender::Simple qw(sendmail);
 use Email::MIME;
 use Carp;
@@ -18,6 +18,7 @@ sub rndStr
     join '',@_[ map {rand @_} 1 .. shift ];
 }
 
+=head
 sub humanCheck
 {
     my $private_key=shift;
@@ -31,6 +32,7 @@ sub humanCheck
 	        $challenge,$response );
     return $recaptcha_result->{is_valid};
 }
+=cut
 
 sub readServConf
 {

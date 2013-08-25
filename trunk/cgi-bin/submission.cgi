@@ -7,7 +7,7 @@ use CGI::Carp qw/fatalsToBrowser/;
 use FindBin qw/$RealBin/;
 use lib "$RealBin/../lib";
 use Utils;
-use Captcha::reCAPTCHA;
+#use Captcha::reCAPTCHA;
 use File::Spec;
 
 
@@ -40,18 +40,18 @@ my $qformat_default="whitespace";
 
 ################html generation###############
 my $q=new CGI;
-my $c=new Captcha::reCAPTCHA;
+#my $c=new Captcha::reCAPTCHA;
 
 #print $q->header; #not useful unless read by APACHE directly
 print $q->start_html(-title=>"Enlight Homepage");
-#change reCAPTCHA theme here
-print <<RECAPTCHA;
-<script type="text/javascript">
- var RecaptchaOptions = {
-    theme : 'clean'
- };
- </script>
-RECAPTCHA
+##change reCAPTCHA theme here
+#print <<RECAPTCHA;
+#<script type="text/javascript">
+# var RecaptchaOptions = {
+#    theme : 'clean'
+# };
+# </script>
+#RECAPTCHA
 print $q->start_form(-action=>"/cgi-bin/process.cgi",-method=>"post");
 print $q->table(
     {-border=>0},
@@ -123,7 +123,7 @@ print $q->table(
 	$q->td($q->checkbox_group(-name=>'generic_table',-values=>\@generic_table,-linebreak=>'true',-labels=>\%generic_table_label)),
     ),
 );
-print $c->get_html($public_key);
+#print $c->get_html($public_key);
 print $q->p($q->submit("submit"),$q->reset());
 print $q->end_form(),$q->end_html();
 
