@@ -73,6 +73,8 @@ die ("Illegal email address\n") if $user_email !~ /.+\@.+\..+/;
 die ("Too many generic tracks (max: $generic_table_max)\n") if @generic_table > $generic_table_max;
 die ("No generic tracks selected\n") if ( ($generic_toggle || $anno_toggle) && (! @generic_table) );
 die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_ref) eq lc($ref));
+die ("No marker column\n") unless $markercol;
+die ("No genome build\n") unless $ref;
 
 #parameter ok, generate command
 my ($param,$lz_cmd,$anno_table_cmd);
@@ -106,8 +108,9 @@ push @command,$lz_cmd;
 #-------------------------------------------------------------------------------------------
 if ($anno_toggle && @generic_table)
 {
+    push @command, "$RealBin/../bin/formatter csv2tab $input $filename" and $input=$filename if $file_format eq 'comma';
+    push @command, "$RealBin/../bin/formatter rs2avinput $input $filename $markercol $anno_dir $ref";
     push @command, "$RealBin/../bin/formatter rmheader $input $filename";
-    push @command, "$RealBin/../bin/formatter csv2tab $input $filename" if $file_format eq 'comma';
 
     $anno_table_cmd.="$anno_exe $filename $anno_dir -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table)." -operation g,f,".join(',',map {'r'} @generic_table);
     $anno_table_cmd.=" -nastring $nastring" if $nastring;
