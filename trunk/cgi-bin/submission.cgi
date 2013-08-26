@@ -106,6 +106,10 @@ print $q->table(
     $q->Tr(
 	$q->td(
 	    $q->checkbox(-name=>'anno_toggle',-checked=>0,-label=>'Output ANNOVAR annotation?'),
+	),
+    ),
+    $q->Tr(
+	$q->td(
 	    $q->checkbox(-name=>'avinput',-checked=>0,-label=>'Input file in ANNOVAR format?'),
 	),
     ),
