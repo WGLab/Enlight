@@ -96,10 +96,6 @@ print $q->table(
 	$q->td("P value column (case-sensitive)"),
 	$q->td($q->textfield(-name=>"pvalcol",-default=>'p')),
     ),
-    $q->Tr(
-	$q->td("Missing value for OUTPUT"),
-	$q->td($q->textfield(-name=>'nastring',-default=>'NA')),
-    ),
 );
 
 print $q->p($q->b("Generic plot (using UCSC BED tables)"));
@@ -110,8 +106,12 @@ print $q->table(
     $q->Tr(
 	$q->td(
 	    $q->checkbox(-name=>'anno_toggle',-checked=>0,-label=>'Output ANNOVAR annotation?'),
-	    $q->checkbox(-name=>'avinput',-checked=>0,-lable=>'Input file in ANNOVAR format?'),
+	    $q->checkbox(-name=>'avinput',-checked=>0,-label=>'Input file in ANNOVAR format?'),
 	),
+    ),
+    $q->Tr(
+	$q->td("Missing value for OUTPUT"),
+	$q->td($q->textfield(-name=>'nastring',-default=>'NA')),
     ),
 );
 print $q->table(
