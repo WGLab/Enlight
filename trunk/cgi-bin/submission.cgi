@@ -108,8 +108,10 @@ print $q->table(
 	$q->td($q->checkbox(-name=>'generic_toggle',-checked=>1,-label=>'Generic plot?')), #return 'on' if checked
     ),
     $q->Tr(
-	$q->td($q->checkbox(-name=>'anno_toggle',-checked=>0,-label=>'Output ANNOVAR annotation?')), #return 'on' if checked
-	$q->td($q->checkbox(-name=>'avinput',-checked=>0,-lable=>'Input file in ANNOVAR format?')),
+	$q->td(
+	    $q->checkbox(-name=>'anno_toggle',-checked=>0,-label=>'Output ANNOVAR annotation?'),
+	    $q->checkbox(-name=>'avinput',-checked=>0,-lable=>'Input file in ANNOVAR format?'),
+	),
     ),
 );
 print $q->table(

@@ -109,7 +109,7 @@ push @command,$lz_cmd;
 if ($anno_toggle && @generic_table)
 {
     push @command, "$RealBin/../bin/formatter csv2tab $input $filename" and $input=$filename if $file_format eq 'comma';
-    push @command, "$RealBin/../bin/formatter rs2avinput $input $filename $markercol $anno_dir $ref";
+    push @command, "$RealBin/../bin/formatter rs2avinput $input $filename $markercol $anno_dir $ref" unless $q->param('avinput') eq 'on';
     push @command, "$RealBin/../bin/formatter rmheader $input $filename";
 
     $anno_table_cmd.="$anno_exe $filename $anno_dir -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table)." -operation g,f,".join(',',map {'r'} @generic_table);
