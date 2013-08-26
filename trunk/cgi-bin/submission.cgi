@@ -18,7 +18,7 @@ my %server_conf=&Utils::readServConf("$RealBin/../conf/enlight_server.conf","$Re
 #read list of available locuszoom databases
 my $flank_default=$server_conf{"flank_default"} || "200kb";
 my $generic_table_max=$server_conf{"generic_table_max"} || 10;
-my $public_key=$server_conf{'public_key'} or die "No public key for reCAPTCHA\n";
+#my $public_key=$server_conf{'public_key'} or die "No public key for reCAPTCHA\n";
 
 my @ref=('hg18','hg19');
 my $ref_default='hg19';
