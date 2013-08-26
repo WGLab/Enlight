@@ -71,7 +71,7 @@ print $q->table(
 	$q->td($q->radio_group(-name=>"qformat",-values=>\@qformat,-labels=>\%qformat_label,-default=>$qformat_default)),
     ),
     $q->Tr(
-	$q->td("Marker Column (SNP name)"),
+	$q->td("Marker Column (case sensitive)"),
 	$q->td($q->textfield(-name=>'markercol',-default=>'dbSNP135')),
     ),
     $q->Tr(
@@ -93,7 +93,7 @@ print $q->table(
 	),
     ),
     $q->Tr(
-	$q->td("P value column"),
+	$q->td("P value column (case-sensitive)"),
 	$q->td($q->textfield(-name=>"pvalcol",-default=>'p')),
     ),
     $q->Tr(
@@ -105,11 +105,11 @@ print $q->table(
 print $q->p($q->b("Generic plot (using UCSC BED tables)"));
 print $q->table(
     $q->Tr(
-	$q->td($q->checkbox(-name=>'generic_toggle',-checked=>1,-label=>'Generic plot?')), #return 'ON' if checked
+	$q->td($q->checkbox(-name=>'generic_toggle',-checked=>1,-label=>'Generic plot?')), #return 'on' if checked
     ),
     $q->Tr(
-	$q->td($q->checkbox(-name=>'anno_toggle',-checked=>0,-label=>'Output annotation?')), #return 'ON' if checked
-	$q->td("First 5 columns must be chr, start, end, ref and alt as described in ANNOVAR documentation. Header is required."),
+	$q->td($q->checkbox(-name=>'anno_toggle',-checked=>0,-label=>'Output ANNOVAR annotation?')), #return 'on' if checked
+	$q->td($q->checkbox(-name=>'avinput',-checked=>0,-lable=>'Input file in ANNOVAR format?')),
     ),
 );
 print $q->table(

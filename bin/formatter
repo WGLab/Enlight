@@ -3,8 +3,15 @@
 use strict;
 use warnings;
 
-die "Usage: $0 <rmheader|csv2tab> <infile> <outfile>\n" unless @ARGV==3;
-my ($op,$in,$out)=@ARGV;
+my $usage=
+"Usage: $0 
+	rmheader <infile> <outfile>
+	csv2tab <infile> <outfile>
+	rs2avinput <infile> <outfile> <snpcol> <annodir> <genome_build>\n";
+die $usage unless @ARGV>=3;
+my $op=shift @ARGV;
+my $in=shift @ARGV;
+my $out=shift @ARGV;
 
 if ($op =~ /rmheader/i)
 {
@@ -12,7 +19,11 @@ if ($op =~ /rmheader/i)
 } elsif ($op =~ /csv2tab/i)
 {
     &csv2tab($in,$out);
-} else
+} elsif ($op =~ /rs2avinput/i)
+{
+    die $usage unless @ARGV == 3;
+    &rs2avinput($in,$out,@ARGV);
+}else
 {
     die "Unrecognized operation\n";
 }
@@ -55,4 +66,144 @@ sub csv2tab
     close IN;
     open OUT,'>',$outfile or die "Cannot write to $outfile\n";
     print OUT $out;
+}
+
+sub rs2avinput
+{
+    #Usage: &rs2avinput($infile,$outfile,$annodir)
+    #convert SNP names (eg rs1234) to standard AVINPUT format (chr,start,end,ref,alt)
+    #assume 1st line is header
+    my $in=shift;
+    my $out=shift;
+    my $snpcol=shift;
+    my $dir=shift;
+    my $hg=shift;
+    my $db;
+    my %snp; #hash of array, key is rsid,value is array of every entry
+    my @out;
+
+    #read database
+    if ($hg=~/hg18/i)
+    {
+	$db="hg18_snp135.txt";
+    } elsif ($hg=~/hg19/i)
+    {
+	$db="hg19_snp137.txt";
+    } else
+    {
+	die "Unrecognized genome build: $hg\nhg18 or hg19 expected\n";
+    }
+    $db=File::Spec->catfile($dir,$db);
+    %snp=&readdbSNP($db);
+    #do the conversion
+    my $snpcol_idx=&findSNPColIdx($in,$snpcol);
+    open IN,'<',$in or die "Cannot open $in\n";
+    while(<IN>)
+    {
+	chomp;
+	push @out,join("\t","chr","start","end","ref","alt",$_) and next if $. == 1; #skip header
+	#make sure it's tab delimited
+	my @fields=split;
+	my $rs=$fields[$snpcol_idx];
+	$rs=lc $rc;
+	if ($snp{$rs})
+	{
+	    for (@{$snp{$rs}})
+	    {
+		push @out,join("\t",$_,@fields);
+	    }
+	} else
+	{
+	    push @out,join("\t",map {"NA"} (1..5),@fields);
+	}
+    }
+    close IN;
+    open OUT,'>',$out or die "Cannot write to $out:$!\n";
+    print OUT join("\n",@out);
+    close OUT;
+}
+
+sub readdbSNP
+{
+    my $db=shift;
+    my %snp;
+
+    open IN,'<',$db or die "Cannot read $db\n";
+    while (<IN>)
+    {
+	#below adapted from ANNOVAR
+	my @record=split(/\t/,$_,-1); #-1 in case there are empty fields
+	#don't check number of fields, cause it is downloaded from ANNOVAR website
+	my ($chr, $start, $end, $rsid, $strand, $ucscallele, $twoallele, $class) = @record[1,2,3,4,6,8,9,11];
+	$rsid=lc $rsid;
+	$chr=lc $chr;
+	$class=lc $class;
+	$start++; #UCSC genome coordinates
+	$chr=~s/^chr//;
+	next unless $class=~/single|deletion|in-del|insertion/;
+
+
+	my @allele = split (/\//, $twoallele);
+	@allele >= 2 or next;       
+
+	if ($strand eq '-') 
+	{        
+	    #handle reverse strand annotation (the vast majority of records in dbSNP should be already in + strand)
+	    map { $_=&revcom($_) } @allele ;
+	}
+	my ($ref,@alt)=@allele; #reports all alternative alleles
+	#in-del is usually annotated below, so they require special treatment
+	#587     chr1    384538  384539  rs3971283       0       +       T       T       -/ATT   genomic in-del  unknown 0       0       unknown exact   3
+	if ($class eq 'in-del') 
+	{        #indel are usually annotated as -/xxx, where xxx is the alternative allele
+	    @alt = (length ($ucscallele) . $allele[1] );    #prefix a number before the alleles, indicating block substitution
+	} elsif ($class eq 'insertion') 
+	{
+	    $start--;
+	    @alt = ("0$allele[1]");
+	} elsif ($class eq 'deletion') 
+	{
+	    @alt = (length ($ucscallele));
+	} else 
+	{
+	    1;
+	}
+	#note that some SNPs (e.g., rs28434453) may hit multiple locations, report all of them
+	#585        chr1    13301   13302   rs28434453      0       -       C       C       C/T     genomic single etc...
+	#1367    chr15   102517867       102517868       rs28434453      0       +       G       G       C/T     genomic single etc...
+	$snp{$rsid}=[] unless defined $snp{$rsid};
+	push $snp{$rsid},join("\t",$chr,$start,$end,$ref,join('/',@alt));
+    }
+    close IN;
+    return %snp;
+}
+
+sub findSNPColIdx
+{
+    my $in=shift;
+    my $snpcol=shift;
+
+    open IN,'<',$in or die "Cannot open $in\n";
+    while (<IN>)
+    {
+	last if $.>1;
+	my @fields=split;
+	for my $i(0..$#fields)
+	{
+	    #make sure it's a whitespace-delimited file
+	    if ($fields[$i] eq $snpcol)
+	    {
+		return $i;
+	    }
+	}
+    }
+    die "Cannot find SNP column.\n";
+}
+
+sub revcom 
+{
+    my ($seq) = @_;
+    $seq = reverse $seq;
+    $seq =~ tr/acgtACGT/tgcaTGCA/;
+    return ($seq);
 }
