@@ -66,10 +66,10 @@ my $ref=$q->param("ref");
 my @generic_table=$q->param('generic_table');
 my $nastring=$q->param('nastring');
 
-my $generic_toggle=1 if $q->param('generic_toggle') eq 'on';
-my $anno_toggle=1 if $q->param('anno_toggle') eq 'on';
+my $generic_toggle=1 if (defined $q->param('generic_toggle') && $q->param('generic_toggle') eq 'on');
+my $anno_toggle=1 if (defined $q->param('anno_toggle') && $q->param('anno_toggle') eq 'on');
 
-die ("Illegal email address\n") if $user_email !~ /.+\@.+\..+/;
+die ("Illegal email address\n") if ($user_email && $user_email !~ /.+\@.+\..+/);
 die ("Too many generic tracks (max: $generic_table_max)\n") if @generic_table > $generic_table_max;
 die ("No generic tracks selected\n") if ( ($generic_toggle || $anno_toggle) && (! @generic_table) );
 die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_ref) eq lc($ref));
@@ -108,9 +108,13 @@ push @command,$lz_cmd;
 #-------------------------------------------------------------------------------------------
 if ($anno_toggle && @generic_table)
 {
-    push @command, "$RealBin/../bin/formatter csv2tab $input $filename" and $input=$filename if $file_format eq 'comma';
-    push @command, "$RealBin/../bin/formatter rs2avinput $input $filename $markercol $anno_dir $ref" unless $q->param('avinput') eq 'on';
-    push @command, "$RealBin/../bin/formatter rmheader $input $filename";
+    my $tmp="/tmp/$$.tmp";
+    my $in=$input;
+    push @command, "$RealBin/../bin/formatter csv2tab $in $tmp" and $in=$tmp if $file_format eq 'comma';
+    push @command, "$RealBin/../bin/formatter rs2avinput $in $tmp $markercol $anno_dir $ref" and $in=$tmp 
+    	unless (defined $q->param('avinput') && $q->param('avinput') eq 'on');
+    push @command, "$RealBin/../bin/formatter rmheader $in $tmp" and $in=$tmp;
+    push @command, "cat $tmp>$filename";
 
     $anno_table_cmd.="$anno_exe $filename $anno_dir -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table)." -operation g,f,".join(',',map {'r'} @generic_table);
     $anno_table_cmd.=" -nastring $nastring" if $nastring;
@@ -122,7 +126,14 @@ if ($anno_toggle && @generic_table)
 #perl -ne 'print unless $.==1' rs10318.txt > tmp ; ~/Downloads/annovar/table_annovar.pl tmp ~/Downloads/annovar/humandb/ -protocol refGene,1000g2012apr_all,wgEncodeRegTfbsClusteredV2 -operation g,f,r -nastring NA --buildver hg19 --remove
 #-------------------------------------------------------------------------------------------
 
+my $pid=fork;
+die "fork failed: $!\n" unless defined $pid;
+if ($pid == 0)
+{
+    #child
 &Utils::generateFeedback();
+exit;
+}
 
 #prepare database, it records job status
 #job status: (q)ueued, (e)rror, (r)unning, (f)inish, (c)leaned

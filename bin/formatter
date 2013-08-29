@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use File::Spec;
 
 my $usage=
 "Usage: $0 
@@ -105,7 +106,7 @@ sub rs2avinput
 	#make sure it's tab delimited
 	my @fields=split;
 	my $rs=$fields[$snpcol_idx];
-	$rs=lc $rc;
+	$rs=lc $rs;
 	if ($snp{$rs})
 	{
 	    for (@{$snp{$rs}})
@@ -172,7 +173,7 @@ sub readdbSNP
 	#585        chr1    13301   13302   rs28434453      0       -       C       C       C/T     genomic single etc...
 	#1367    chr15   102517867       102517868       rs28434453      0       +       G       G       C/T     genomic single etc...
 	$snp{$rsid}=[] unless defined $snp{$rsid};
-	push $snp{$rsid},join("\t",$chr,$start,$end,$ref,join('/',@alt));
+	push @{$snp{$rsid}},join("\t",$chr,$start,$end,$ref,join('/',@alt));
     }
     close IN;
     return %snp;
@@ -206,4 +207,76 @@ sub revcom
     $seq = reverse $seq;
     $seq =~ tr/acgtACGT/tgcaTGCA/;
     return ($seq);
+}
+
+sub index
+{
+
+    my ($BIN, $DBSIZE) = (0, 0);
+    my %index = ();
+    my $bb = {};                    #a subset of %index, which corresponds to the input variants
+    my $flag_idx_search = 0;        #indicate if index-based search algorithm is used (faster speed for a small number of input variants)
+
+    if ( -f "$dbfile.idx" ) {
+	if (open(IDX, "$dbfile.idx")) {
+	    my $line = <IDX>;
+	    if (not $line =~ m/BIN\t(\d+)\t(\d+)/) {
+		printerr "WARNING: Malformed database index file $dbfile.idx.\n";
+	    } elsif ($2 != -s $dbfile) {                    #file version is different, do not use index file in this case
+		printerr "WARNING: Your index file $dbfile.idx is out of date and will not be used. ANNOVAR can still generate correct results without index file.\n";
+	    } else {
+		($BIN, $DBSIZE) = ($1, $2);
+		while ( $line = <IDX> ) {
+		    $line =~ s/[\r\n]+$//;
+		    my ( $chrom, $pos, $offset0, $offset1 ) = split (/\t/, $line);
+		    $chrom =~ s/^chr//;             #delete the chr in snp135, etc
+		    defined $offset1 or next;       #invalid input line in the index file
+		    $index{"$chrom\t$pos"} = [$offset0, $offset1];
+		}
+	    }
+	    close (IDX);
+	} else {
+	    printerr "WARNING: cannot read from input database index $dbfile.idx: $!\n";
+	}
+	if (%index) {
+	    foreach my $k ( keys %$variant ) {
+		my ($chrom, $pos) = split ($;, $k);
+
+		my $bin = $pos - ($pos % $BIN);
+		defined $index{"$chrom\t$bin"} or next;
+
+		$bb->{"$chrom\t$bin"}{$k} = $variant->{$k};
+	    }
+
+	    if (scalar (keys %$bb) / scalar (keys %index) < $indexfilter_threshold) {
+		$flag_idx_search++;
+		printerr "NOTICE: Database index loaded. Total number of bins is ".  scalar (keys %index) . " and " . "the number of bins to be scanned is " . scalar (keys %$bb) . "\n";
+	    }
+	} else {
+	    printerr "WARNING: Unable to load database index successfully from file $dbfile.idx.\n";
+	}
+    }
+    if (not $flag_idx_search) {
+	$bb = {1, [0, -s "$dbfile"]};
+	%index = (1, [0, -s "$dbfile"]);
+    }
+
+    open (DB, $dbfile) or die "Error: cannot read from input database file $dbfile: $!\n";
+    printerr "NOTICE: Scanning filter database $dbfile...";
+
+    foreach my $b (sort keys %$bb) {
+	my ($chunk_min, $chunk_max) = @{ $index{$b} };
+
+	seek(DB, $chunk_min, 0);                                #place file pointer to the chunk_min
+	my $chunk_here = $chunk_min;
+
+	while (<DB>) {
+	    my $line_length = length($_);                   #calculate line length of the DB
+
+	    my (@obs2, @score2, @start2, @ref2);                            #for 1000G2010 data set in VCF format, some tri-allelic SNPs are present; in the future, some quad-allelic SNPs may be also present in VCF files
+	    s/[\r\n]+$//;
+	    m/\S/ or next;                                  #skip empty lines in the database file (sometimes this occurs)
+
+	}
+    }
 }
