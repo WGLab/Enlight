@@ -88,6 +88,7 @@ sub error
 sub generateFeedback 
 {
     my $submission_time=scalar localtime;
+    $|++;
     my $q=new CGI;
     print $q->header ("text/html");
     print $q->start_html('Submission status');
