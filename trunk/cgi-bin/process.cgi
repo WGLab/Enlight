@@ -69,6 +69,7 @@ my $nastring=$q->param('nastring');
 my $generic_toggle=1 if (defined $q->param('generic_toggle') && $q->param('generic_toggle') eq 'on');
 my $anno_toggle=1 if (defined $q->param('anno_toggle') && $q->param('anno_toggle') eq 'on');
 
+#option check
 die ("Illegal email address\n") if ($user_email && $user_email !~ /.+\@.+\..+/);
 die ("Too many generic tracks (max: $generic_table_max)\n") if @generic_table > $generic_table_max;
 die ("No generic tracks selected\n") if ( ($generic_toggle || $anno_toggle) && (! @generic_table) );
@@ -76,119 +77,12 @@ die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_re
 die ("No marker column\n") unless $markercol;
 die ("No genome build\n") unless $ref;
 
-#parameter ok, generate command
-my ($param,$lz_cmd,$anno_table_cmd);
-my @command;
-
-#let server know where to find correct exe if necessary
-#$ENV{PATH}="/home/yunfeiguo/Downloads/python-2.7/bin:".$ENV{PATH};
-#$ENV{PATH}="/home/yunfeiguo/Downloads/annovar:".$ENV{PATH};
-
-#-------------------------------------------------------------------------------------------
-$param.=" --build $ref" if $ref;
-$param.=" --markercol $markercol" if $markercol;
-$param.=" --source $ld_source" if $ld_source;
-$param.=" --generic ".join (',',@generic_table) if $generic_toggle && @generic_table;
-$param.=" --pop $ld_pop" if $ld_pop;
-$param.=" --flank $flank" if $flank;
-$param.=" --refsnp $refsnp" if $refsnp;
-$param.=" --pvalcol $pvalcol" if $pvalcol;
-$param.=" --metal $input" if $input;
-$param.=" --delim $file_format" if $file_format;
-$param.=" --plotonly";
-
-$lz_cmd="$lz_exe $param";
-
-push @command,$lz_cmd;
-#locuszoom --metal rs10318.txt --pval p --refsnp rs10318 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 150kb --build hg19 --generic wgEncodeHaibMethyl450Caco2SitesRep1,wgEncodeRegTfbsClusteredV2 --plotonly
-#-------------------------------------------------------------------------------------------
-
-
-
-#-------------------------------------------------------------------------------------------
-if ($anno_toggle && @generic_table)
-{
-    my $tmp="/tmp/$$.tmp";
-    my $in=$input;
-    push @command, "$RealBin/../bin/formatter csv2tab $in $tmp" and $in=$tmp if $file_format eq 'comma';
-    push @command, "$RealBin/../bin/formatter rs2avinput $in $tmp $markercol $anno_dir $ref" and $in=$tmp 
-    	unless (defined $q->param('avinput') && $q->param('avinput') eq 'on');
-    push @command, "$RealBin/../bin/formatter rmheader $in $tmp" and $in=$tmp;
-    push @command, "cat $tmp>$filename";
-
-    $anno_table_cmd.="$anno_exe $filename $anno_dir -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table)." -operation g,f,".join(',',map {'r'} @generic_table);
-    $anno_table_cmd.=" -nastring $nastring" if $nastring;
-    $anno_table_cmd.=" -buildver $ref" if $ref;
-    $anno_table_cmd.=" -remove";
-
-    push @command,$anno_table_cmd;
-}
-#perl -ne 'print unless $.==1' rs10318.txt > tmp ; ~/Downloads/annovar/table_annovar.pl tmp ~/Downloads/annovar/humandb/ -protocol refGene,1000g2012apr_all,wgEncodeRegTfbsClusteredV2 -operation g,f,r -nastring NA --buildver hg19 --remove
-#-------------------------------------------------------------------------------------------
-
-my $pid=fork;
-die "fork failed: $!\n" unless defined $pid;
-if ($pid == 0)
-{
-    #child
 &Utils::generateFeedback();
-exit;
-}
 
-#prepare database, it records job status
-#job status: (q)ueued, (e)rror, (r)unning, (f)inish, (c)leaned
-my $dsn="DBI:mysql:database=$dbname"; #data source name
-my $dbh=DBI->connect($dsn,$dbuser,$dbpassword,{
-	RaiseError=>1, #report error via die
-    	PrintError=>0, #do not report error via warn
-    },) or &Utils::error( "Cannot connect: $DBI::errstr\n",$log,$admin_email);
-
-
-#turn control to Control.pm
-my $c=Control->new(
-    	'dbh'			=>$dbh,
-	'tablename'		=>$server_conf{'tablename'},
-	'maxjobnum'		=>$server_conf{'maxjobnum'},
-	'maxjobhist'		=>$server_conf{'maxjobhist'},
-	'wait_time'		=>$server_conf{'waittime'},
-	'max_per_ip'		=>$server_conf{'maxperip'},
-	'outdir'		=>$server_conf{'outdir'},
-	'maxtime'		=>$server_conf{'maxtime'},
-	'max_run_time'		=>$server_conf{'max_run_time'},
-	'command'		=>\@command,
-	'access'		=>&Utils::rndStr(16,'a'..'z',0..9),
-	'ip'			=>$ENV{'REMOTE_ADDR'},
-	'date'			=>$date,
-	'time'			=>$time,
-	'query'			=>$input,
-	'param'			=>$param,
-);
-
-eval {
-$c->tablePrepare(); #make sure the table exists
-$c->jobCheck();
-$c->jobClean();
-$c->jobRegister(); #job ID will be saved with the object
-$c->jobControl(); #job status totally controlled by Control.pm
-}; #capture error message rather than just die, since user might have left our website
-#We do not care about the return value from Control.pm, it just dies if anything goes wrong
-$dbh->disconnect();
-my $error=$@ if $@;
-
-#return results
-my $base_url=$q->url(-base=>1);
-my $result_url=$base_url."/output/".$c->access(); #Don't forget to map /output URL to output dir, or just create 'output' dir inside document root
-
-&Utils::sendEmail({
-	'admin'		=>$admin_email,
-	'email'		=>$user_email,
-	'base_url'	=>$base_url,
-	'url'		=>$result_url,
-	'subject'	=>'Enlight Result '.$date,
-	'error'		=>($error || undef),
-    }) if $user_email;
-
-&Utils::error($error,$log,$admin_email) if $error;
-
-&Utils::genResultPage( File::Spec->catdir($c->outdir(),$c->access()),$result_url ); #generate an index.html page with hyperlinks for all files in $access dir
-&Utils::showResult($result_url);
+my $status_tmp=localtime."$$.tmp";
+my $input_tmp=localtime."$$.input.tmp";
+system("cat $input > $input_tmp") and die "Cannot write to $input_tmp: $!\n";
+open OUT,'>',$status_tmp or die "Cannot open $status_tmp: $!\n";
+$q->save(\*OUT);
+close OUT;
+system(File::Spec->catfile($RealBin,"process2.cgi")." $status_tmp $input_tmp &"); #run command generation and execution in background, such that a confirmation page can show up before hand.
