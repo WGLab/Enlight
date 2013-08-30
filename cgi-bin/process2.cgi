@@ -11,7 +11,9 @@ use lib "$RealBin/../lib";
 use Utils;
 use Control;
 
-die "Usage: $0 <status_file> <input_file>\n" unless @ARGV==2;
+#let server know where to find correct exe if necessary
+#$ENV{PATH}="/home/yunfeiguo/Downloads/python-2.7/bin:".$ENV{PATH};
+#$ENV{PATH}="/home/yunfeiguo/Downloads/annovar:".$ENV{PATH};
 
 chdir File::Spec->catdir($RealBin,"..") or die ("Cannot enter installation directory\n"); #go to installation dir for safety
 
@@ -37,15 +39,25 @@ chomp $time;
 my $date=`date +%m/%d/%Y`;
 chomp $date;
 
-my $status_tmp=shift @ARGV;
-my $input=shift @ARGV;
-open IN,'<',$tmp or die "Cannot read $tmp: $!\n";
-my $q=CGI->new(\*IN);
-close IN;
+my $q=new CGI;
+
+##check if user is a human
+#die ("Incorrect verification code.\n") unless 
+#	&Utils::humanCheck(
+#	    $private_key,$q->param('recaptcha_challenge_field'),$q->param('recaptcha_response_field') 
+#	);
+
+#check upload
+my $fh=$q->upload('query');
+
+die ($q->cgi_error) if ($q->cgi_error);
+die ("ERROR: No uploaded file\n") unless $fh;
+
 #never trust any data from user input
 
 my $user_email=$q->param('email'); 
 my $filename=$q->param('query');
+my $input=$q->tmpFileName($filename);
 
 my $file_format=$q->param('qformat');
 my $markercol=$q->param('markercol');
@@ -61,13 +73,20 @@ my $nastring=$q->param('nastring');
 my $generic_toggle=1 if (defined $q->param('generic_toggle') && $q->param('generic_toggle') eq 'on');
 my $anno_toggle=1 if (defined $q->param('anno_toggle') && $q->param('anno_toggle') eq 'on');
 
+#option check
+die ("Illegal email address\n") if ($user_email && $user_email !~ /.+\@.+\..+/);
+die ("Too many generic tracks (max: $generic_table_max)\n") if @generic_table > $generic_table_max;
+die ("No generic tracks selected\n") if ( ($generic_toggle || $anno_toggle) && (! @generic_table) );
+die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_ref) eq lc($ref));
+die ("No marker column\n") unless $markercol;
+die ("No genome build\n") unless $ref;
+
+&Utils::generateFeedback();
+
 #parameter ok, generate command
 my ($param,$lz_cmd,$anno_table_cmd);
 my @command;
 
-#let server know where to find correct exe if necessary
-#$ENV{PATH}="/home/yunfeiguo/Downloads/python-2.7/bin:".$ENV{PATH};
-#$ENV{PATH}="/home/yunfeiguo/Downloads/annovar:".$ENV{PATH};
 
 #-------------------------------------------------------------------------------------------
 $param.=" --build $ref" if $ref;
@@ -87,8 +106,6 @@ $lz_cmd="$lz_exe $param";
 push @command,$lz_cmd;
 #locuszoom --metal rs10318.txt --pval p --refsnp rs10318 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 150kb --build hg19 --generic wgEncodeHaibMethyl450Caco2SitesRep1,wgEncodeRegTfbsClusteredV2 --plotonly
 #-------------------------------------------------------------------------------------------
-
-
 
 #-------------------------------------------------------------------------------------------
 if ($anno_toggle && @generic_table)
