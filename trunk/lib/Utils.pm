@@ -94,7 +94,7 @@ sub generateFeedback
     print $q->start_html('Submission status');
     print $q->h1 ("Submission received");
     print $q->p ("Your submission has been received by us at <b>$submission_time</b>.");
-    print $q->p("You will be redirected to result page in a few seconds.");
+    print $q->p("You will be redirected to result page. Please wait ...");
     print $q->end_html();
 }
 
