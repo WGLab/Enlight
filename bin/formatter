@@ -72,19 +72,19 @@ sub rs2avinput
     my $snpcol_idx=&findSNPColIdx($in,$snpcol);
     open IN,'<',$in or die "Cannot open $in: $!\n";
     open DB,'<',$db or die "Cannot open $db: $!\n";
-    open OUT,'>',$out or die "Cannot write to $out: $!\n";
     while(<IN>)
     {
-	print OUT "chr\tstart\tend\tref\talt\t$_" and next if $. == 1; #do nothing for header
 	chomp;
+	push @out,"chr\tstart\tend\tref\talt\t$_\n" and next if $. == 1; #do nothing for header
 	#make sure it's tab delimited
 	my @fields=split;
 	my $rs=$fields[$snpcol_idx];
-	print OUT "NA\tNA\tNA\tNA\tNA\t$_\n" and next if $rs !~ /rs\d+/;
+	push @out,"NA\tNA\tNA\tNA\tNA\t$_\n" and next if $rs !~ /rs\d+/;
 	my $pos=`$0 findbin $rs $db`;
 	chomp $pos;
 	if ($pos ne "")
 	{
+	    my $exist=0;
 	    seek DB,$pos,0;
 	    while (my $dbln=<DB>)
 	    {
@@ -93,19 +93,24 @@ sub rs2avinput
 		my ($in_id)= $rs=~/rs(\d+)/;
 		if ($id > $in_id)
 		{
-		    print OUT "NA\tNA\tNA\tNA\tNA\t$_\n" and last;
+		    push @out,"NA\tNA\tNA\tNA\tNA\t$_\n" unless $exist;
+		    last;
 		} elsif ($id == $in_id)
 		{
-		    print OUT join("\t",@dbf[0..4],@fields),"\n" and last;
+		    push @out, join("\t",@dbf[0..4],@fields),"\n";
+		    $exist=1;
 		}
 	    }
 	} else
 	{
-	    print OUT "NA\tNA\tNA\tNA\tNA\t$_\n";
+	    push @out,"NA\tNA\tNA\tNA\tNA\t$_\n";
 	}
     }
     close IN;
     close DB;
+
+    open OUT,'>',$out or die "Cannot write to $out: $!\n";
+    print OUT @out;
     close OUT;
 }
 sub findSNPColIdx
@@ -123,10 +128,11 @@ sub findSNPColIdx
 	    #make sure it's a whitespace-delimited file
 	    if ($fields[$i] eq $snpcol)
 	    {
-		return $i;
+		close IN and return $i;
 	    }
 	}
     }
+    close IN;
     die "Cannot find SNP column.\n";
 }
 

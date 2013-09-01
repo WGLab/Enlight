@@ -110,19 +110,32 @@ push @command,$lz_cmd;
 #-------------------------------------------------------------------------------------------
 if ($anno_toggle && @generic_table)
 {
-    my $tmp="/tmp/$$.tmp";
+    my $tmp="/tmp/$$.anno.tmp";
     my $in=$input;
+
+    #formatter should be able to read and write to the same file
     push @command, "$RealBin/../bin/formatter csv2tab $in $tmp" and $in=$tmp if $file_format eq 'comma';
-    push @command, "$RealBin/../bin/formatter rs2avinput $in $tmp $markercol $anno_dir $ref" and $in=$tmp 
-    	unless (defined $q->param('avinput') && $q->param('avinput') eq 'on');
-    push @command, "$RealBin/../bin/formatter rmheader $in $tmp" and $in=$tmp;
-    push @command, "cat $tmp>$filename";
+
+    unless (defined $q->param('avinput') && $q->param('avinput') eq 'on')
+    {
+	if ($ref eq 'hg18')
+	{
+	    push @command, "$RealBin/../bin/formatter rs2avinput $in $tmp $RealBin/../data/database/hg18_snp135_rs.txt";
+	} elsif ($ref eq 'hg19')
+	{
+	    push @command, "$RealBin/../bin/formatter rs2avinput $in $tmp $RealBin/../data/database/hg19_snp135_rs.txt";
+	} else
+	{
+	    die "Unkown genome build: $ref\n";
+	}
+	$in=$tmp;
+    }
+    push @command, "cat $in>$filename";
 
     $anno_table_cmd.="$anno_exe $filename $anno_dir -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table)." -operation g,f,".join(',',map {'r'} @generic_table);
     $anno_table_cmd.=" -nastring $nastring" if $nastring;
     $anno_table_cmd.=" -buildver $ref" if $ref;
     $anno_table_cmd.=" -remove";
-
     push @command,$anno_table_cmd;
 }
 #perl -ne 'print unless $.==1' rs10318.txt > tmp ; ~/Downloads/annovar/table_annovar.pl tmp ~/Downloads/annovar/humandb/ -protocol refGene,1000g2012apr_all,wgEncodeRegTfbsClusteredV2 -operation g,f,r -nastring NA --buildver hg19 --remove
