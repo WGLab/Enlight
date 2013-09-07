@@ -16,7 +16,7 @@ my %server_conf=&Utils::readServConf("$RealBin/../conf/enlight_server.conf","$Re
     or die "Reading server configuration file failed!\n";
 
 #read list of available locuszoom databases
-my $flank_default=$server_conf{"flank_default"} || "200kb";
+my $flank_default=$server_conf{"flank_default"} || "200";
 my $generic_table_max=$server_conf{"generic_table_max"} || 10;
 #my $public_key=$server_conf{'public_key'} or die "No public key for reCAPTCHA\n";
 
@@ -109,7 +109,7 @@ print $q->table(
 	    $q->table(
 		$q->Tr(
 		    $q->td(
-			["Start (Mb)","End (Mb)"]
+			["Start (Mb)",$q->textfield(-name=>'start')]
 		    )
 		)
 	    )
@@ -122,7 +122,7 @@ print $q->table(
 	    $q->table(
 		$q->Tr(
 		    $q->td(
-			[$q->textfield(-name=>"start"),$q->textfield(-name=>"end")]
+			["End (Mb)",$q->textfield(-name=>"end")]
 		    )
 		)
 	    )
