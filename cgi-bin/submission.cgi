@@ -108,8 +108,10 @@ print $q->table(
 	$q->td(
 	    $q->table(
 		$q->Tr($q->td("Chromosomal region")),
-	    $q->Tr($q->td(
-		    $q->popup_menu(-name=>'chr',-values=> \@chr,-labels=>\%chr_label,-default=>'15')
+		$q->Tr($q->td(
+			$q->popup_menu(-name=>'chr',-values=> \@chr,-labels=>\%chr_label,-default=>'15')
+		    )
+		)
 	    )
 	),
     ),
