@@ -86,8 +86,9 @@ print $q->table(
     ),
 );
 
+print $q->p($q->b("Fill one of the columns"));
 print $q->table(
-    {-border=>0,-caption=>"Fill one of the columns"},
+    {-border=>1},
 
     $q->Tr(
 	$q->td(["Reference SNP","Reference gene","Chromosomal region"]),
