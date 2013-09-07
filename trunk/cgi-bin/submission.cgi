@@ -110,7 +110,12 @@ print $q->table(
 	    [
 	    $q->textfield(-name=>"snpflank",-default=>$flank_default),
 	    $q->textfield(-name=>"geneflank",-default=>$flank_default),
-	    $q->textfield(-name=>"start"),
+	    $q->table(
+		$q->Tr(
+		    $q->td(
+	    [$q->textfield(-name=>"start"),$q->textfield(-name=>"end")]
+		)
+	    ),
 	    ]
 	),
     ),
