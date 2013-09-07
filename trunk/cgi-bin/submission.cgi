@@ -63,7 +63,7 @@ print $q->table(
 	$q->td("Input file (first line must be header)"),
 	$q->td($q->filefield(-name=>"query")),
 	$q->td(
-	    $q->p($q->a({-href=>"/example/rs10318.txt"},"example file"))
+	    $q->p($q->a({-href=>"/example/rs10318.txt"},"example file (plot using default settings)"))
 	    ),
     ),
     $q->Tr(
@@ -75,26 +75,49 @@ print $q->table(
 	$q->td($q->textfield(-name=>'markercol',-default=>'dbSNP135')),
     ),
     $q->Tr(
+	$q->td("P value column (case-sensitive)"),
+	$q->td($q->textfield(-name=>"pvalcol",-default=>'p')),
+    ),
+    $q->Tr(
 	$q->td('Genome Build/LD source/Population'),
 	$q->td(
 	    $q->popup_menu(-name=>'source_ref_pop',-values=> \@source_ref_pop,-labels=>\%source_ref_pop_label,-default=>[$default_source_ref_pop])
 	),
     ),
+);
+
+print $q->table(
+    {-border=>0,-caption=>"Fill one of the columns"},
+
     $q->Tr(
-	$q->td("Flanking region"),
+	$q->td(["Reference SNP","Reference gene","Chromosomal region"]),
+    ),
+    $q->Tr(
 	$q->td(
-	    $q->textfield(-name=>"flank",-default=>$flank_default)
+	    [
+	    $q->textfield(-name=>"refsnp",-default=>"rs10318"),
+	    $q->textfield(-name=>"refgene"),
+	    $q->textfield(-name=>"chr"),
+	    ]
 	),
     ),
     $q->Tr(
-	$q->td("Reference SNP"),
+	$q->td(["SNP Flanking region (Kb)","Gene Flanking region(Kb)","Start(Mb)"]),
+    ),
+    $q->Tr(
 	$q->td(
-	    $q->textfield(-name=>"refsnp",-default=>"rs10318")
+	    [
+	    $q->textfield(-name=>"snpflank",-default=>$flank_default),
+	    $q->textfield(-name=>"geneflank",-default=>$flank_default),
+	    $q->textfield(-name=>"start"),
+	    ]
 	),
     ),
     $q->Tr(
-	$q->td("P value column (case-sensitive)"),
-	$q->td($q->textfield(-name=>"pvalcol",-default=>'p')),
+	$q->td(['','',"End(Mb)"])
+    ),
+    $q->Tr(
+	$q->td(['','',$q->textfield(-name=>"end")]),
     ),
 );
 
