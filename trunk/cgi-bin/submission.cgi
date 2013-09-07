@@ -88,7 +88,7 @@ print $q->table(
 
 print $q->p($q->b("Fill one of the columns"));
 print $q->table(
-    {-border=>1},
+    {-border=>1,-rules=>'cols'},
 
     $q->Tr(
 	$q->td(["Reference SNP","Reference gene","Chromosomal region"]),
@@ -103,7 +103,17 @@ print $q->table(
 	),
     ),
     $q->Tr(
-	$q->td(["SNP Flanking region (Kb)","Gene Flanking region(Kb)","Start(Mb)"]),
+	$q->td("SNP Flanking region (Kb)"),
+	$q->td("Gene Flanking region (Kb)"),
+	$q->td(
+	    $q->table(
+		$q->Tr(
+		    $q->td(
+			["Start (Mb)","End (Mb)"]
+		    )
+		)
+	    )
+	),
     ),
     $q->Tr(
 	$q->td($q->textfield(-name=>"snpflank",-default=>$flank_default)),
@@ -117,12 +127,6 @@ print $q->table(
 		)
 	    )
 	),
-    ),
-    $q->Tr(
-	$q->td(['','',"End(Mb)"])
-    ),
-    $q->Tr(
-	$q->td(['','',$q->textfield(-name=>"end")]),
     ),
 );
 
