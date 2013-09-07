@@ -37,6 +37,8 @@ my %generic_table_label=map {($_,$_)} @generic_table;
 my @qformat=("whitespace","space","comma");
 my %qformat_label=map {($_,$_)} @qformat;
 my $qformat_default="whitespace";
+my @chr=(1..22,'X');
+my %chr_label=map {($_,$_)} @chr;
 
 ################html generation###############
 my $q=new CGI;
@@ -106,7 +108,8 @@ print $q->table(
 	$q->td(
 	    $q->table(
 		$q->Tr($q->td("Chromosomal region")),
-		$q->Tr($q->td($q->textfield(-name=>"chr"))),
+	    $q->Tr($q->td(
+		    $q->popup_menu(-name=>'chr',-values=> \@chr,-labels=>\%chr_label,-default=>'15')
 	    )
 	),
     ),
@@ -161,7 +164,7 @@ print $q->table(
     ),
 );
 print $q->table(
-    {-border=>1},
+    {-border=>1,-rules=>'rows'},
     $q->Tr(
 	$q->td("Genome Build"),
 	$q->td($q->radio_group(-name=>'ref',-values=>\@ref,-default=>$ref_default,-labels=>\%ref_label)),
