@@ -91,15 +91,23 @@ print $q->table(
     {-border=>1,-rules=>'cols'},
 
     $q->Tr(
-	$q->td(["Reference SNP","Reference gene","Chromosomal region"]),
-    ),
-    $q->Tr(
 	$q->td(
-	    [
-	    $q->textfield(-name=>"refsnp",-default=>"rs10318"),
-	    $q->textfield(-name=>"refgene"),
-	    $q->textfield(-name=>"chr"),
-	    ]
+	    $q->table(
+		$q->Tr($q->td("Reference SNP")),
+		$q->Tr($q->td($q->textfield(-name=>"refsnp",-default=>"rs10318"))),
+	    )
+	),
+	$q->td(
+	    $q->table(
+		$q->Tr($q->td("Reference Gene")),
+		$q->Tr($q->td($q->textfield(-name=>"refgene"))),
+	    )
+	),
+	$q->td(
+	    $q->table(
+		$q->Tr($q->td("Chromosomal region")),
+		$q->Tr($q->td($q->textfield(-name=>"chr"))),
+	    )
 	),
     ),
     $q->Tr(
@@ -124,7 +132,7 @@ print $q->table(
 		),
 		$q->Tr(
 		    $q->td(
-			["End&nbsp&nbsp (Mb)",$q->textfield(-name=>"end")]
+			["End (Mb)",$q->textfield(-name=>"end")]
 		    )
 		),
 	    )
