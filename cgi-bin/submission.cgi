@@ -103,28 +103,30 @@ print $q->table(
 	),
     ),
     $q->Tr(
-	$q->td("SNP Flanking region (Kb)"),
-	$q->td("Gene Flanking region (Kb)"),
+	$q->td(
+	    $q->table(
+		$q->Tr($q->td("SNP Flanking region (Kb)")),
+		$q->Tr($q->td($q->textfield(-name=>"snpflank",-default=>$flank_default))),
+	    )
+	),
+	$q->td(
+	    $q->table(
+		$q->Tr($q->td("Gene Flanking region (Kb)")),
+		$q->Tr($q->td($q->textfield(-name=>"geneflank",-default=>$flank_default))),
+	    )
+	),
 	$q->td(
 	    $q->table(
 		$q->Tr(
 		    $q->td(
 			["Start (Mb)",$q->textfield(-name=>'start')]
 		    )
-		)
-	    )
-	),
-    ),
-    $q->Tr(
-	$q->td($q->textfield(-name=>"snpflank",-default=>$flank_default)),
-	$q->td($q->textfield(-name=>"geneflank",-default=>$flank_default)),
-	$q->td(
-	    $q->table(
+		),
 		$q->Tr(
 		    $q->td(
 			["End&nbsp&nbsp (Mb)",$q->textfield(-name=>"end")]
 		    )
-		)
+		),
 	    )
 	),
     ),
