@@ -122,7 +122,7 @@ print $q->table(
 	    $q->table(
 		$q->Tr(
 		    $q->td(
-			["End   (Mb)",$q->textfield(-name=>"end")]
+			["End&nbsp&nbsp (Mb)",$q->textfield(-name=>"end")]
 		    )
 		)
 	    )
