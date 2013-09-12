@@ -104,7 +104,7 @@ sub jobRun()
     #record beginning time, kill long-running process later
     for my $cmd(@command)
     {
-	$cmd=~s/>|<|\*|\?|\[|\]|`|\$|\||;|&|\(|\)|\#|'|"//g; #remove shell metacharacters
+	#$cmd=~s/>|<|\*|\?|\[|\]|`|\$|\||;|&|\(|\)|\#|'|"//g; #remove shell metacharacters
 	eval {
 	    local $SIG{ALRM}=sub { die "Exceeding maxium time ($max_run_time seconds) allowed.\n" };
 	    alarm $max_run_time;
