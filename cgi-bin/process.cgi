@@ -138,7 +138,8 @@ if ($anno_toggle && @generic_table)
     push @command,$anno_table_cmd;
 }
 
-#perl -ne 'print unless $.==1' rs10318.txt > tmp ; ~/Downloads/annovar/table_annovar.pl tmp ~/Downloads/annovar/humandb/ -protocol refGene,1000g2012apr_all,wgEncodeRegTfbsClusteredV2 -operation g,f,r -nastring NA --buildver hg19 --remove
+map {s/>|<|\*|\?|\[|\]|`|\$|\||;|&|\(|\)|\#|'|"//g} @command; #remove insecure char
+
 #-------------------------------------------------------------------------------------------
 
 #prepare database, it records job status
