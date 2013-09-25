@@ -104,32 +104,34 @@ print $q->table(
     {-border=>1,-rules=>'cols'},
 
     $q->Tr(
-	$q->td ( {-colspan=>3},
+	$q->td ( 
 	    $q->popup_menu(
 		-name=>'select_region',
 		-onchange=>'response_to_select_region(this.form.select_region.value)',
 		-values=> ["snp","gene","chr"],
-		-labels=> {"snp"=>"Reference SNP","gene"=>"Reference Gene","chr"=>"Chromosomal Region"},
+		-labels=> {"snp"=>"Reference SNP","gene"=>"Reference Gene","chr"=>"Chromosomal Region"},) 
+	    	-default=> ["snp"],
+	),
     ),
     $q->Tr(
-	$q->td(
-	    $q->table( {-name=>'refsnp_table',-class=>'table_disable'},
+	$q->td( {-id=>'snp',-style=>'display:block'},
+	    $q->table( 
 		$q->Tr($q->td("Reference SNP")),
 		$q->Tr($q->td($q->textfield(-name=>"refsnp",-default=>"rs10318"))),
 		$q->Tr($q->td("SNP Flanking region (Kb)")),
 		$q->Tr($q->td($q->textfield(-name=>"snpflank",-default=>$flank_default))),
 	    )
 	),
-	$q->td(
-	    $q->table( {-name=>'refgene_table',-class=>'table_disable'},
+	$q->td( {-id=>'gene',-style=>'display:none'},
+	    $q->table( 
 		$q->Tr($q->td("Reference Gene")),
 		$q->Tr($q->td($q->textfield(-name=>"refgene"))),
 		$q->Tr($q->td("Gene Flanking region (Kb)")),
 		$q->Tr($q->td($q->textfield(-name=>"geneflank",-default=>$flank_default))),
 	    )
 	),
-	$q->td(
-	    $q->table( {-name=>'chr_table',-class=>'table_disable'},
+	$q->td( {-id=>'chr',-style=>'display:none'},
+	    $q->table(
 		$q->Tr($q->td("Chromosomal region")),
 		$q->Tr($q->td(
 			$q->popup_menu(-name=>'chr',-values=> \@chr,-labels=>\%chr_label,-default=>'15')
@@ -137,7 +139,7 @@ print $q->table(
 		),
 		$q->Tr(
 		    $q->td(
-			["Start (Mb)",$q->textfield(-name=>'start')]) 
+			["Start (Mb)",$q->textfield(-name=>'start')] ) 
 		),
 		$q->Tr(
 		    $q->td(
