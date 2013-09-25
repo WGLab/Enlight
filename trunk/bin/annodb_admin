@@ -17,6 +17,7 @@ my ($inslst, 	#insert list
 
 @ARGV or pod2usage();
 GetOptions(
+    "inslist=s"		=>	\$listfile,
     "insert|i=s"	=>	\$inslst,
     "delete|d=s"	=>	\$dellst,
     "file|f=s"		=>	\$filelst,
@@ -61,13 +62,30 @@ my @file=split /,/,$filelst if $filelst;
 my $executedb="$RealBin/../src/executeDB.py";
 my @unlink;
 
+if ($listfile)
+{
+    warn "NOTICE: use tables in $listfile.\n"
+    warn "$inslst will be ignored.\n" if $inslst;
+    open IN,'<',$listfile or die "Failed to read $listfile: $!\n";
+    @ins=<IN>;
+    chomp @ins;
+    @ins=grep { !/^#/} @ins;
+} 
+
 #first process deletion
 if (@del)
 {
     for my $del_table(@del)
     {
-	system("$executedb --db $db --delete $del_table") and 
-	die "Cannot delete $del_table from $db\n";
+	if (!system("$executedb --db $db --delete $del_table"))
+	{
+	    warn "$del_table deleted.\n";
+	} else
+	{
+	    warn "Cannot delete $del_table from $db: $!\n";
+	    !system("sqlite3 $db .table") or die "Failed to show tables: $!\n";
+	    die "\n";
+	}
     }
 }
 
@@ -85,7 +103,7 @@ if (@ins)
 }
 
 #cleanup
-unlink @unlink;
+unlink @unlink or die "Failed to clean @unlink: $!\n";
 
 ##########################SUBROUTINES########################
 sub bed2generic
@@ -97,8 +115,9 @@ sub bed2generic
 	my @output;
 	while (<IN>)
 	{
-	    next if /^(track|#|browser)/i; #skip header
+	    next if /^(track|#|browser|\s)/i; #skip header
 	    my @line=split;
+	    next unless @line>=6; #first column is BIN
 	    $line[1]=lc($line[1]);
 	    push @output, join("\t",$chr2no{$line[1]},$line[2],$line[3],$line[5]),"\n";
 	}
@@ -131,9 +150,10 @@ sub filecheck
 	    my $file="$item.txt.gz";
 	    my $unpack_file="$item.txt";
 	    push @unlink,$file;
-	    Utils::getstore($url,$file) or die "Cannot download $file from UCSC\n";
+	    push @unlink,$unpack_file;
+	    &Utils::getstore($url,$file) or die "Cannot download $file from UCSC\n";
 	    warn "Unpacking ...\n";
-	    Utils::extract_archive($file,$unpack_file) or die "Cannot unpack $file\n";
+	    &Utils::extract_archive($file,$unpack_file) or die "Cannot unpack $file\n";
 	    warn "Extracting chr,start,end,score ...\n";
 	    my ($convert_file)=&bed2generic($unpack_file);
 	    push @tables,$convert_file;
