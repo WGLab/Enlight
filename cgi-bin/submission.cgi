@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use CGI;
+use CGI::Pretty;
 use CGI::Carp qw/fatalsToBrowser/;
 use FindBin qw/$RealBin/;
 use lib "$RealBin/../lib";
@@ -41,11 +41,22 @@ my @chr=(1..22,'X');
 my %chr_label=map {($_,$_)} @chr;
 
 ################html generation###############
-my $q=new CGI;
+my $q=new CGI::Pretty;
 #my $c=new Captcha::reCAPTCHA;
 
 #print $q->header; #not useful unless read by APACHE directly
-print $q->start_html(-title=>"Enlight Homepage");
+my $disable_table_css=".table_disable{visibility:hidden}";
+print $q->start_html(
+    -title=>"Enlight Homepage",
+    -script=>{
+	-language=>'javascript',
+	-src=>'/javascript/lib.js',
+    },
+    -style=>{
+	#-src=>'/style/style.css',
+	-code=>$disable_table_css,
+    },
+);
 ##change reCAPTCHA theme here
 #print <<RECAPTCHA;
 #<script type="text/javascript">
@@ -54,7 +65,7 @@ print $q->start_html(-title=>"Enlight Homepage");
 # };
 # </script>
 #RECAPTCHA
-print $q->start_form(-action=>"/cgi-bin/process.cgi",-method=>"post");
+print $q->start_form(-name=>'main',-action=>"/cgi-bin/process.cgi",-method=>"post");
 print $q->table(
     {-border=>0},
     $q->Tr(
@@ -66,7 +77,7 @@ print $q->table(
 	$q->td($q->filefield(-name=>"query")),
 	$q->td(
 	    $q->p($q->a({-href=>"/example/rs10318.txt"},"example file (plot using default settings)"))
-	    ),
+	),
     ),
     $q->Tr(
 	$q->td("Field delimiter"),
@@ -93,52 +104,44 @@ print $q->table(
     {-border=>1,-rules=>'cols'},
 
     $q->Tr(
-	$q->td(
-	    $q->table(
-		$q->Tr($q->td("Reference SNP")),
-		$q->Tr($q->td($q->textfield(-name=>"refsnp",-default=>"rs10318"))),
-	    )
-	),
-	$q->td(
-	    $q->table(
-		$q->Tr($q->td("Reference Gene")),
-		$q->Tr($q->td($q->textfield(-name=>"refgene"))),
-	    )
-	),
-	$q->td(
-	    $q->table(
-		$q->Tr($q->td("Chromosomal region")),
-		$q->Tr($q->td(
-			$q->popup_menu(-name=>'chr',-values=> \@chr,-labels=>\%chr_label,-default=>'15')
-		    )
-		)
-	    )
-	),
+	$q->td ( {-colspan=>3},
+	    $q->popup_menu(
+		-name=>'select_region',
+		-onchange=>'response_to_select_region(this.form.select_region.value)',
+		-values=> ["snp","gene","chr"],
+		-labels=> {"snp"=>"Reference SNP","gene"=>"Reference Gene","chr"=>"Chromosomal Region"},
     ),
     $q->Tr(
 	$q->td(
-	    $q->table(
+	    $q->table( {-name=>'refsnp_table',-class=>'table_disable'},
+		$q->Tr($q->td("Reference SNP")),
+		$q->Tr($q->td($q->textfield(-name=>"refsnp",-default=>"rs10318"))),
 		$q->Tr($q->td("SNP Flanking region (Kb)")),
 		$q->Tr($q->td($q->textfield(-name=>"snpflank",-default=>$flank_default))),
 	    )
 	),
 	$q->td(
-	    $q->table(
+	    $q->table( {-name=>'refgene_table',-class=>'table_disable'},
+		$q->Tr($q->td("Reference Gene")),
+		$q->Tr($q->td($q->textfield(-name=>"refgene"))),
 		$q->Tr($q->td("Gene Flanking region (Kb)")),
 		$q->Tr($q->td($q->textfield(-name=>"geneflank",-default=>$flank_default))),
 	    )
 	),
 	$q->td(
-	    $q->table(
-		$q->Tr(
-		    $q->td(
-			["Start (Mb)",$q->textfield(-name=>'start')]
+	    $q->table( {-name=>'chr_table',-class=>'table_disable'},
+		$q->Tr($q->td("Chromosomal region")),
+		$q->Tr($q->td(
+			$q->popup_menu(-name=>'chr',-values=> \@chr,-labels=>\%chr_label,-default=>'15')
 		    )
 		),
 		$q->Tr(
 		    $q->td(
-			["End (Mb)",$q->textfield(-name=>"end")]
-		    )
+			["Start (Mb)",$q->textfield(-name=>'start')]) 
+		),
+		$q->Tr(
+		    $q->td(
+			["End (Mb)",$q->textfield(-name=>"end")] )
 		),
 	    )
 	),

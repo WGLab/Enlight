@@ -12,3 +12,4 @@ add data tracks to both locuszoom database and annovar database folder
 python 2.7, annovar, various perl modules are required. Please make sure they appear in apache's PATH. Or you can modify the first line of the script, or add $ENV{PATH}="path:".$ENV{PATH} in perl code
 make sure to set proper permission for executables and folders
 make sure annotate_variation.pl at the beginning of your PATH
+make the installation folder as the document root for apache (or its virtual host)
