@@ -1,13 +1,22 @@
 function response_to_select_region(input_value) {
+	snp=document.getElementById('snp');
+	gene=document.getElementById('gene');
+	chr=document.getElementById('chr');
     if (input_value=="snp") 
     {
-	document.main.refsnp_table.style.visibility="visible";
+    	snp.style.display="block";
+    	gene.style.display="none";
+    	chr.style.display="none";
     } else if (input_value=="gene")
     {
-	document.main.refgene_table.style.visibility="visible";
+    	gene.style.display="block";
+    	snp.style.display="none";
+    	chr.style.display="none";
     } else if (input_value=="chr")
     {
-	document.main.chr_table.style.visibility="visible";
+    	chr.style.display="block";
+    	snp.style.display="none";
+    	gene.style.display="none";
     }
 }
 
