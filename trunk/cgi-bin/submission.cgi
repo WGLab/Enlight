@@ -117,23 +117,23 @@ print $q->table(
     $q->Tr(
 	$q->td( {-id=>'snp',-style=>'display:block'},
 	    $q->table( 
-		$q->Tr($q->td("Reference SNP")),
+		#$q->Tr($q->td("Reference SNP")),
 		$q->Tr($q->td($q->textfield(-name=>"refsnp",-default=>"rs10318"))),
-		$q->Tr($q->td("SNP Flanking region (Kb)")),
+		$q->Tr($q->td("SNP Flanking Region (Kb)")),
 		$q->Tr($q->td($q->textfield(-name=>"snpflank",-default=>$flank_default))),
 	    )
 	),
 	$q->td( {-id=>'gene',-style=>'display:none'},
 	    $q->table( 
-		$q->Tr($q->td("Reference Gene")),
+		#$q->Tr($q->td("Reference Gene")),
 		$q->Tr($q->td($q->textfield(-name=>"refgene"))),
-		$q->Tr($q->td("Gene Flanking region (Kb)")),
+		$q->Tr($q->td("Gene Flanking Region (Kb)")),
 		$q->Tr($q->td($q->textfield(-name=>"geneflank",-default=>$flank_default))),
 	    )
 	),
 	$q->td( {-id=>'chr',-style=>'display:none'},
 	    $q->table(
-		$q->Tr($q->td("Chromosomal region")),
+		#$q->Tr($q->td("Chromosomal region")),
 		$q->Tr($q->td(
 			$q->popup_menu(-name=>'chr',-values=> \@chr,-labels=>\%chr_label,-default=>'15')
 		    )
