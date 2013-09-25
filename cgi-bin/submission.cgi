@@ -109,8 +109,9 @@ print $q->table(
 		-name=>'select_region',
 		-onchange=>'response_to_select_region(this.form.select_region.value)',
 		-values=> ["snp","gene","chr"],
-		-labels=> {"snp"=>"Reference SNP","gene"=>"Reference Gene","chr"=>"Chromosomal Region"},) 
+		-labels=> {"snp"=>"Reference SNP","gene"=>"Reference Gene","chr"=>"Chromosomal Region"},
 	    	-default=> ["snp"],
+	    )
 	),
     ),
     $q->Tr(
