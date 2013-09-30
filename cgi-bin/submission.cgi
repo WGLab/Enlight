@@ -35,8 +35,8 @@ my ($default_source_ref_pop)=grep {/$ref_default/ and /EUR/i} @source_ref_pop;
 #my %generic_table_label=map {($_,$_)} @generic_table;
 
 my %tracks=&Utils::readObj("$RealBin/../conf/datatracks.txt");
-my %cell= map { ($tracks{$_}{cell},$track{$_}{table}) } keys %tracks;
-my %experiment= map { ($tracks{$_}{experiment},$track{$_}{table}) } keys %tracks;
+my %cell= map { ($tracks{$_}{cell},$tracks{$_}{table}) } keys %tracks;
+my %experiment= map { ($tracks{$_}{experiment},$tracks{$_}{table}) } keys %tracks;
 
 my @qformat=("whitespace","space","comma");
 my %qformat_label=map {($_,$_)} @qformat;
