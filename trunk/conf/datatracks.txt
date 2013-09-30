@@ -1,0 +1,84 @@
+1	cell:Caco-2	experiment:methyl RRBS	table:wgEncodeHaibMethylRrbsCaco2UwSitesRep1			
+2	cell:Caco-2	experiment:DNase-seq	table:wgEncodeUwDnaseCaco2PkRep1			
+3	cell:Caco-2	experiment:ChIP-seq_H3K4me3	table:wgEncodeUwHistoneCaco2H3k4me3StdPkRep1			
+4	cell:Caco-2	experiment:ChIP-seq_H3K36me3	table:wgEncodeUwHistoneCaco2H3k36me3StdPkRep1			
+5	cell:Caco-2	experiment:ChIP-seq_H3K27me3	table:wgEncodeUwHistoneCaco2H3k27me3StdPkRep1			
+6	cell:Caco-2	experiment:ChIP-seq_CTCF	table:wgEncodeUwTfbsCaco2CtcfStdPkRep1			
+7	cell:HCT116	experiment:methyl RRBS	table:wgEncodeHaibMethylRrbsHct116StanfordSitesRep1			
+8	cell:HCT116	experiment:DNase-seq	table:wgEncodeUwDnaseHct116PkRep1			
+9	cell:HCT116	experiment:ChIP-seq_H3K4me3	table:wgEncodeUwHistoneHct116H3k4me3StdPkRep1			
+10	cell:HCT116	experiment:ChIP-seq_H3K4me1	table:wgEncodeSydhHistoneHct116H3k04me1UcdPk			
+11	cell:HCT116	experiment:ChIP-seq_H3K27ac	table:wgEncodeSydhHistoneHct116H3k27acUcdPk			
+12	cell:HCT116	experiment:ChIP-seq_TCF7L2	table:wgEncodeSydhTfbsHct116Tcf7l2UcdPk			
+13	cell:HCT116	experiment:ChIP-seq_CTCF	table:wgEncodeHaibTfbsHct116CtcfcV0422111PkRep1			
+14	cell:H1-hESC	experiment:methyl RRBS	table:wgEncodeHaibMethylRrbsH1hescHaibSitesRep1			
+15	cell:H1-hESC	experiment:DNase-seq	table:wgEncodeOpenChromDnaseH1hescPk			
+16	cell:H1-hESC	experiment:FAIRE-seq	table:wgEncodeOpenChromFaireH1hescPk			
+17	cell:H1-hESC	experiment:ChIP-seq_H3K4me3	table:wgEncodeBroadHistoneH1hescH3k4me3StdPk			
+18	cell:H1-hESC	experiment:ChIP-seq_H3K9ac	table:wgEncodeBroadHistoneH1hescH3k9acStdPk			
+19	cell:H1-hESC	experiment:ChIP-seq_H3K4me1	table:wgEncodeBroadHistoneH1hescH3k4me1StdPk			
+20	cell:H1-hESC	experiment:ChIP-seq_H3K27ac	table:wgEncodeBroadHistoneH1hescH3k27acStdPk			
+21	cell:H1-hESC	experiment:ChIP-seq_H3K36me3	table:wgEncodeBroadHistoneH1hescH3k36me3StdPk			
+22	cell:H1-hESC	experiment:ChIP-seq_H3K79me2	table:wgEncodeBroadHistoneH1hescH3k79me2StdPk			
+23	cell:H1-hESC	experiment:ChIP-seq_H3K27me3	table:wgEncodeBroadHistoneH1hescH3k27me3StdPk			
+24	cell:H1-hESC	experiment:ChIP-seq_H3K9me3	table:wgEncodeBroadHistoneH1hescH3k09me3StdPk			
+25	cell:H1-hESC	experiment:ChIP-seq_CTCF	table:wgEncodeOpenChromChipH1hescCtcfPk			
+26	cell:MCF-7	experiment:methyl RRBS	table:wgEncodeHaibMethylRrbsMcf7DukeSitesRep1			
+27	cell:MCF-7	experiment:DNase-seq	table:wgEncodeUwDnaseMcf7PkRep1			
+28	cell:MCF-7	experiment:ChIP-seq_H3K4me3	table:wgEncodeUwHistoneMcf7H3k4me3StdPkRep1			
+29	cell:MCF-7	experiment:ChIP-seq_H3K27ac	table:wgEncodeSydhHistoneMcf7H3k27acUcdPk			
+30	cell:MCF-7	experiment:ChIP-seq_H3K36me3	table:wgEncodeSydhHistoneMcf7H3k36me3bUcdPk			
+31	cell:MCF-7	experiment:ChIP-seq_H3K27me3	table:wgEncodeSydhHistoneMcf7H3k27me3bUcdPk			
+32	cell:MCF-7	experiment:ChIP-seq_H3K9me3	table:wgEncodeSydhHistoneMcf7H3k09me3UcdPk			
+33	cell:MCF-7	experiment:ChIP-seq_TCF7L2	table:wgEncodeHaibTfbsMcf7Tcf12V0422111PkRep1			
+34	cell:MCF-7	experiment:ChIP-seq_CTCF	table:wgEncodeUwTfbsMcf7CtcfStdPkRep1			
+35	cell:K562	experiment:methyl RRBS	table:wgEncodeHaibMethylRrbsK562HaibSitesRep1			
+36	cell:K562	experiment:DNase-seq	table:wgEncodeUwDnaseK562PkRep1			
+37	cell:K562	experiment:ChIP-seq_H3K4me3	table:wgEncodeBroadHistoneK562H3k4me3StdPk			
+38	cell:K562	experiment:ChIP-seq_H3K9ac	table:wgEncodeBroadHistoneK562H3k9acStdPk			
+39	cell:K562	experiment:ChIP-seq_H3K4me1	table:wgEncodeBroadHistoneK562H3k4me1StdPk			
+40	cell:K562	experiment:ChIP-seq_H3K27ac	table:wgEncodeBroadHistoneK562H3k27acStdPk			
+41	cell:K562	experiment:ChIP-seq_H3K36me3	table:wgEncodeBroadHistoneK562H3k36me3StdPk			
+42	cell:K562	experiment:ChIP-seq_H3K79me2	table:wgEncodeBroadHistoneK562H3k79me2StdPk			
+43	cell:K562	experiment:ChIP-seq_H3K27me3	table:wgEncodeBroadHistoneK562H3k27me3StdPk			
+44	cell:K562	experiment:ChIP-seq_H3K9me3	table:wgEncodeBroadHistoneK562H3k9me3StdPk			
+45	cell:K562	experiment:ChIP-seq_CTCF	table:wgEncodeUwTfbsK562CtcfStdPkRep1			
+46	cell:GM12878	experiment:methyl RRBS	table:wgEncodeHaibMethylRrbsGm12878HaibSitesRep1			
+47	cell:GM12878	experiment:DNase-seq	table:wgEncodeOpenChromDnaseGm12878Pk			
+48	cell:GM12878	experiment:FAIRE-seq	table:wgEncodeOpenChromFaireGm12878Pk			
+49	cell:GM12878	experiment:ChIP-seq_H3K4me3	table:wgEncodeBroadHistoneGm12878H3k4me3StdPk			
+50	cell:GM12878	experiment:ChIP-seq_H3K9ac	table:wgEncodeBroadHistoneGm12878H3k9acStdPk			
+51	cell:GM12878	experiment:ChIP-seq_H3K4me1	table:wgEncodeBroadHistoneGm12878H3k4me1StdPk			
+52	cell:GM12878	experiment:ChIP-seq_H3K27ac	table:wgEncodeBroadHistoneGm12878H3k27acStdPk			
+53	cell:GM12878	experiment:ChIP-seq_H3K36me3	table:wgEncodeBroadHistoneGm12878H3k36me3StdPk			
+54	cell:GM12878	experiment:ChIP-seq_H3K79me2	table:wgEncodeBroadHistoneGm12878H3k79me2StdPk			
+55	cell:GM12878	experiment:ChIP-seq_H3K27me3	table:wgEncodeBroadHistoneGm12878H3k27me3StdPk			
+56	cell:GM12878	experiment:ChIP-seq_H3K9me3	table:wgEncodeBroadHistoneGm12878H3k9me3StdPk			
+57	cell:GM12878	experiment:ChIP-seq_TCF7L2	table:wgEncodeAwgTfbsHaibGm12878Tcf12Pcr1xUniPk			
+58	cell:GM12878	experiment:ChIP-seq_TCF3	table:wgEncodeAwgTfbsHaibGm12878Tcf3Pcr1xUniPk			
+59	cell:GM12878	experiment:ChIP-seq_CTCF	table:wgEncodeAwgTfbsBroadGm12878CtcfUniPk			
+60	cell:A549	experiment:methyl RRBS	table:wgEncodeHaibMethylRrbsA549Dm002p7dHaibSitesRep1			
+61	cell:A549	experiment:DNase-seq	table:wgEncodeOpenChromDnaseA549Pk			
+62	cell:A549	experiment:FAIRE-seq	table:wgEncodeOpenChromFaireA549Pk			
+63	cell:A549	experiment:ChIP-seq_H3K4me3	table:wgEncodeBroadHistoneA549H3k04me3Etoh02Pk			
+64	cell:A549	experiment:ChIP-seq_H3K9ac	table:wgEncodeBroadHistoneA549H3k09acEtoh02Pk			
+65	cell:A549	experiment:ChIP-seq_H3K4me1	table:wgEncodeBroadHistoneA549H3k04me1Etoh02Pk			
+66	cell:A549	experiment:ChIP-seq_H3K27ac	table:wgEncodeBroadHistoneA549H3k27acEtoh02Pk			
+67	cell:A549	experiment:ChIP-seq_H3K36me3	table:wgEncodeBroadHistoneA549H3k36me3Etoh02Pk			
+68	cell:A549	experiment:ChIP-seq_H3K79me2	table:wgEncodeBroadHistoneA549H3k79me2Etoh02Pk			
+69	cell:A549	experiment:ChIP-seq_H3K27me3	table:wgEncodeBroadHistoneA549H3k27me3Etoh02Pk			
+70	cell:A549	experiment:ChIP-seq_H3K9me3	table:wgEncodeBroadHistoneA549H3k09me3Etoh02Pk			
+71	cell:A549	experiment:ChIP-seq_CTCF	table:wgEncodeUwTfbsA549CtcfStdPkRep1			
+72	cell:HeLa-S3	experiment:methyl RRBS	table:wgEncodeHaibMethylRrbsHelas3HaibSitesRep1			
+73	cell:HeLa-S3	experiment:DNase-seq	table:wgEncodeUwDnaseHelas3PkRep1			
+74	cell:HeLa-S3	experiment:FAIRE-seq	table:wgEncodeOpenChromFaireHelas3Pk			
+75	cell:HeLa-S3	experiment:ChIP-seq_H3K4me3	table:wgEncodeBroadHistoneHelas3H3k4me3StdPk			
+76	cell:HeLa-S3	experiment:ChIP-seq_H3K9ac	table:wgEncodeBroadHistoneHelas3H3k9acStdPk			
+77	cell:HeLa-S3	experiment:ChIP-seq_H3K4me1	table:wgEncodeBroadHistoneHelas3H3k04me1StdPk			
+78	cell:HeLa-S3	experiment:ChIP-seq_H3K27ac	table:wgEncodeBroadHistoneHelas3H3k27acStdPk			
+79	cell:HeLa-S3	experiment:ChIP-seq_H3K36me3	table:wgEncodeBroadHistoneHelas3H3k36me3StdPk			
+80	cell:HeLa-S3	experiment:ChIP-seq_H3K79me2	table:wgEncodeBroadHistoneHelas3H3k79me2StdPk			
+81	cell:HeLa-S3	experiment:ChIP-seq_H3K27me3	table:wgEncodeBroadHistoneHelas3H3k27me3StdPk.sql 			
+82	cell:HeLa-S3	experiment:ChIP-seq_H3K9me3	table:wgEncodeBroadHistoneHelas3H3k09me3Pk			
+83	cell:HeLa-S3	experiment:ChIP-seq_TCF7L2	table:wgEncodeSydhTfbsHelas3Tcf7l2UcdPk			
+84	cell:HeLa-S3	experiment:ChIP-seq_CTCF	table:wgEncodeAwgTfbsUwHelas3CtcfUniPk			
