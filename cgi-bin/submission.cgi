@@ -59,7 +59,7 @@ function changeTracks()
     var tracks=[];
 
     //get selected cell
-    for (var i=0;i<cell.length;i++))
+    for (var i=0;i<cell.length;i++)
     \{
 	if (cell[i].checked)
 	\{
@@ -89,9 +89,9 @@ function changeTracks()
     \}
     
     //remove all child nodes
-    while(row.firstChild)
+    while(insertPos.firstChild)
     \{
-	row.removeChild(row.firstChild);
+	insertPos.removeChild(row.firstChild);
     \}
 
     //add selected tracks
@@ -298,10 +298,10 @@ print $q->table(
 	),
 	#$q->td($q->checkbox_group(-name=>'generic_table',-values=>\@generic_table,-linebreak=>'true',-labels=>\%generic_table_label)),
     ),
+    $q->Tr($q->td("Data Tracks")),
     $q->Tr(
 	$q->td(
 	    $q->table( {-id=>'dataTrackHere'},
-		$q->Tr($q->td("Data Tracks")),
 	    )
 	),
     ),
