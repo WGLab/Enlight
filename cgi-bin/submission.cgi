@@ -111,6 +111,12 @@ function changeTracks()
     	col.appendChild(label);
     	newrow.appendChild(col);
     	insertPos.appendChild(newrow);
+	if (i>".($generic_table_max-1).")
+	\{
+		alert('At most $generic_table_max tracks can be selected.');
+		break;
+	\}
+	
     \}
 \}
 
@@ -278,7 +284,7 @@ print $q->table(
     $q->Tr(
 	$q->td(
 	    $q->table(
-		$q->Tr($q->td("Cell Line")),
+		$q->Tr($q->td($q->strong("Cell Line"))),
 		$q->Tr([
 		    map { $q->td( 
 			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
@@ -288,7 +294,7 @@ print $q->table(
 	),
 	$q->td(
 	    $q->table(
-		$q->Tr($q->td("Experiment Type")),
+		$q->Tr($q->td($q->strong("Experiment Type"))),
 		$q->Tr([
 		    map { $q->td( 
 			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
@@ -298,9 +304,9 @@ print $q->table(
 	),
 	#$q->td($q->checkbox_group(-name=>'generic_table',-values=>\@generic_table,-linebreak=>'true',-labels=>\%generic_table_label)),
     ),
-    $q->Tr($q->td("Data Tracks")),
+    $q->Tr($q->td({-colspan=>2},"Data Tracks")),
     $q->Tr(
-	$q->td(
+	$q->td({-colspan=>2},
 	    $q->table( {-id=>'dataTrackHere'},
 	    )
 	),
