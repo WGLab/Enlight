@@ -47,12 +47,12 @@ my %chr_label=map {($_,$_)} @chr;
 
 my $jscode="
 function changeTracks()
-{
-    var row=getElementById('dataTrackRow');
+\{
+    var insertPos=document.getElementById('dataTrackHere');
     var all=[ ".join(",\n",&genJsHash(%tracks))." ];
 
-    var cell=getElementsByClassName('cell');
-    var experiment=getElementsByClassName('experiment');
+    var cell=document.getElementsByClassName('cell');
+    var experiment=document.getElementsByClassName('experiment');
 
     var selectedCell=[];
     var selectedExperiment=[];
@@ -60,72 +60,82 @@ function changeTracks()
 
     //get selected cell
     for (var i=0;i<cell.length;i++))
-    {
+    \{
 	if (cell[i].checked)
-	{
+	\{
 	    selectedCell.push(cell[i].value);
-	}
-    }
+	\}
+    \}
 
     //get selected assay
-    for (var i=0;i<experiment.length;i++))
-    {
+    for (var i=0;i<experiment.length;i++)
+    \{
 	if (experiment[i].checked)
-	{
+	\{
 	    selectedExperiment.push(experiment[i].value);
-	}
-    }
+	\}
+    \}
 
     //get selected tracks
     for (var i=0;i<all.length;i++)
-    {
+    \{
 	if (selectedCell.indexOf(all[i].cell) != -1)
-	{
+	\{
 	    if (selectedExperiment.indexOf(all[i].experiment) != -1)
-	    {
+	    \{
 		tracks.push(all[i].name);
-	    }
-	}
-    }
+	    \}
+	\}
+    \}
     
     //remove all child nodes
     while(row.firstChild)
-    {
+    \{
 	row.removeChild(row.firstChild);
-    }
+    \}
 
     //add selected tracks
     for (var i=0;i<tracks.length;i++)
-    {
-	var col=document.createElement('td');
-	var checkbox=document.createElement('<input type=\"checkbox\" name=\"generic_table\" value=' + tracks[i] + ' checked />');
-	col.appendChild(checkbox);
-    	row.appendChild(col);
-    }
-}
+    \{
+    	var newrow=document.createElement('tr');
+    	var col=document.createElement('td');
+    	var label=document.createElement('label');
+    	var checkbox=document.createElement('input');
+    	label.innerHTML=tracks[i];
+    	checkbox.type='checkbox';
+    	checkbox.value=tracks[i];
+    	checkbox.name='generic_table';
+    	checkbox.checked=true;
+
+    	label.appendChild(checkbox);
+    	col.appendChild(label);
+    	newrow.appendChild(col);
+    	insertPos.appendChild(newrow);
+    \}
+\}
 
 function response_to_select_region(input_value) 
-{
+\{
     snp=document.getElementById('snp');
     gene=document.getElementById('gene');
     chr=document.getElementById('chr');
     if (input_value=='snp')
-    {
+    \{
 	snp.style.display='block';
 	gene.style.display='none';
 	chr.style.display='none';
-    } else if (input_value=='gene')
-    {
+    \} else if (input_value=='gene')
+    \{
 	gene.style.display='block';
 	snp.style.display='none';
 	chr.style.display='none';
-    } else if (input_value=='chr')
-    {
+    \} else if (input_value=='chr')
+    \{
 	chr.style.display='block';
 	snp.style.display='none';
 	gene.style.display='none';
-    }
-}
+    \}
+\}
 ";
 
 ################html generation###############
@@ -190,6 +200,7 @@ print $q->table(
 
 print $q->p($q->b("Specify a region"));
 print $q->table(
+    {-border=>1},
     $q->Tr(
 	$q->td ( 
 	    $q->popup_menu(
@@ -271,7 +282,7 @@ print $q->table(
 		$q->Tr([
 		    map { $q->td( 
 			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
-			) } keys %cell
+			) } sort keys %cell
 		    ]),
 	    )
 	),
@@ -281,7 +292,7 @@ print $q->table(
 		$q->Tr([
 		    map { $q->td( 
 			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
-			) } keys %experiment
+			) } sort keys %experiment
 		    ]),
 	    )
 	),
@@ -289,9 +300,8 @@ print $q->table(
     ),
     $q->Tr(
 	$q->td(
-	    $q->table(
+	    $q->table( {-id=>'dataTrackHere'},
 		$q->Tr($q->td("Data Tracks")),
-		$q->Tr({-id=>'dataTrackRow'}),
 	    )
 	),
     ),
