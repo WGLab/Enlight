@@ -28,17 +28,105 @@ my @source_ref_pop= sort (map {$server_conf{$_}} grep { /^\d+$/ } (keys %server_
 my %source_ref_pop_label=map {($_,$_)} @source_ref_pop; 
 my ($default_source_ref_pop)=grep {/$ref_default/ and /EUR/i} @source_ref_pop;
 
-my @non_generic_table=('recomb_rate','refFlat','refsnp_trans', 'snp_pos');
-my $db=$server_conf{$ref_default."db"}; #only use table list from one db, don't forget to check the other one!
-my @generic_table= sort &listGeneric (  $db,@non_generic_table );
-push @generic_table,"" unless @generic_table; #no generic plot if using empty database
+#my @non_generic_table=('recomb_rate','refFlat','refsnp_trans', 'snp_pos');
+#my $db=$server_conf{$ref_default."db"}; #only use table list from one db, don't forget to check the other one!
+#my @generic_table= sort &listGeneric (  $db,@non_generic_table );
+#push @generic_table,"" unless @generic_table; #no generic plot if using empty database
+#my %generic_table_label=map {($_,$_)} @generic_table;
 
-my %generic_table_label=map {($_,$_)} @generic_table;
+my %tracks=&Utils::readObj("$RealBin/../conf/datatracks.txt");
+my %cell= map { ($tracks{$_}{cell},$track{$_}{table}) } keys %tracks;
+my %experiment= map { ($tracks{$_}{experiment},$track{$_}{table}) } keys %tracks;
+
 my @qformat=("whitespace","space","comma");
 my %qformat_label=map {($_,$_)} @qformat;
 my $qformat_default="whitespace";
 my @chr=(1..22,'X');
 my %chr_label=map {($_,$_)} @chr;
+
+
+my $jscode="
+function changeTracks()
+{
+    var row=getElementById('dataTrackRow');
+    var all=[ ".join(",\n",&genJsHash(%tracks))." ];
+
+    var cell=getElementsByClassName('cell');
+    var experiment=getElementsByClassName('experiment');
+
+    var selectedCell=[];
+    var selectedExperiment=[];
+    var tracks=[];
+
+    //get selected cell
+    for (var i=0;i<cell.length;i++))
+    {
+	if (cell[i].checked)
+	{
+	    selectedCell.push(cell[i].value);
+	}
+    }
+
+    //get selected assay
+    for (var i=0;i<experiment.length;i++))
+    {
+	if (experiment[i].checked)
+	{
+	    selectedExperiment.push(experiment[i].value);
+	}
+    }
+
+    //get selected tracks
+    for (var i=0;i<all.length;i++)
+    {
+	if (selectedCell.indexOf(all[i].cell) != -1)
+	{
+	    if (selectedExperiment.indexOf(all[i].experiment) != -1)
+	    {
+		tracks.push(all[i].name);
+	    }
+	}
+    }
+    
+    //remove all child nodes
+    while(row.firstChild)
+    {
+	row.removeChild(row.firstChild);
+    }
+
+    //add selected tracks
+    for (var i=0;i<tracks.length;i++)
+    {
+	var col=document.createElement('td');
+	var checkbox=document.createElement('<input type=\"checkbox\" name=\"generic_table\" value=' + tracks[i] + ' checked />');
+	col.appendChild(checkbox);
+    	row.appendChild(col);
+    }
+}
+
+function response_to_select_region(input_value) 
+{
+    snp=document.getElementById('snp');
+    gene=document.getElementById('gene');
+    chr=document.getElementById('chr');
+    if (input_value=='snp')
+    {
+	snp.style.display='block';
+	gene.style.display='none';
+	chr.style.display='none';
+    } else if (input_value=='gene')
+    {
+	gene.style.display='block';
+	snp.style.display='none';
+	chr.style.display='none';
+    } else if (input_value=='chr')
+    {
+	chr.style.display='block';
+	snp.style.display='none';
+	gene.style.display='none';
+    }
+}
+";
 
 ################html generation###############
 my $q=new CGI::Pretty;
@@ -50,7 +138,8 @@ print $q->start_html(
     -title=>"Enlight Homepage",
     -script=>{
 	-language=>'javascript',
-	-src=>'/javascript/lib.js',
+	#-src=>'/javascript/lib.js',
+	-code=>$jscode,
     },
     -style=>{
 	#-src=>'/style/style.css',
@@ -99,10 +188,8 @@ print $q->table(
     ),
 );
 
-print $q->p($q->b("Fill one of the columns"));
+print $q->p($q->b("Specify a region"));
 print $q->table(
-    {-border=>1,-rules=>'cols'},
-
     $q->Tr(
 	$q->td ( 
 	    $q->popup_menu(
@@ -178,10 +265,41 @@ print $q->table(
 	$q->td($q->radio_group(-name=>'ref',-values=>\@ref,-default=>$ref_default,-labels=>\%ref_label)),
     ),
     $q->Tr(
-	$q->td("Generic data track"),
-	$q->td($q->checkbox_group(-name=>'generic_table',-values=>\@generic_table,-linebreak=>'true',-labels=>\%generic_table_label)),
+	$q->td(
+	    $q->table(
+		$q->Tr($q->td("Cell Line")),
+		$q->Tr([
+		    map { $q->td( 
+			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
+			) } keys %cell
+		    ]),
+	    )
+	),
+	$q->td(
+	    $q->table(
+		$q->Tr($q->td("Experiment Type")),
+		$q->Tr([
+		    map { $q->td( 
+			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
+			) } keys %experiment
+		    ]),
+	    )
+	),
+	#$q->td($q->checkbox_group(-name=>'generic_table',-values=>\@generic_table,-linebreak=>'true',-labels=>\%generic_table_label)),
+    ),
+    $q->Tr(
+	$q->td(
+	    $q->table(
+		$q->Tr($q->td("Data Tracks")),
+		$q->Tr({-id=>'dataTrackRow'}),
+	    )
+	),
     ),
 );
+
+
+
+
 #print $c->get_html($public_key);
 print $q->p($q->submit("submit"),$q->reset());
 print $q->end_form(),$q->end_html();
@@ -200,4 +318,19 @@ sub listGeneric
     map {$table_list =~ s/$_//gi} @non_generic;
     $table_list =~ s/^\s+|\s+$//; #del leading or trailing whitespaces
     return (split /\s+/,$table_list);
+}
+sub genJsHash
+{
+    my %hash=@_;
+    my @return;
+    for my $i(values %hash)
+    {
+	my %tmp=%{$i};
+	my @one;
+	push @one,"\{name:'$tmp{table}'";
+	push @one,"cell:'$tmp{cell}'";
+	push @one,"experiment:'$tmp{experiment}'\}";
+	push @return,join(",",@one);
+    }
+    return @return;
 }

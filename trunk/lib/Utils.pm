@@ -18,7 +18,6 @@ sub rndStr
     join '',@_[ map {rand @_} 1 .. shift ];
 }
 
-=head
 sub humanCheck
 {
     my $private_key=shift;
@@ -32,7 +31,6 @@ sub humanCheck
 	        $challenge,$response );
     return $recaptcha_result->{is_valid};
 }
-=cut
 
 sub readServConf
 {
@@ -143,6 +141,32 @@ sub sendEmail
 
     # sendmail dies on failure, no need for return
     sendmail($message);
+}
+
+sub readObj
+{
+    #format:1	name:jim	age:23	...
+    #omit # lines, must be tab-delimited
+    my $file=shift;
+    my %hash;
+    open IN,'<',$file or die "Can't read $file: $!\n";
+    while (<IN>)
+    {
+	s/\s+$//;
+	next if /^#|^\s*$/;
+	my @f=split (/\t/,$_,-1);
+	next unless @f>1;
+	my $id=shift @f;
+	$hash{$id}={};
+	for my $pair(@f)
+	{
+	    my ($key,$value)=split (/:/,$pair,-1);
+	    next unless $key!~/^\s*$/;
+	    $hash{$id}{$key}=$value;
+	}
+    }
+    close IN;
+    return %hash;
 }
 
 sub genResultPage
