@@ -91,7 +91,7 @@ function changeTracks()
     //remove all child nodes
     while(insertPos.firstChild)
     \{
-	insertPos.removeChild(row.firstChild);
+	insertPos.removeChild(insertPos.firstChild);
     \}
 
     //add selected tracks
