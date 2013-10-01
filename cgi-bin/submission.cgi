@@ -300,8 +300,12 @@ print $q->table(
 	),
     ),
     $q->Tr(
-	$q->td("Missing value for OUTPUT"),
-	$q->td($q->textfield(-name=>'nastring',-default=>'NA')),
+	$q->td(
+	    $q->p(
+		"Missing value for OUTPUT",
+		$q->textfield(-name=>'nastring',-default=>'NA'),
+	    )
+	),
     ),
     $q->Tr(
 	$q->td(
