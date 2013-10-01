@@ -24,10 +24,10 @@ sub humanCheck
     my $response=shift;
     my $captcha=new Captcha::reCAPTCHA;
     my $recaptcha_result=
-    
+
     $captcha->check_answer(
-	    $private_key,$ENV{'REMOTE_ADDR'},
-	        $challenge,$response );
+	$private_key,$ENV{'REMOTE_ADDR'},
+	$challenge,$response );
     return $recaptcha_result->{is_valid};
 }
 
@@ -183,7 +183,7 @@ sub genResultPage
     @files=glob File::Spec->catfile($dir,'*');
     if (@files)
     {
-    	@files=map {basename($_)} @files;
+	@files=map {basename($_)} @files;
 	for my $file(@files)
 	{
 	    my $link="$url/$file";
@@ -214,7 +214,77 @@ sub showResult
     print "<META HTTP-EQUIV=refresh CONTENT=\"10;URL=$url\">\n";
 }
 
+sub getstore
+{
+    my $url = shift;
+    my $file = shift;
+
+    if(&sys_which("wget"))
+    {
+	my $command = "wget \'$url\' -nd -r -O $file --no-check-certificate";
+	return !system($command);
+    }
+    elsif(&sys_which("curl"))
+    {
+	my $command = "curl --connect-timeout 30 -f -L \'$url\' -o $file -C -";
+	return !system($command);
+    }
+    else
+    {
+	warn "Cannot find wget or curl, please download $file manually\n";
+	return 0;
+    }
+}
+
+#untars a package. Tries to use tar first then moves to the perl package untar Module.
+sub extract_archive
+{
+    my $file = shift;
+    my $outfile = shift;
+
+    return 0 unless ($file && $outfile);
+
+    if ($file=~/\.zip$/i && &sys_which("unzip"))
+    {
+	my $command;
+	$command="unzip -p $file > $outfile";
+	return !system($command);
+    }
+    elsif ($file=~/tar\.gz$|\.tgz$|\.bz2?$|\.tbz2?$|\.tar$/i && &sys_which("tar"))
+    {
+	my $command;
+	my $u = scalar getpwuid($>);
+	my $g = scalar getgrgid($));
+	if($file =~ /\.gz$|\.tgz$/){
+	    $command = "tar -zxmO -f $file > $outfile";
+	}
+	elsif($file =~ /\.bz2?$|\.tbz2?$/){
+	    $command = "tar -jxmO -f $file > $outfile";
+	}
+	elsif ($file=~/\.tar$/) {
+	    $command = "tar -xmO -f $file > $outfile";
+	}
+	$command .= " --owner $u --group $g";
+	$command .= " --overwrite";
+
+	return !system($command);
+    }
+    elsif ($file=~/\.gz$/i && &sys_which("gzip"))
+    {
+	my $command="gzip -cd $file > $outfile";
+	return !system($command);
+
+    }
+    else
+    {
+	warn "Unknown filetype or cannot find gunzip, or tar or unzip, please unpack $file manually\n";
+	return 0;
+    }
+}
+
+
 1;
+
 
 =head1 Utils
 
