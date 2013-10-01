@@ -192,13 +192,15 @@ sub filecheck
 		    push @unlink,$tmp;
 		    my $tmp_unpack="/tmp/$item.hg19.txt"; 
 		    push @unlink,$tmp_unpack;
+		    my $tmp_nohead="/tmp/$item.hg19.nohead.txt";
 
 		    warn "Cannot download $item from UCSC\n";
 		    warn "Try hg19 version\n";
 		    $url=~s%/hg18/%/hg19/%;
 		    &Utils::getstore($url,$tmp) or die "Cannot get $item\n";
 		    &Utils::extract_archive($tmp,$tmp_unpack) or die "Cannot unpack $tmp\n";
-		    ! system("$liftover $tmp_unpack $hg19to18chain $unpack_file /tmp/$$.iii.tmp ") or die "Failed to liftover $item from hg19 to hg18: $!\n";
+		    &rmheader($tmp_unpack,$tmp_nohead);
+		    ! system("$liftover $tmp_nohead $hg19to18chain $unpack_file /tmp/$$.iii.tmp ") or die "Failed to liftover $item from hg19 to hg18: $!\n";
 		} else
 		{
 		    die "Cannot download $file from UCSC\n";
@@ -214,6 +216,21 @@ sub filecheck
 	return 0;
     }
     return @tables;
+}
+sub rmheader
+{
+    my $in=shift;
+    my $out=shift;
+
+    open IN,'<',$in or die "Can't read $in: $!\n";
+    open OUT,'>',$out or die "Can't write to $out: $!\n";
+    while (<IN>)
+    {
+	    next if /^(track|#|browser|\s)/i; #skip header
+	    print OUT $_;
+    }
+    close IN;
+    close OUT;
 }
 
 
