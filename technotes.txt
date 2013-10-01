@@ -13,5 +13,6 @@ python 2.7, annovar, various perl modules are required. Please make sure they ap
 make sure to set proper permission for executables and folders
 make sure annotate_variation.pl at the beginning of your PATH
 make the installation folder as the document root for apache (or its virtual host)
+install ucsc liftOver program, download chain file
 
 
