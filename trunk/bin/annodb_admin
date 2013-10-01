@@ -63,6 +63,7 @@ my %chr2no=(
 );
 
 $db=shift @ARGV;
+warn "No database\n" and pod2usage() unless $db;
 my @ins=split /,/,$inslst if $inslst;
 my @del=split /,/,$dellst if $dellst;
 my @file=split /,/,$filelst if $filelst;
