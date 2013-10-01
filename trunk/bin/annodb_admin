@@ -29,6 +29,10 @@ GetOptions(
 
 #insert BED tables from a specific db
 #delete tables from a specific db
+my $executedb="$RealBin/../src/executeDB.py";
+my $annovar="annotate_variation.pl";
+my $liftover="liftOver";
+my $hg19to18chain="hg19ToHg18.over.chain";
 my %chr2no=(
     'chr1' => '1',
     'chr2' => '2',
@@ -62,8 +66,6 @@ $db=shift @ARGV;
 my @ins=split /,/,$inslst if $inslst;
 my @del=split /,/,$dellst if $dellst;
 my @file=split /,/,$filelst if $filelst;
-my $executedb="$RealBin/../src/executeDB.py";
-my $annovar="annotate_variation.pl";
 my @unlink;
 
 warn ("NOTICE: Both plot database and annotation database will be updated.\n");
@@ -178,9 +180,27 @@ sub filecheck
 	    my $unpack_file="$item.txt";
 	    push @unlink,$file;
 	    push @unlink,$unpack_file;
-	    &Utils::getstore($url,$file) or die "Cannot download $file from UCSC\n";
+	    if (&Utils::getstore($url,$file))
+	    {
 	    warn "Unpacking ...\n";
-	    &Utils::extract_archive($file,$unpack_file) or die "Cannot unpack $file\n";
+	    unless (&Utils::extract_archive($file,$unpack_file) or die "Cannot unpack $file\n";
+	    } else
+	    {
+		if ($hg18)
+		{
+		    my $tmp="/tmp/$item.hg19.txt.gz";
+		    my $tmp_unpack="/tmp/$item.hg19.txt";
+
+		    warn "Cannot download $item from UCSC\n";
+		    warn "Try hg19 version\n";
+		    $url=~s%/hg18/%/hg19/%;
+		    &Utils::getstore($url,$tmp) or die "Cannot get $item\n";
+		    ! system("$liftover $tmp $hg19to18chain $unpack_file /tmp/$$.iii.tmp ") or die "Failed to liftover $item from hg19 to hg18: $!\n";
+		} else
+		{
+		    die "Cannot download $file from UCSC\n";
+		}
+	    }
 	    warn "Extracting chr,start,end,score ...\n";
 	    my ($convert_file)=&bed2generic($unpack_file);
 	    push @tables,$convert_file;
