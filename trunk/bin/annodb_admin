@@ -13,6 +13,8 @@ my ($inslst, 	#insert list
     $db,   	#db 
     $filelst,	#filelist
     $hg18,	#use hg18 if true
+    $annodir,
+    $listfile,
 );
 
 @ARGV or pod2usage();
@@ -21,6 +23,7 @@ GetOptions(
     "insert|i=s"	=>	\$inslst,
     "delete|d=s"	=>	\$dellst,
     "file|f=s"		=>	\$filelst,
+    "annodir=s"		=>	\$annodir,
     "hg18"		=>	\$hg18,
 ) or pod2usage ();
 
@@ -60,16 +63,17 @@ my @ins=split /,/,$inslst if $inslst;
 my @del=split /,/,$dellst if $dellst;
 my @file=split /,/,$filelst if $filelst;
 my $executedb="$RealBin/../src/executeDB.py";
+my $annovar="annotate_variation.pl";
 my @unlink;
 
+warn ("NOTICE: Both plot database and annotation database will be updated.\n");
 if ($listfile)
 {
-    warn "NOTICE: use tables in $listfile.\n"
-    warn "$inslst will be ignored.\n" if $inslst;
-    open IN,'<',$listfile or die "Failed to read $listfile: $!\n";
-    @ins=<IN>;
-    chomp @ins;
-    @ins=grep { !/^#/} @ins;
+    warn "NOTICE: use tables in $listfile.\n";
+    warn "$inslst and $filelst will be ignored.\n" if ($inslst || $filelst);
+    my %tmp=&Utils::readObj($listfile);
+    @ins=map { $tmp{$_}{table} } keys %tmp;
+    @file=();
 } 
 
 #first process deletion
@@ -77,14 +81,26 @@ if (@del)
 {
     for my $del_table(@del)
     {
+	#delete table in locuszoom database
 	if (!system("$executedb --db $db --delete $del_table"))
 	{
 	    warn "$del_table deleted.\n";
 	} else
 	{
 	    warn "Cannot delete $del_table from $db: $!\n";
+	    warn "Remaining tables:\n";
 	    !system("sqlite3 $db .table") or die "Failed to show tables: $!\n";
 	    die "\n";
+	}
+	#delete ANNOVAR tables
+	if (defined $annodir)
+	{
+	    my $annovar_db=($hg18? "hg18": "hg19")."_$del_table.txt";
+	    $annovar_db=File::Spec->catfile($annodir,$annovar_db);
+	    if (-f $annovar_db)
+	    {
+		unlink $annovar_db and warn "$annovar_db deleted\n";
+	    }
 	}
     }
 }
@@ -93,12 +109,23 @@ if (@del)
 
 if (@ins)
 {
+    #locuszoom database
     ##resolve table file for each table name
     @file=&filecheck(\@ins,\@file) or die "ERROR: not every insertion table corresponds to a file\n";
     for my $i (0..$#file)
     {
 	system("$executedb --db $db --tablefile $file[$i] --tablename $ins[$i]")
 	    and die "Cannot insert $ins[$i] ($file[$i]) into $db\n";
+    }
+    #annovar database
+    if (defined $annodir)
+    {
+	for my $table(@ins)
+	{
+	    system("$annovar --buildver ".($hg18? "hg18":"hg19")." -downdb $table $annodir") or
+	    die ("Failed to download $table\n");
+	    warn "ANNOVAR table $table downloaded\n";
+	}
     }
 }
 
@@ -143,7 +170,7 @@ sub filecheck
 	return @tables;
     } elsif (@tables == 0)
     {
-	warn ("No file supplied, try to download from UCSC genome browser\n");
+	warn ("Try to download tables from UCSC genome browser\n");
 	for my $item (@names)
 	{
 	    my $url="hgdownload.cse.ucsc.edu/goldenPath/".($hg18? "hg18":"hg19")."/database/$item.txt.gz";
@@ -178,9 +205,11 @@ annodb_admin
 
 annodb_admin [options] <database>
 
- -insert,-i	table names to be inserted
- -delete,-d	table names to be deleted
- -file,-f	table files to be inserted
+ -inslist	a file storing tables and associated properties
+ -insert,-i	list of table names to be inserted
+ -delete,-d	list of table names to be deleted
+ -file,-f	list of table files to be inserted
+ -nnodir	annovar database folder
  -hg18		use it if build version is hg18
 
  NOTE: All list must be comma-separated.
