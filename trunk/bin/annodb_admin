@@ -182,20 +182,23 @@ sub filecheck
 	    push @unlink,$unpack_file;
 	    if (&Utils::getstore($url,$file))
 	    {
-	    warn "Unpacking ...\n";
-	    unless (&Utils::extract_archive($file,$unpack_file) or die "Cannot unpack $file\n";
+		warn "Unpacking ...\n";
+		&Utils::extract_archive($file,$unpack_file) or die "Cannot unpack $file\n";
 	    } else
 	    {
 		if ($hg18)
 		{
-		    my $tmp="/tmp/$item.hg19.txt.gz";
-		    my $tmp_unpack="/tmp/$item.hg19.txt";
+		    my $tmp="/tmp/$item.hg19.txt.gz"; 
+		    push @unlink,$tmp;
+		    my $tmp_unpack="/tmp/$item.hg19.txt"; 
+		    push @unlink,$tmp_unpack;
 
 		    warn "Cannot download $item from UCSC\n";
 		    warn "Try hg19 version\n";
 		    $url=~s%/hg18/%/hg19/%;
 		    &Utils::getstore($url,$tmp) or die "Cannot get $item\n";
-		    ! system("$liftover $tmp $hg19to18chain $unpack_file /tmp/$$.iii.tmp ") or die "Failed to liftover $item from hg19 to hg18: $!\n";
+		    &Utils::extract_archive($tmp,$tmp_unpack) or die "Cannot unpack $tmp\n";
+		    ! system("$liftover $tmp_unpack $hg19to18chain $unpack_file /tmp/$$.iii.tmp ") or die "Failed to liftover $item from hg19 to hg18: $!\n";
 		} else
 		{
 		    die "Cannot download $file from UCSC\n";
