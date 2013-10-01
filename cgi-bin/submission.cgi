@@ -166,7 +166,17 @@ my $q=new CGI::Pretty;
 #my $c=new Captcha::reCAPTCHA;
 
 #print $q->header; #not useful unless read by APACHE directly
-my $disable_table_css=".table_disable{visibility:hidden}";
+my $disable_table_css="
+.table_disable
+{
+  visibility:hidden;
+}
+
+.table_align
+{
+  vertical-align:top;
+}
+";
 print $q->start_html(
     -title=>"Enlight Homepage",
     -script=>{
@@ -301,7 +311,7 @@ print $q->table(
 print $q->table(
     {-border=>1,-rules=>'rows'},
     $q->Tr(
-	$q->td(
+	$q->td( {-class=>'table_align'},
 	    $q->table(
 		$q->Tr($q->td($q->strong("Cell Line"))),
 		$q->Tr([
@@ -311,7 +321,7 @@ print $q->table(
 		    ]),
 	    )
 	),
-	$q->td(
+	$q->td( {-class=>'table_align'},
 	    $q->table(
 		$q->Tr($q->td($q->strong("Experiment Type"))),
 		$q->Tr([
@@ -321,7 +331,7 @@ print $q->table(
 		    ]),
 	    )
 	),
-	$q->td(
+	$q->td( {-class=>'table_align'},
 	    $q->table(
 		$q->Tr($q->td($q->strong("Data Tracks"))),
 		$q->Tr(
@@ -331,7 +341,7 @@ print $q->table(
 		),
 	    ),
 	),
-    )
+    ),
 );
 
 print $q->p("=============================================================");
