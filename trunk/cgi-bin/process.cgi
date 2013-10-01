@@ -31,9 +31,11 @@ my $dbpassword=$server_conf{'dbpassword'} || &Utils::error("No MySQL database pa
 my $generic_table_max=$server_conf{'generic_table_max'} || 10;
 #my $private_key=$server_conf{'private_key'} || &Utils::error("No RECAPTCHA private key\n",$log,$admin_email);
 my $lz_exe=$server_conf{'locuszoom_exe'} || &Utils::error("No locuszoom executable path\n",$log,$admin_email);
-my $anno_exe=File::Spec->catfile($RealBin,"..","bin","table_annovar.pl");
 my $anno_dir=$server_conf{'annovar_dir'} || &Utils::error("No ANNOVAR database directory\n",$log,$admin_email);
+my $anno_exedir=$server_conf{'annovar_exe'} || &Utils::error("No ANNOVAR executable directory\n",$log,$admin_email);
+my $anno_exe=File::Spec->catfile($RealBin,"..","bin","table_annovar.pl"); #customized version of table_annovar.pl
 
+$ENV{PATH}="$anno_exedir:$ENV{PATH}";
 my $time=`date +%H:%M:%S`;
 chomp $time;
 my $date=`date +%m/%d/%Y`;
