@@ -334,7 +334,7 @@ print $q->table(
     ),
     $q->Tr(
 	$q->td({-colspan=>3},
-	   $q->p($q->submit("submit"),$q->reset());
+	   $q->p($q->submit("submit"),$q->reset())
 	),
     ),
 );
