@@ -193,6 +193,9 @@ sub filecheck
 		    my $tmp_unpack="/tmp/$item.hg19.txt"; 
 		    push @unlink,$tmp_unpack;
 		    my $tmp_nohead="/tmp/$item.hg19.nohead.txt";
+		    push @unlink,$tmp_nohead;
+		    my $tmp_nobin="/tmp/$item.hg19.nobin.txt";
+		    push @unlink,$tmp_nobin;
 
 		    warn "Cannot download $item from UCSC\n";
 		    warn "Try hg19 version\n";
@@ -200,7 +203,8 @@ sub filecheck
 		    &Utils::getstore($url,$tmp) or die "Cannot get $item\n";
 		    &Utils::extract_archive($tmp,$tmp_unpack) or die "Cannot unpack $tmp\n";
 		    &rmheader($tmp_unpack,$tmp_nohead);
-		    ! system("$liftover $tmp_nohead $hg19to18chain $unpack_file /tmp/$$.iii.tmp ") or die "Failed to liftover $item from hg19 to hg18: $!\n";
+		    ! system("$liftover $tmp_nohead $hg19to18chain $tmp_nobin /tmp/$$.iii.tmp ") or die "Failed to liftover $item from hg19 to hg18: $!\n";
+		    &addbin($tmp_nobin,$unpack_file);
 		} else
 		{
 		    die "Cannot download $file from UCSC\n";
@@ -227,6 +231,22 @@ sub rmheader
     while (<IN>)
     {
 	    next if /^(track|#|browser|\s)/i; #skip header
+	    s/^\S+\s//; #remove first column (bin col)
+	    print OUT $_;
+    }
+    close IN;
+    close OUT;
+}
+sub addbin
+{
+    my $in=shift;
+    my $out=shift;
+
+    open IN,'<',$in or die "Can't read $in: $!\n";
+    open OUT,'>',$out or die "Can't write to $out: $!\n";
+    while (<IN>)
+    {
+	    s/^/1\t/; #remove first column (bin col)
 	    print OUT $_;
     }
     close IN;
