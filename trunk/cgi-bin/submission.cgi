@@ -304,8 +304,10 @@ print $q->table(
 	$q->td($q->textfield(-name=>'nastring',-default=>'NA')),
     ),
     $q->Tr(
-	$q->td("Genome Build"),
-	$q->td($q->radio_group(-name=>'ref',-values=>\@ref,-default=>$ref_default,-labels=>\%ref_label)),
+	$q->td(
+	    $q->p("Genome Build"),
+	    $q->radio_group(-name=>'ref',-values=>\@ref,-default=>$ref_default,-labels=>\%ref_label)
+	),
     ),
 );
 print $q->table(
