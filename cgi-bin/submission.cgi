@@ -305,8 +305,10 @@ print $q->table(
     ),
     $q->Tr(
 	$q->td(
-	    $q->p("Genome Build"),
-	    $q->radio_group(-name=>'ref',-values=>\@ref,-default=>$ref_default,-labels=>\%ref_label)
+	    $q->p(
+		"Genome Build",
+		$q->radio_group(-name=>'ref',-values=>\@ref,-default=>$ref_default,-labels=>\%ref_label)
+	    )
 	),
     ),
 );
