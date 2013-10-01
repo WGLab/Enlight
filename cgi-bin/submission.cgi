@@ -332,15 +332,15 @@ print $q->table(
 	    ),
 	),
     ),
+);
+
+print $q->table(
     $q->Tr(
-	$q->td({-colspan=>3},
+	$q->td(
 	   $q->p($q->submit("submit"),$q->reset())
 	),
     ),
 );
-
-
-
 
 #print $c->get_html($public_key);
 print $q->end_form(),$q->end_html();
