@@ -209,7 +209,7 @@ annodb_admin [options] <database>
  -insert,-i	list of table names to be inserted
  -delete,-d	list of table names to be deleted
  -file,-f	list of table files to be inserted
- -nnodir	annovar database folder
+ -annodir	annovar database folder
  -hg18		use it if build version is hg18
 
  NOTE: All list must be comma-separated.

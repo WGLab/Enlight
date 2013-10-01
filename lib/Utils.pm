@@ -3,7 +3,6 @@ package Utils;
 use strict;
 use warnings;
 use CGI qw/:standard/;
-use CGI::Carp qw/fatalsToBrowser/;
 use File::Spec;
 use File::Basename qw/basename/;
 #use Captcha::reCAPTCHA;
