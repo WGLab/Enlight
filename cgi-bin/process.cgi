@@ -94,7 +94,7 @@ $param.=" --markercol $markercol" if $markercol;
 $param.=" --source $ld_source" if $ld_source;
 $param.=" --generic ".join (',',@generic_table) if $generic_toggle && @generic_table;
 $param.=" --pop $ld_pop" if $ld_pop;
-$param.=" --flank $flank" if $flank;
+$param.=" --flank ${flank}kb" if $flank;
 $param.=" --refsnp $refsnp" if $refsnp;
 $param.=" --pvalcol $pvalcol" if $pvalcol;
 $param.=" --metal $input" if $input;
@@ -135,6 +135,7 @@ if ($anno_toggle && @generic_table)
     $anno_table_cmd.=" -buildver $ref" if $ref;
     $anno_table_cmd.=" -remove";
     $anno_table_cmd.=" -otherinfo";
+    $anno_table_cmd.=" -colsWanted 5";
     push @command,$anno_table_cmd;
 }
 
