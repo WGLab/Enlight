@@ -118,6 +118,23 @@ function changeTracks()
 	\}
 	
     \}
+
+    //add custom tracks upload fields
+    for (var i=0;i<$generic_table_max-tracks.length;i++)
+    \{
+    	var newrow=document.createElement('tr');
+    	var col=document.createElement('td');
+    	var label=document.createElement('label');
+    	var upload=document.createElement('input');
+    	label.innerHTML='Custom track';
+    	upload.type='file';
+    	upload.name='custom_table';
+
+    	label.appendChild(upload);
+    	col.appendChild(label);
+    	newrow.appendChild(col);
+    	insertPos.appendChild(newrow);
+    \}
 \}
 
 function response_to_select_region(input_value) 
@@ -161,6 +178,8 @@ print $q->start_html(
 	#-src=>'/style/style.css',
 	-code=>$disable_table_css,
     },
+    -onLoad=>"changeTracks()",
+
 );
 ##change reCAPTCHA theme here
 #print <<RECAPTCHA;
@@ -274,13 +293,13 @@ print $q->table(
 	$q->td("Missing value for OUTPUT"),
 	$q->td($q->textfield(-name=>'nastring',-default=>'NA')),
     ),
-);
-print $q->table(
-    {-border=>1,-rules=>'rows'},
     $q->Tr(
 	$q->td("Genome Build"),
 	$q->td($q->radio_group(-name=>'ref',-values=>\@ref,-default=>$ref_default,-labels=>\%ref_label)),
     ),
+);
+print $q->table(
+    {-border=>1,-rules=>'rows'},
     $q->Tr(
 	$q->td(
 	    $q->table(
@@ -302,13 +321,15 @@ print $q->table(
 		    ]),
 	    )
 	),
-	#$q->td($q->checkbox_group(-name=>'generic_table',-values=>\@generic_table,-linebreak=>'true',-labels=>\%generic_table_label)),
-    ),
-    $q->Tr($q->td({-colspan=>2},"Data Tracks")),
-    $q->Tr(
-	$q->td({-colspan=>2},
-	    $q->table( {-id=>'dataTrackHere'},
-	    )
+	$q->td(
+	    $q->table(
+		$q->Tr($q->td($q->strong("Data Tracks"))),
+		$q->Tr(
+		    $q->td(
+			$q->table( {-id=>'dataTrackHere'},)
+		    ),
+		),
+	    ),
 	),
     ),
 );

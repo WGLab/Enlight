@@ -64,9 +64,10 @@ except:
 # Program strings.
 M2ZFAST_VERSION = "1.1 mod";
 M2ZFAST_TITLE = "+---------------------------------------------+\n"\
-                "| LocusZoom 1.1 mod (11/30/2011)              |\n"\
+                "| LocusZoom 1.1 mod (09/30/2013)              |\n"\
                 "| Plot regional association results           |\n"\
                 "| from GWA scans or candidate gene studies    |\n"\
+		"| and sequence annotations		       |\n"\
                 "+---------------------------------------------+\n";
 
 # Program constants. 
