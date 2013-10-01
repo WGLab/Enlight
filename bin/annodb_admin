@@ -111,23 +111,12 @@ if (@del)
 
 if (@ins)
 {
-    #locuszoom database
     ##resolve table file for each table name
     @file=&filecheck(\@ins,\@file) or die "ERROR: not every insertion table corresponds to a file\n";
     for my $i (0..$#file)
     {
 	system("$executedb --db $db --tablefile $file[$i] --tablename $ins[$i]")
 	    and die "Cannot insert $ins[$i] ($file[$i]) into $db\n";
-    }
-    #annovar database
-    if (defined $annodir)
-    {
-	for my $table(@ins)
-	{
-	    system("$annovar --buildver ".($hg18? "hg18":"hg19")." -downdb $table $annodir") or
-	    die ("Failed to download $table\n");
-	    warn "ANNOVAR table $table downloaded\n";
-	}
     }
 }
 
@@ -148,6 +137,7 @@ sub bed2generic
 	    my @line=split;
 	    next unless @line>=6; #first column is BIN
 	    $line[1]=lc($line[1]);
+	    next unless $chr2no{$line[1]};
 	    push @output, join("\t",$chr2no{$line[1]},$line[2],$line[3],$line[5]),"\n";
 	}
 	close IN;
@@ -203,7 +193,7 @@ sub filecheck
 		    &Utils::getstore($url,$tmp) or die "Cannot get $item\n";
 		    &Utils::extract_archive($tmp,$tmp_unpack) or die "Cannot unpack $tmp\n";
 		    &rmheader($tmp_unpack,$tmp_nohead);
-		    ! system("$liftover $tmp_nohead $hg19to18chain $tmp_nobin /tmp/$$.iii.tmp ") or die "Failed to liftover $item from hg19 to hg18: $!\n";
+		    ! system("$liftover -bedPlus=3 $tmp_nohead $hg19to18chain $tmp_nobin /tmp/$$.iii.tmp ") or die "Failed to liftover $item from hg19 to hg18: $!\n";
 		    &addbin($tmp_nobin,$unpack_file);
 		} else
 		{
@@ -213,6 +203,13 @@ sub filecheck
 	    warn "Extracting chr,start,end,score ...\n";
 	    my ($convert_file)=&bed2generic($unpack_file);
 	    push @tables,$convert_file;
+	    if (defined $annodir)
+	    {
+		my $annovar_db=($hg18? "hg18":"hg19")."_$unpack_file";
+		$annovar_db=File::Spec->catfile($annodir,$annovar_db);
+		!system("perl -ne 'next if /^(track|#|browser|\\s)/i; print' $unpack_file > $annovar_db") or die "Failed to remove $unpack_file header: $!\n";
+		warn "ANNOVAR database: $annovar_db done.\n";
+	    }
 	}
 
     } else
