@@ -317,7 +317,7 @@ print $q->table(
     ),
 );
 print $q->table(
-    {-border=>1,-rules=>'rows'},
+    {-border=>1},
     $q->Tr(
 	$q->td( {-class=>'table_align'},
 	    $q->table(
@@ -344,7 +344,8 @@ print $q->table(
 		$q->Tr($q->td($q->strong("Data Tracks"))),
 		$q->Tr(
 		    $q->td(
-			$q->table( {-id=>'dataTrackHere'},)
+			#the $q->p is necessary, otherwise, only 1 table tag will be printed
+			$q->table( {-id=>'dataTrackHere'},$q->p(""))
 		    ),
 		),
 	    ),
