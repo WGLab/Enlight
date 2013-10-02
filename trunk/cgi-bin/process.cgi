@@ -11,10 +11,6 @@ use lib "$RealBin/../lib";
 use Utils;
 use Control;
 
-#let server know where to find correct exe if necessary
-#$ENV{PATH}="/home/yunfeiguo/Downloads/python-2.7/bin:".$ENV{PATH};
-#$ENV{PATH}="/home/yunfeiguo/Downloads/annovar:".$ENV{PATH};
-
 chdir File::Spec->catdir($RealBin,"..") or die ("Cannot enter installation directory\n"); #go to installation dir for safety
 
 my %server_conf=&Utils::readServConf("$RealBin/../conf/enlight_server.conf")
@@ -22,7 +18,7 @@ my %server_conf=&Utils::readServConf("$RealBin/../conf/enlight_server.conf")
 
 $CGI::POST_MAX = 1024 * 1024 * ($server_conf{'maxupload'}||200);
 #all paths should be FULL path
-my $log=$server_conf{'serverlog'} || File::Spec->catfile($RealBin,"../serverlog");
+my $log=$server_conf{'serverlog'} || File::Spec->catfile($RealBin,"..","serverlog");
 my $admin_email=$server_conf{'admin'} || &Utils::error("No administrator email\n",$log);
 my $upload_dir=$server_conf{'tmp'} || "/tmp";
 my $dbname=$server_conf{'dbname'} || &Utils::error("No MySQL database name\n",$log,$admin_email);
@@ -32,10 +28,13 @@ my $generic_table_max=$server_conf{'generic_table_max'} || 10;
 #my $private_key=$server_conf{'private_key'} || &Utils::error("No RECAPTCHA private key\n",$log,$admin_email);
 my $lz_exe=$server_conf{'locuszoom_exe'} || &Utils::error("No locuszoom executable path\n",$log,$admin_email);
 my $anno_dir=$server_conf{'annovar_dir'} || &Utils::error("No ANNOVAR database directory\n",$log,$admin_email);
-my $anno_exedir=$server_conf{'annovar_exe'} || &Utils::error("No ANNOVAR executable directory\n",$log,$admin_email);
+my $anno_exedir=$server_conf{'annovar_bin'} || &Utils::error("No ANNOVAR executable directory\n",$log,$admin_email);
+my $python_dir=$server_con{'python_bin'} || &Utils::error("No Python 2.7 executable directory\n",$log,$admin_email);
 my $anno_exe=File::Spec->catfile($RealBin,"..","bin","table_annovar.pl"); #customized version of table_annovar.pl
 
 $ENV{PATH}="$anno_exedir:$ENV{PATH}";
+$ENV{PATH}="$python_dir:$ENV{PATH}";
+
 my $time=`date +%H:%M:%S`;
 chomp $time;
 my $date=`date +%m/%d/%Y`;

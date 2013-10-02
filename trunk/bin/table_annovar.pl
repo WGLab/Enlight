@@ -442,6 +442,7 @@ sub regionOperation {
 		my ($db,$anno,$varstring)=($1,$2,$3);
 		$varstring =~ s/\s+/\t/g;
 		#preprocess $anno
+		$anno=~s/Name=//;
 		$varanno{$varstring}{$header}=$anno;
 	}
 	close (FH);
@@ -495,7 +496,6 @@ sub filterOperation {
 		m/^([^\t]+)\t(\S+)\t(\S+\s+\S+\s+\S+\s+\S+\s+\S+).*/ or die "Error: invalid record found in annovar outputfile\n";
 		my ($db,$anno,$varstring)=($1,$2,$3);
 		$varstring =~ s/\s+/\t/g;
-		$anno=s/Name=//;
 		$varanno{$varstring}{$header}=$anno;
 	}
 	close (FH);
