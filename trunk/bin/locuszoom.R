@@ -2026,6 +2026,7 @@ if ( is.null(args[['reload']]) ) {
     if (args[['showGeneric']])
     {
 	generic_file_list = strsplit(args[['generic']],',')[[1]];
+	generic_file_list = generic_file_list[generic_file_list != "None"];
 	genscore=vector('list',length(generic_file_list));
 	#naming
 	for (i in 1:length(generic_file_list))
