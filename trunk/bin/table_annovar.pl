@@ -607,7 +607,7 @@ sub combineFirst2line
 	$newheader=join("\t",@f);
     }
     #substitute Otherinfo with new header, skip 2nd line which is the original header
-    !system("perl -ne 's/Otherinfo\\s*\$/$newheader/ if \$.==1;next if \$.==2;print' $out > $tmp") and
+    !system("perl -ne 's/Otherinfo\$/$newheader/ if \$.==1;next if \$.==2;print' $out > $tmp") and
     !system("mv $tmp $out") or die "Failed to substitute header: $!\n";
 }
 
