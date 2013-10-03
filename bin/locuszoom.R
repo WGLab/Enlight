@@ -1322,6 +1322,10 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,refidx=NULL,nrugs=0,p
 	    {
 ##########generic plot title
 		count=count+1;
+		genscoreMax=max(genscore[[genscore_index]]$score);
+		#y axis range
+		genscoreRange=c(0,min(genscoreMax*1.3,1000));
+
 		pushViewport(
 			viewport(layout.pos.row=7+2*count-1,layout.pos.col=2,name=paste("generictitle",genscore_index,sep=""))
 			);
@@ -1511,7 +1515,6 @@ grid.log <- function(args,metal,linespacing=1.5,ascii=FALSE,debug=FALSE){
     if (ascii) {
 	cat(paste(format(labels,width=20,justify="right"),values,sep=" ",collapse="\n"));
 	cat('\n');
-	#cat('\nMake more plots at http://csg.sph.umich.edu/locuszoom/');
 	cat('\n');
     } else {
 	grid.text(labels,x=.3,y=unit(1,'npc') - unit(linespacing *(1:length(labels)),'lines'), just='right');
@@ -1628,7 +1631,7 @@ grid.log <- function(args,metal,linespacing=1.5,ascii=FALSE,debug=FALSE){
 	    upViewport(1);
 	}
 
-	grid.text('Make more plots at http://csg.sph.umich.edu/locuszoom/', y=unit(1,'lines'), just=c('center','bottom'));
+	grid.text('Make more plots at http://enlight.usc.edu', y=unit(1,'lines'), just=c('center','bottom'));
     }
 }
 
@@ -2277,12 +2280,6 @@ if (args[['experimental']]) {
 recrateRange <- rev(recrateRange);
 print("recrateRange: ");
 print(recrateRange);
-if (! is.null(genscore))
-{
-genscoreRange <- c(0,1000);
-print("genscoreRange: ");
-print(genscoreRange);
-}
 
 refSnp <- as.character(args[['refsnp']]);
 refidx <- match(refSnp, metal$MarkerName);
