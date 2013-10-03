@@ -28,12 +28,6 @@ my @source_ref_pop= sort (map {$server_conf{$_}} grep { /^\d+$/ } (keys %server_
 my %source_ref_pop_label=map {($_,$_)} @source_ref_pop; 
 my ($default_source_ref_pop)=grep {/$ref_default/ and /EUR/i} @source_ref_pop;
 
-#my @non_generic_table=('recomb_rate','refFlat','refsnp_trans', 'snp_pos');
-#my $db=$server_conf{$ref_default."db"}; #only use table list from one db, don't forget to check the other one!
-#my @generic_table= sort &listGeneric (  $db,@non_generic_table );
-#push @generic_table,"" unless @generic_table; #no generic plot if using empty database
-#my %generic_table_label=map {($_,$_)} @generic_table;
-
 my %tracks=&Utils::readObj("$RealBin/../conf/datatracks.txt");
 my %cell= map { ($tracks{$_}{cell},$tracks{$_}{table}) } keys %tracks;
 my %experiment= map { ($tracks{$_}{experiment},$tracks{$_}{table}) } keys %tracks;
@@ -42,123 +36,205 @@ my @qformat=("whitespace","space","comma");
 my %qformat_label=map {($_,$_)} @qformat;
 my $qformat_default="whitespace";
 my @chr=(1..22,'X');
-my %chr_label=map {($_,$_)} @chr;
 
 
 my $jscode="
 function changeTracks()
-\{
-    var insertPos=document.getElementById('dataTrackHere');
-    var all=[ ".join(",\n",&genJsHash(%tracks))." ];
+{
+var insertPos=document.getElementById('dataTrackHere');
+var all=[ ".join(",\n",&genJsHash(%tracks))." ];
 
-    var cell=document.getElementsByClassName('cell');
-    var experiment=document.getElementsByClassName('experiment');
+var cell=document.getElementsByClassName('cell');
+var experiment=document.getElementsByClassName('experiment');
 
-    var selectedCell=[];
-    var selectedExperiment=[];
-    var tracks=[];
+var selectedCell=[];
+var selectedExperiment=[];
+var tracks=[];
 
-    //get selected cell
-    for (var i=0;i<cell.length;i++)
-    \{
-	if (cell[i].checked)
-	\{
-	    selectedCell.push(cell[i].value);
-	\}
-    \}
+//get selected cell
+for (var i=0;i<cell.length;i++)
+{
+if (cell[i].checked)
+{
+selectedCell.push(cell[i].value);
+}
+}
 
-    //get selected assay
-    for (var i=0;i<experiment.length;i++)
-    \{
-	if (experiment[i].checked)
-	\{
-	    selectedExperiment.push(experiment[i].value);
-	\}
-    \}
+//get selected assay
+for (var i=0;i<experiment.length;i++)
+{
+if (experiment[i].checked)
+{
+selectedExperiment.push(experiment[i].value);
+}
+}
 
-    //get selected tracks
-    for (var i=0;i<all.length;i++)
-    \{
-	if (selectedCell.indexOf(all[i].cell) != -1)
-	\{
-	    if (selectedExperiment.indexOf(all[i].experiment) != -1)
-	    \{
-		tracks.push(all[i].name);
-	    \}
-	\}
-    \}
-    
-    //remove all child nodes
-    while(insertPos.firstChild)
-    \{
-	insertPos.removeChild(insertPos.firstChild);
-    \}
+//get selected tracks
+for (var i=0;i<all.length;i++)
+{
+if (selectedCell.indexOf(all[i].cell) != -1)
+{
+if (selectedExperiment.indexOf(all[i].experiment) != -1)
+{
+tracks.push(all[i].name);
+}
+}
+}
 
-    //add selected tracks
-    for (var i=0;i<tracks.length;i++)
-    \{
-    	var newrow=document.createElement('tr');
-    	var col=document.createElement('td');
-    	var label=document.createElement('label');
-    	var checkbox=document.createElement('input');
-    	label.innerHTML=tracks[i];
-    	checkbox.type='checkbox';
-    	checkbox.value=tracks[i];
-    	checkbox.name='generic_table';
-    	checkbox.checked=true;
+//remove all child nodes
+while(insertPos.firstChild)
+{
+insertPos.removeChild(insertPos.firstChild);
+}
 
-    	label.appendChild(checkbox);
-    	col.appendChild(label);
-    	newrow.appendChild(col);
-    	insertPos.appendChild(newrow);
-	if (i>".($generic_table_max-1).")
-	\{
-		alert('At most $generic_table_max tracks can be selected.');
-		break;
-	\}
-	
-    \}
+//add selected tracks
+for (var i=0;i<tracks.length;i++)
+{
+if (i>".($generic_table_max-1).")
+{
+alert('At most $generic_table_max tracks can be selected.');
+break;
+}
+var newrow=document.createElement('tr');
+var col=document.createElement('td');
+var label=document.createElement('label');
+var checkbox=document.createElement('input');
+label.innerHTML=tracks[i];
+checkbox.type='checkbox';
+checkbox.value=tracks[i];
+checkbox.name='generic_table';
+checkbox.checked=true;
 
-    //add custom tracks upload fields
-    for (var i=0;i<$generic_table_max-tracks.length;i++)
-    \{
-    	var newrow=document.createElement('tr');
-    	var col=document.createElement('td');
-    	var label=document.createElement('label');
-    	var upload=document.createElement('input');
-    	label.innerHTML='Custom track';
-    	upload.type='file';
-    	upload.name='custom_table';
+label.appendChild(checkbox);
+col.appendChild(label);
+newrow.appendChild(col);
+insertPos.appendChild(newrow);
 
-    	label.appendChild(upload);
-    	col.appendChild(label);
-    	newrow.appendChild(col);
-    	insertPos.appendChild(newrow);
-    \}
-\}
+}
 
-function response_to_select_region(input_value) 
-\{
-    snp=document.getElementById('snp');
-    gene=document.getElementById('gene');
-    chr=document.getElementById('chr');
-    if (input_value=='snp')
-    \{
-	snp.style.display='block';
-	gene.style.display='none';
-	chr.style.display='none';
-    \} else if (input_value=='gene')
-    \{
-	gene.style.display='block';
-	snp.style.display='none';
-	chr.style.display='none';
-    \} else if (input_value=='chr')
-    \{
-	chr.style.display='block';
-	snp.style.display='none';
-	gene.style.display='none';
-    \}
-\}
+//add custom tracks upload fields
+for (var i=0;i<$generic_table_max-tracks.length;i++)
+{
+var newrow=document.createElement('tr');
+var col=document.createElement('td');
+var label=document.createElement('label');
+var upload=document.createElement('input');
+label.innerHTML='Custom track';
+upload.type='file';
+upload.name='custom_table';
+
+label.appendChild(upload);
+col.appendChild(label);
+newrow.appendChild(col);
+insertPos.appendChild(newrow);
+}
+}
+
+function response_to_select_region(input_value)
+{
+var insert=document.getElementById('insertRegionHere');
+
+//remove all child nodes
+while(insert.firstChild)
+{
+insert.removeChild(insert.firstChild);
+}
+
+if (input_value=='snp')
+{
+var row1=document.createElement('tr');
+var col1=document.createElement('td');
+var input1=document.createElement('input');
+input1.type='text';
+input1.name='refsnp';
+input1.value='rs10318';
+row1.appendChild(col1.appendChild(input1));
+
+var row2=document.createElement('tr');
+var col2=document.createElement('td');
+var input2=document.createElement('p');
+input2.innerHTML='SNP Flanking Region (Kb)';
+row2.appendChild(col2.appendChild(input2));
+
+var row3=document.createElement('tr');
+var col3=document.createElement('td');
+var input3=document.createElement('input');
+input3.type='text';
+input3.name='snpflank';
+input3.value='$flank_default';
+row3.appendChild(col3.appendChild(input3));
+
+insert.appendChild(row1);
+insert.appendChild(row2);
+insert.appendChild(row3);
+} else if (input_value=='gene')
+{
+var row1=document.createElement('tr');
+var col1=document.createElement('td');
+var input1=document.createElement('input');
+input1.type='text';
+input1.name='refgene';
+row1.appendChild(col1.appendChild(input1));
+
+var row2=document.createElement('tr');
+var col2=document.createElement('td');
+var input2=document.createElement('p');
+input2.innerHTML='Gene Flanking Region (Kb)';
+row2.appendChild(col2.appendChild(input2));
+
+var row3=document.createElement('tr');
+var col3=document.createElement('td');
+var input3=document.createElement('input');
+input3.type='text';
+input3.name='geneflank';
+input3.value='$flank_default';
+row3.appendChild(col3.appendChild(input3));
+
+insert.appendChild(row1);
+insert.appendChild(row2);
+insert.appendChild(row3);
+} else if (input_value=='chr')
+{
+var row1=document.createElement('tr');
+var col1=document.createElement('td');
+var input1=document.createElement('select');
+input1.name='chr';
+var list=[".join(',',map { "'$_'" } @chr)."];
+
+for (var i=0;i<list.length;i++)
+{
+var option=document.createElement('option');
+option.value=list[i];
+option.innerHTML=list[i];
+input1.appendChild(option);
+}
+row1.appendChild(col1.appendChild(input1));
+
+var row2=document.createElement('tr');
+var col2_1=document.createElement('td');
+var col2_2=document.createElement('td');
+var input2=document.createElement('input');
+col2_1.innerHTML='Start (Mb)';
+input2.type='text';
+input2.name='start';
+row2.appendChild(col2_1);
+row2.appendChild(col2_2.appendChild(input2));
+
+var row3=document.createElement('tr');
+var col3_1=document.createElement('td');
+var col3_2=document.createElement('td');
+var input3=document.createElement('input');
+col3_1.innerHTML='End (Mb)';
+input3.type='text';
+input3.name='end';
+row3.appendChild(col3_1);
+row3.appendChild(col3_2.appendChild(input3));
+
+insert.appendChild(row1);
+insert.appendChild(row2);
+insert.appendChild(row3);
+}
+}
 ";
 
 ################html generation###############
@@ -169,27 +245,26 @@ my $q=new CGI::Pretty;
 my $disable_table_css="
 .table_disable
 {
-  visibility:hidden;
+visibility:hidden;
 }
 
 .table_align
 {
-  vertical-align:top;
+    vertical-align:top;
 }
 ";
 print $q->start_html(
-    -title=>"Enlight Homepage",
-    -script=>{
-	-language=>'javascript',
-	#-src=>'/javascript/lib.js',
-	-code=>$jscode,
-    },
-    -style=>{
-	#-src=>'/style/style.css',
-	-code=>$disable_table_css,
-    },
-    -onLoad=>"changeTracks()",
-
+-title=>"Enlight Homepage",
+-script=>{
+-language=>'javascript',
+#-src=>'/javascript/lib.js',
+-code=>$jscode,
+},
+-style=>{
+#-src=>'/style/style.css',
+-code=>$disable_table_css,
+},
+-onLoad=>"changeTracks();response_to_select_region('snp');",
 );
 ##change reCAPTCHA theme here
 #print <<RECAPTCHA;
@@ -243,43 +318,13 @@ print $q->table(
 		-onchange=>'response_to_select_region(this.form.select_region.value)',
 		-values=> ["snp","gene","chr"],
 		-labels=> {"snp"=>"Reference SNP","gene"=>"Reference Gene","chr"=>"Chromosomal Region"},
-	    	-default=> ["snp"],
+		-default=> ["snp"],
 	    )
 	),
     ),
     $q->Tr(
-	$q->td( {-id=>'snp',-style=>'display:block'},
-	    $q->table( 
-		#$q->Tr($q->td("Reference SNP")),
-		$q->Tr($q->td($q->textfield(-name=>"refsnp",-default=>"rs10318"))),
-		$q->Tr($q->td("SNP Flanking Region (Kb)")),
-		$q->Tr($q->td($q->textfield(-name=>"snpflank",-default=>$flank_default))),
-	    )
-	),
-	$q->td( {-id=>'gene',-style=>'display:none'},
-	    $q->table( 
-		#$q->Tr($q->td("Reference Gene")),
-		$q->Tr($q->td($q->textfield(-name=>"refgene"))),
-		$q->Tr($q->td("Gene Flanking Region (Kb)")),
-		$q->Tr($q->td($q->textfield(-name=>"geneflank",-default=>$flank_default))),
-	    )
-	),
-	$q->td( {-id=>'chr',-style=>'display:none'},
-	    $q->table(
-		#$q->Tr($q->td("Chromosomal region")),
-		$q->Tr($q->td(
-			$q->popup_menu(-name=>'chr',-values=> \@chr,-labels=>\%chr_label,-default=>'15')
-		    )
-		),
-		$q->Tr(
-		    $q->td(
-			["Start (Mb)",$q->textfield(-name=>'start')] ) 
-		),
-		$q->Tr(
-		    $q->td(
-			["End (Mb)",$q->textfield(-name=>"end")] )
-		),
-	    )
+	$q->td(
+	    $q->table({-id=>'insertRegionHere'},$q->p(""))
 	),
     ),
 );
@@ -344,7 +389,7 @@ print $q->table(
 		$q->Tr($q->td($q->strong("Data Tracks"))),
 		$q->Tr(
 		    $q->td(
-			#the $q->p is necessary, otherwise, only 1 table tag will be printed
+#the $q->p is necessary, otherwise, only 1 table tag will be printed
 			$q->table( {-id=>'dataTrackHere'},$q->p(""))
 		    ),
 		),
@@ -358,7 +403,7 @@ print $q->p("=============================================================");
 print $q->table(
     $q->Tr(
 	$q->td(
-	   $q->p($q->submit("submit"),$q->reset())
+	    $q->p($q->submit("submit"),$q->reset())
 	),
     ),
 );
@@ -370,7 +415,7 @@ print $q->end_form(),$q->end_html();
 #--------------SUBROUTINE-----------------
 sub listGeneric
 {
-    #return tables of db, non_generic ones removed
+#return tables of db, non_generic ones removed
     my $db=shift;
     my @non_generic=@_;
     &Utils::sys_which('sqlite3') or die "Cannot find SQLite3\n";
