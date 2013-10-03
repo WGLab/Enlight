@@ -29,11 +29,11 @@ my $generic_table_max=$server_conf{'generic_table_max'} || 10;
 my $lz_exe=$server_conf{'locuszoom_exe'} || &Utils::error("No locuszoom executable path\n",$log,$admin_email);
 my $anno_dir=$server_conf{'annovar_dir'} || &Utils::error("No ANNOVAR database directory\n",$log,$admin_email);
 my $anno_exedir=$server_conf{'annovar_bin'} || &Utils::error("No ANNOVAR executable directory\n",$log,$admin_email);
-my $python_dir=$server_con{'python_bin'} || &Utils::error("No Python 2.7 executable directory\n",$log,$admin_email);
+my $python_dir=$server_con{'python_bin'};
 my $anno_exe=File::Spec->catfile($RealBin,"..","bin","table_annovar.pl"); #customized version of table_annovar.pl
 
 $ENV{PATH}="$anno_exedir:$ENV{PATH}";
-$ENV{PATH}="$python_dir:$ENV{PATH}";
+$ENV{PATH}="$python_dir:$ENV{PATH}" if $python_dir;
 
 my $time=`date +%H:%M:%S`;
 chomp $time;
