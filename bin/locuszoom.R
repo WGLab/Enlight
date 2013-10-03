@@ -1323,8 +1323,12 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,refidx=NULL,nrugs=0,p
 ##########generic plot title
 		count=count+1;
 		genscoreMax=max(genscore[[genscore_index]]$score);
-		#y axis range
-		genscoreRange=c(0,min(genscoreMax*1.3,1000));
+		#y axis range, default is (0,100)
+		genscoreRange=c(0,100); 
+		if (genscoreMax > 0)
+		{
+			genscoreRange=c(0,min(genscoreMax*1.3,1000));
+		}
 
 		pushViewport(
 			viewport(layout.pos.row=7+2*count-1,layout.pos.col=2,name=paste("generictitle",genscore_index,sep=""))
