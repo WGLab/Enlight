@@ -52,7 +52,8 @@ my $q=new CGI;
 
 #never trust any data from user input
 my $filename=$q->param('query');
-my %custom_table=map { ($_,1) } $q->param('custom_table');
+my %custom_table=&convertArray2Hash($q->param('custom_table'));
+
 
 my $user_email=$q->param('email'); 
 my $file_format=$q->param('qformat');
@@ -202,36 +203,36 @@ map {s/>|<|\*|\?|\[|\]|`|\$|\||;|&|\(|\)|\#|'|"//g} @command; #remove insecure c
 my $dsn="DBI:mysql:database=$dbname"; #data source name
 my $dbh=DBI->connect($dsn,$dbuser,$dbpassword,{
 	RaiseError=>1, #report error via die
-    	PrintError=>0, #do not report error via warn
+	PrintError=>0, #do not report error via warn
     },) or &Utils::error( "Cannot connect: $DBI::errstr\n",$log,$admin_email);
 
 
 #turn control to Control.pm
 my $c=Control->new(
-    	'dbh'			=>$dbh,
-	'tablename'		=>$server_conf{'tablename'},
-	'maxjobnum'		=>$server_conf{'maxjobnum'},
-	'maxjobhist'		=>$server_conf{'maxjobhist'},
-	'wait_time'		=>$server_conf{'waittime'},
-	'max_per_ip'		=>$server_conf{'maxperip'},
-	'outdir'		=>$server_conf{'outdir'},
-	'maxtime'		=>$server_conf{'maxtime'},
-	'max_run_time'		=>$server_conf{'max_run_time'},
-	'command'		=>\@command,
-	'access'		=>&Utils::rndStr(16,'a'..'z',0..9),
-	'ip'			=>$ENV{'REMOTE_ADDR'},
-	'date'			=>$date,
-	'time'			=>$time,
-	'query'			=>$input,
-	'param'			=>$param,
+    'dbh'			=>$dbh,
+    'tablename'			=>$server_conf{'tablename'},
+    'maxjobnum'			=>$server_conf{'maxjobnum'},
+    'maxjobhist'		=>$server_conf{'maxjobhist'},
+    'wait_time'			=>$server_conf{'waittime'},
+    'max_per_ip'		=>$server_conf{'maxperip'},
+    'outdir'			=>$server_conf{'outdir'},
+    'maxtime'			=>$server_conf{'maxtime'},
+    'max_run_time'		=>$server_conf{'max_run_time'},
+    'command'			=>\@command,
+    'access'			=>&Utils::rndStr(16,'a'..'z',0..9),
+    'ip'			=>$ENV{'REMOTE_ADDR'},
+    'date'			=>$date,
+    'time'			=>$time,
+    'query'			=>$input,
+    'param'			=>$param,
 );
 
 eval {
-$c->tablePrepare(); #make sure the table exists
-$c->jobCheck();
-$c->jobClean();
-$c->jobRegister(); #job ID will be saved with the object
-$c->jobControl(); #job status totally controlled by Control.pm
+    $c->tablePrepare(); #make sure the table exists
+    $c->jobCheck();
+    $c->jobClean();
+    $c->jobRegister(); #job ID will be saved with the object
+    $c->jobControl(); #job status totally controlled by Control.pm
 }; #capture error message rather than just die, since user might have left our website
 #We do not care about the return value from Control.pm, it just dies if anything goes wrong
 $dbh->disconnect();
@@ -268,21 +269,30 @@ sub handleUpload
     if (@custom_table_name)
     {
 	die ("ERROR: No custom data track\n") unless @custom_table_fh;
-    for my $i(0..$#custom_table_fh)
-    {
-	my $fh=$custom_table_fh[$i];
-	my $name=$custom_table_name[$i];
-	my $file=File::Spec->catfile($upload_dir,"${name}".rand($$));
-	#improve later
-	open UPLOAD,'>',$file or die "Can't write to $file: $!\n";
-	binmode UPLOAD;
-	while (<$fh>)
+	for my $i(0..$#custom_table_name)
 	{
-	    print UPLOAD;
+	    unless ($custom_table_name[$i])
+	    {
+		$custom_table_name[$i]=undef;
+	    }
 	}
-	close UPLOAD;
-	$custom_table{$name}=$file;
-    }
+	@custom_table_name=grep { 1 if $_ } @custom_table_name;
+
+	for my $i(0..$#custom_table_fh)
+	{
+	    my $fh=$custom_table_fh[$i];
+	    my $name=$custom_table_name[$i];
+	    my $file=File::Spec->catfile($upload_dir,"${name}".rand($$));
+	    #improve later
+	    open UPLOAD,'>',$file or die "Can't write to $file: $!\n";
+	    binmode UPLOAD;
+	    while (<$fh>)
+	    {
+		print UPLOAD;
+	    }
+	    close UPLOAD;
+	    $custom_table{$name}=$file;
+	}
     }
 }
 sub checkBED
@@ -304,4 +314,17 @@ sub checkBED
 	}
 	close IN;
     }
+}
+sub convertArray2Hash
+{
+    my @array=@_;
+    my %return;
+    for my $i(@array)
+    {
+	if ($i)
+	{
+	    $return{$i}=1;
+	}
+    }
+    return %return;
 }

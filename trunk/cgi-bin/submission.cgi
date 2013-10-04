@@ -274,6 +274,7 @@ print $q->start_html(
 # };
 # </script>
 #RECAPTCHA
+print $q->noscript($q->h1("Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight."));
 print $q->start_form(-name=>'main',-action=>"/cgi-bin/process.cgi",-method=>"post");
 print $q->table(
     {-border=>0},
