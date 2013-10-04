@@ -15,6 +15,7 @@ my ($inslst, 	#insert list
     $hg18,	#use hg18 if true
     $annodir,
     $listfile,
+    $bincol,  	#first column is BIN, used for direct downloading from UCSC
 );
 
 @ARGV or pod2usage();
@@ -25,6 +26,7 @@ GetOptions(
     "file|f=s"		=>	\$filelst,
     "annodir=s"		=>	\$annodir,
     "hg18"		=>	\$hg18,
+    "bincol"		=>	\$bincol,
 ) or pod2usage ();
 
 #insert BED tables from a specific db
@@ -116,8 +118,16 @@ if (@ins)
     @file=&filecheck(\@ins,\@file) or die "ERROR: not every insertion table corresponds to a file\n";
     for my $i (0..$#file)
     {
-	system("$executedb --db $db --tablefile $file[$i] --tablename $ins[$i]")
-	    and die "Cannot insert $ins[$i] ($file[$i]) into $db\n";
+	my $name=$ins[$i];
+	my $file=$file[$i];
+	! system("$executedb --db $db --tablefile $file --tablename $name")
+	    or die "Cannot insert $name ($file) into $db\n";
+	#if ($annodir)
+	#{
+	#my $avfile=($hg18? "hg18":"hg19")."_$name.txt";
+	#$avfile=File::Spec->catfile($annodir,$avfile);
+	#! system("cp $file $avfile") or die "Failed to copy $name($file) to $annodir: $!\n";
+	#}
     }
 }
 
@@ -128,15 +138,17 @@ unlink @unlink or die "Failed to clean @unlink: $!\n";
 sub bed2generic
 {
     my @generic_tables;
+    my $colnum=($bincol? 6:5);
     for my $table (@_)
     {
 	open IN, "<", $table or die "Cannot open $table\n";
 	my @output;
 	while (<IN>)
 	{
+	    s/[\r\n]+$//;
 	    next if /^(track|#|browser|\s)/i; #skip header
-	    my @line=split;
-	    next unless @line>=6; #first column is BIN
+	    my @line=split (/\t/,$_);
+	    next unless @line>=$colnum; #first column is BIN
 	    $line[1]=lc($line[1]);
 	    next unless $chr2no{$line[1]};
 	    push @output, join("\t",$chr2no{$line[1]},$line[2],$line[3],$line[5]),"\n";
@@ -269,6 +281,7 @@ annodb_admin [options] <database>
  -file,-f	list of table files to be inserted
  -annodir	annovar database folder
  -hg18		use it if build version is hg18
+ -bincol	first column in BED is BIN column
 
  NOTE: All list must be comma-separated.
  NOTE: Each table file, if supplied, must has a corresponding table name.

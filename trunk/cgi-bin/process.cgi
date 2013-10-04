@@ -31,6 +31,8 @@ my $anno_dir=$server_conf{'annovar_dir'} || &Utils::error("No ANNOVAR database d
 my $anno_exedir=$server_conf{'annovar_bin'} || &Utils::error("No ANNOVAR executable directory\n",$log,$admin_email);
 my $python_dir=$server_conf{'python_bin'};
 my $anno_exe=File::Spec->catfile($RealBin,"..","bin","table_annovar.pl"); #customized version of table_annovar.pl
+my $hg19db=$server_conf{'hg19db'} || &Utils::error("No hg19 database\n",$log,$admin_email);
+my $hg18db=$server_conf{'hg18db'} || &Utils::error("No hg18 database\n",$log,$admin_email);
 
 $ENV{PATH}="$anno_exedir:$ENV{PATH}";
 $ENV{PATH}="$python_dir:$ENV{PATH}" if $python_dir;
@@ -48,18 +50,11 @@ my $q=new CGI;
 #	    $private_key,$q->param('recaptcha_challenge_field'),$q->param('recaptcha_response_field') 
 #	);
 
-#check upload
-my $fh=$q->upload('query');
-
-die ($q->cgi_error) if ($q->cgi_error);
-die ("ERROR: No uploaded file\n") unless $fh;
-
 #never trust any data from user input
+my $filename=$q->param('query');
+my %custom_table=map { ($_,1) } $q->param('custom_table');
 
 my $user_email=$q->param('email'); 
-my $filename=$q->param('query');
-my $input=$q->tmpFileName($filename);
-
 my $file_format=$q->param('qformat');
 my $markercol=$q->param('markercol');
 my $source_ref_pop=$q->param('source_ref_pop');
@@ -74,30 +69,79 @@ my $pvalcol=$q->param('pvalcol');
 my $ref=$q->param("ref");
 my @generic_table=$q->param('generic_table');
 my $nastring=$q->param('nastring');
+my $db=($ref eq 'hg19'? $hg19db:$hg18db);
 
 my $generic_toggle=1 if (defined $q->param('generic_toggle') && $q->param('generic_toggle') eq 'on');
 my $anno_toggle=1 if (defined $q->param('anno_toggle') && $q->param('anno_toggle') eq 'on');
 
 #option check
 die ("Illegal email address\n") if ($user_email && $user_email !~ /.+\@.+\..+/);
-die ("Too many generic tracks (max: $generic_table_max)\n") if @generic_table > $generic_table_max;
-die ("No generic tracks selected\n") if ( ($generic_toggle || $anno_toggle) && (! @generic_table) );
+die ("Too many generic tracks (max: $generic_table_max)\n") if (@generic_table + keys %custom_table) > $generic_table_max;
+if ( $generic_toggle || $anno_toggle )
+{
+    unless (@generic_table || %custom_table)
+    {
+	die ("No annotation data tracks selected or uploaded\n") 
+    }
+}
 die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_ref) eq lc($ref));
 die ("No marker column\n") unless $markercol;
-die ("No genome build\n") unless $ref;
+die ("No genome build or illegal genome build: $ref\n") unless $ref=~/^hg1[89]$/;
+
+#check upload
+&handleUpload;
+my $input=$q->tmpFileName($filename);
+map { $custom_table{$_} = $q->tmpFileName($_) } keys %custom_table;
+
+&checkBED(%custom_table) if %custom_table;
 
 &Utils::generateFeedback();
 
 #parameter ok, generate command
-my ($param,$lz_cmd,$anno_table_cmd);
+my ($param,$lz_cmd,$anno_table_cmd,@unlink);
 my @command;
 
 
 #-------------------------------------------------------------------------------------------
+if (%custom_table)
+{
+    #insert custom_table into locuszoom database
+    my $tmpdb="locuszoom.tmp.$ref.db";
+    my $insert_cmd;
+
+    push @command,"cp $db $tmpdb";
+    push @unlink,$tmpdb;
+    $db=$tmpdb;
+
+    $insert_cmd.="$RealBin/bin/annodb_admin ";
+    $insert_cmd.=" -i ".join(',',keys %custom_table);
+    $insert_cmd.=" -f ".join(',',values %custom_table);
+    $insert_cmd.=" -hg18" if $ref eq 'hg18';
+    $insert_cmd.=" $tmpdb";
+    push @command,$insert_cmd;
+
+    {
+	#copy annovar db files
+	my @anno_db_file=("${ref}_refGene.txt","${ref}_ALL.sites.2012_04.txt","${ref}_ALL.sites.2012_04.txt.idx");
+	my @target=map { File::Spec->($anno_dir,$_) } @anno_db_file;
+	map {push @command,"cp $_ ." } @target;
+	push @unlink,@anno_db_file; #remove only local version
+
+	for my $name(keys %custom_table)
+	{
+	    my $file=$custom_table{$name};
+	    my $anno_tmp="${ref}_$name.txt";
+	    push @command,"cp $file $anno_tmp";
+	    push @unlink,$anno_tmp;
+	}
+    }
+}
+
+#generate locuszoom command
 $param.=" --build $ref" if $ref;
 $param.=" --markercol $markercol" if $markercol;
 $param.=" --source $ld_source" if $ld_source;
-$param.=" --generic ".join (',',@generic_table) if $generic_toggle && @generic_table;
+$param.=" --generic ".join (',',@generic_table,keys %custom_table) if ($generic_toggle && (@generic_table||%custom_table));
 $param.=" --pop $ld_pop" if $ld_pop;
 $param.=" --flank ${flank}kb" if $flank;
 $param.=" --refsnp $refsnp" if $refsnp;
@@ -109,6 +153,7 @@ $param.=" --pvalcol $pvalcol" if $pvalcol;
 $param.=" --metal $input" if $input;
 $param.=" --delim $file_format" if $file_format;
 $param.=" --plotonly";
+$param.=" --db $db";
 
 $lz_cmd="$lz_exe $param";
 
@@ -132,22 +177,23 @@ if ($anno_toggle && @generic_table)
 	} elsif ($ref eq 'hg19')
 	{
 	    push @command, "$RealBin/../bin/formatter rs2avinput $in $filename $markercol $RealBin/../data/database/hg19_snp135_rs.txt";
-	} else
-	{
-	    die "Unkown genome build: $ref\n";
-	}
+	} 
 	$in=$filename;
     }
 
-    $anno_table_cmd.="$anno_exe $in $anno_dir -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table)." -operation g,f,".join(',',map {'r'} @generic_table);
+    $anno_table_cmd.="$anno_exe $in . ";
+    $anno_table_cmd.=" -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table,keys %custom_table);
+    $anno_table_cmd.=" -operation g,f,".join(',',map {'r'} (@generic_table,keys %custom_table));
     $anno_table_cmd.=" -nastring $nastring" if $nastring;
     $anno_table_cmd.=" -buildver $ref" if $ref;
     $anno_table_cmd.=" -remove";
     $anno_table_cmd.=" -otherinfo";
     $anno_table_cmd.=" -colsWanted 5";
+    $anno_table_cmd.=" -haveheader";
     push @command,$anno_table_cmd;
 }
 
+push @command,"rm -f @unlink" if @unlink;
 map {s/>|<|\*|\?|\[|\]|`|\$|\||;|&|\(|\)|\#|'|"//g} @command; #remove insecure char
 
 #-------------------------------------------------------------------------------------------
@@ -209,3 +255,38 @@ my $result_url=$base_url."/output/".$c->access(); #Don't forget to map /output U
 
 &Utils::genResultPage( File::Spec->catdir($c->outdir(),$c->access()),$result_url ); #generate an index.html page with hyperlinks for all files in $access dir
 &Utils::showResult($result_url);
+
+
+################SUBROUTINES############################
+sub handleUpload
+{
+    my $fh=$q->upload('query');
+    my @custom_table_fh=$q->upload('custom_table');
+
+    die ($q->cgi_error) if ($q->cgi_error);
+    die ("ERROR: No input file\n") unless $fh;
+    if ($q->param('custom_table'))
+    {
+	die ("ERROR: No custom data track\n") unless @custom_table_fh;
+    }
+}
+sub checkBED
+{
+    my %bed=@_;
+
+    for my $i(keys %bed)
+    {
+	my $file=$bed{$i};
+	open IN,'<',$file or die "Can't open $file ($i): $!\n";
+	while (<IN>)
+	{
+	    s/[\r\n]+$//;
+	    next if /^(track|#|browser|\s)/i; #skip header
+	    my @f=split /\t/,$_;
+	    die "Expect at least 5 columns in BED\n" if @f<5;
+	    die "Expect 2nd and 3rd columns are numerical in BED\n" unless $f[1]=~/^\d+$/ && $f[2]=~/^\d+$/;
+	    die "Expect 5th column is score in BED\n" unless $f[4]=~/^\d+$/;
+	}
+	close IN;
+    }
+}
