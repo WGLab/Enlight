@@ -52,8 +52,8 @@ my $q=new CGI;
 
 #never trust any data from user input
 my $filename=$q->param('query');
-my %custom_table=&convertArray2Hash($q->param('custom_table'));
-
+my $input; #file location of uploaded file
+my %custom_table;
 
 my $user_email=$q->param('email'); 
 my $file_format=$q->param('qformat');
@@ -76,8 +76,8 @@ my $generic_toggle=1 if (defined $q->param('generic_toggle') && $q->param('gener
 my $anno_toggle=1 if (defined $q->param('anno_toggle') && $q->param('anno_toggle') eq 'on');
 
 #option check
-die ("Illegal email address\n") if ($user_email && $user_email !~ /.+\@.+\..+/);
-die ("Too many generic tracks (max: $generic_table_max)\n") if (@generic_table + keys %custom_table) > $generic_table_max;
+die ("Illegal email address\n") if ($user_email && $user_email !~ /[\w\-\.]+\@[\w\-\.]+\.[\w\-\.]+/);
+die ("Too many generic tracks (max: $generic_table_max)\n") if (@generic_table + (grep {$_} $q->param('custom_table')) ) > $generic_table_max;
 if ( $generic_toggle || $anno_toggle )
 {
     unless (@generic_table || %custom_table)
@@ -91,7 +91,9 @@ die ("No genome build or illegal genome build: $ref\n") unless $ref=~/^hg1[89]$/
 
 #check upload
 &handleUpload;
-my $input=$q->tmpFileName($filename);
+
+#again, don't trust user input
+&modFileName;
 
 &checkBED(%custom_table) if %custom_table;
 
@@ -266,17 +268,13 @@ sub handleUpload
 
     die ($q->cgi_error) if ($q->cgi_error);
     die ("ERROR: No input file\n") unless $fh;
+    $input=$q->tmpFileName($filename);
+
     if (@custom_table_name)
     {
 	die ("ERROR: No custom data track\n") unless @custom_table_fh;
-	for my $i(0..$#custom_table_name)
-	{
-	    unless ($custom_table_name[$i])
-	    {
-		$custom_table_name[$i]=undef;
-	    }
-	}
-	@custom_table_name=grep { 1 if $_ } @custom_table_name;
+	#remove empty elements
+	@custom_table_name=grep { $_ } @custom_table_name;
 
 	for my $i(0..$#custom_table_fh)
 	{
@@ -315,16 +313,11 @@ sub checkBED
 	close IN;
     }
 }
-sub convertArray2Hash
+sub modFileName
 {
-    my @array=@_;
-    my %return;
-    for my $i(@array)
+    for ($filename,keys %custom_table)
     {
-	if ($i)
-	{
-	    $return{$i}=1;
-	}
+    s/\s+/_/g;
+    s/[^\w\-\.]//g;
     }
-    return %return;
 }
