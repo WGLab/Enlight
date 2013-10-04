@@ -91,7 +91,6 @@ die ("No genome build or illegal genome build: $ref\n") unless $ref=~/^hg1[89]$/
 #check upload
 &handleUpload;
 my $input=$q->tmpFileName($filename);
-map { $custom_table{$_} = $q->tmpFileName($_) } keys %custom_table;
 
 &checkBED(%custom_table) if %custom_table;
 
@@ -262,12 +261,28 @@ sub handleUpload
 {
     my $fh=$q->upload('query');
     my @custom_table_fh=$q->upload('custom_table');
+    my @custom_table_name=$q->param('custom_table');
 
     die ($q->cgi_error) if ($q->cgi_error);
     die ("ERROR: No input file\n") unless $fh;
-    if ($q->param('custom_table'))
+    if (@custom_table_name)
     {
 	die ("ERROR: No custom data track\n") unless @custom_table_fh;
+    for my $i(0..$#custom_table_fh)
+    {
+	my $fh=$custom_table_fh[$i];
+	my $name=$custom_table_name[$i];
+	my $file=File::Spec->catfile($upload_dir,"${name}".rand($$));
+	#improve later
+	open UPLOAD,'>',$file or die "Can't write to $file: $!\n";
+	binmode UPLOAD;
+	while (<$fh>)
+	{
+	    print UPLOAD;
+	}
+	close UPLOAD;
+	$custom_table{$name}=$file;
+    }
     }
 }
 sub checkBED
