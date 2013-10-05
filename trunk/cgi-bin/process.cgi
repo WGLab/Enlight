@@ -347,17 +347,19 @@ sub checkHeader
     my @cols_to_check=@_;
     my $header=`head -n 1 $file`;
     chomp $header;
+
     for (@cols_to_check)
     {
+	s/^[\t ]+|[\t ]+$//;
 	if ($file_format eq 'space')
 	{
-	    die "Cannot find $_ in header of $file\n" unless $header=~/ $_ /; 
+	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/ $_( |$)/;
 	} elsif ($file_format eq 'comma')
 	{
-	    die "Cannot find $_ in header of $file\n" unless $header=~/,$_,/; 
+	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/,$_(,|$)/;
 	} elsif ($file_format eq 'whitespace')
 	{
-	    die "Cannot find $_ in header of $file\n" unless $header=~/\s$_\s/; 
+	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/\s$_(\s|$)/;
 	} else
 	{
 	    die "Unkown delimiter: $file_format\n";
