@@ -154,7 +154,7 @@ sub bed2generic
 	    push @output, join("\t",$chr2no{$line[1]},$line[2],$line[3],$line[5]),"\n";
 	}
 	close IN;
-	my $outfile="/tmp/$table.$$.generic";
+	my $outfile="/tmp/annodb_admin.$$.generic.".rand($$);
 	open OUT, ">", $outfile or die "Cannot create $outfile\n";
 	print OUT join("\t",'chr','start','end','score'),"\n";
 	print OUT @output;
@@ -162,7 +162,7 @@ sub bed2generic
 	push @unlink,$outfile;
 	push @generic_tables,$outfile;
     }
-    return @generic_tables;
+    return wantarray? @generic_tables:$generic_tables[0];
 }
 
 sub filecheck

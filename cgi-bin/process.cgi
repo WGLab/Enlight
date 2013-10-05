@@ -82,7 +82,7 @@ if ( $generic_toggle || $anno_toggle )
 {
     unless (@generic_table || %custom_table)
     {
-	die ("No annotation data tracks selected or uploaded\n") 
+	die ("No annotation data tracks selected or uploaded while generic plot or annotation is enabled\n") 
     }
 }
 die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_ref) eq lc($ref));
@@ -109,23 +109,27 @@ if (%custom_table)
 {
     #insert custom_table into locuszoom database
     my $tmpdb="locuszoom.tmp.$ref.db";
+    my $annodb_exe=File::Spec->catfile($RealBin,"..","bin","annodb_admin");
+    my $addbin_exe=File::Spec->catfile($RealBin,"..","bin","formatter")." addbin";
     my $insert_cmd;
 
     push @command,"cp $db $tmpdb";
     push @unlink,$tmpdb;
     $db=$tmpdb;
 
-    $insert_cmd.="$RealBin/bin/annodb_admin ";
+    $insert_cmd.=$annodb_exe;
     $insert_cmd.=" -i ".join(',',keys %custom_table);
     $insert_cmd.=" -f ".join(',',values %custom_table);
     $insert_cmd.=" -hg18" if $ref eq 'hg18';
     $insert_cmd.=" $tmpdb";
     push @command,$insert_cmd;
 
+    if ($anno_toggle)
     {
 	#copy annovar db files
-	my @anno_db_file=("${ref}_refGene.txt","${ref}_ALL.sites.2012_04.txt","${ref}_ALL.sites.2012_04.txt.idx");
-	my @target=map { File::Spec->($anno_dir,$_) } @anno_db_file;
+	my @anno_db_file=map { "${ref}_$_.txt" } (@generic_table,"refGene","ALL.sites.2012_04");
+	push @anno_db_file,"${ref}_ALL.sites.2012_04.txt.idx";
+	my @target=map { File::Spec->catfile($anno_dir,$_) } @anno_db_file;
 	map {push @command,"cp $_ ." } @target;
 	push @unlink,@anno_db_file; #remove only local version
 
@@ -133,8 +137,9 @@ if (%custom_table)
 	{
 	    my $file=$custom_table{$name};
 	    my $anno_tmp="${ref}_$name.txt";
-	    push @command,"cp $file $anno_tmp";
-	    push @unlink,$anno_tmp;
+	    #add BIN column as 1st column is necessary as ANNOVAR will consider this file as one from UCSC genome browser
+	    push @command,"$addbin_exe $file $anno_tmp";
+	    push @unlink,$file,$anno_tmp;
 	}
     }
 }
@@ -160,11 +165,12 @@ $param.=" --db $db";
 $lz_cmd="$lz_exe $param";
 
 push @command,$lz_cmd;
+push @unlink,"ld_cache.db"; #locuszoom cache
 #locuszoom --metal rs10318.txt --pval p --refsnp rs10318 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 150kb --build hg19 --generic wgEncodeHaibMethyl450Caco2SitesRep1,wgEncodeRegTfbsClusteredV2 --plotonly
 #-------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------
-if ($anno_toggle && @generic_table)
+if ($anno_toggle)
 {
     my $in=$input;
 
@@ -315,9 +321,21 @@ sub checkBED
 }
 sub modFileName
 {
-    for ($filename,keys %custom_table)
+    #$filename will be used in shell command
+    for ($filename)
     {
-    s/\s+/_/g;
-    s/[^\w\-\.]//g;
+	s/\s+/_/g;
+	s/[^\w\.]//g;
+    }
+
+    #custom_table names will be used in shell command and sqlite3 command
+    for (keys %custom_table)
+    {
+	my $oldkey=$_;
+	s/[\s\-\.]+/_/g;
+	s/[^\w]+//g;
+	s/^/i/ if /^[\d_]/;
+	$custom_table{$_}=$custom_table{$oldkey};
+	delete $custom_table{$oldkey};
     }
 }
