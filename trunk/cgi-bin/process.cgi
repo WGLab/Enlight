@@ -128,7 +128,7 @@ if (%custom_table)
     {
 	#copy annovar db files
 	my @anno_db_file=map { "${ref}_$_.txt" } (@generic_table,"refGene","ALL.sites.2012_04");
-	push @anno_db_file,"${ref}_ALL.sites.2012_04.txt.idx";
+	push @anno_db_file,"${ref}_ALL.sites.2012_04.txt.idx","${ref}_refGeneMrna.fa";
 	my @target=map { File::Spec->catfile($anno_dir,$_) } @anno_db_file;
 	map {push @command,"cp $_ ." } @target;
 	push @unlink,@anno_db_file; #remove only local version
