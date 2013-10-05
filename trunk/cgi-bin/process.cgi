@@ -276,7 +276,7 @@ sub handleUpload
 
     die ($q->cgi_error) if ($q->cgi_error);
     die ("ERROR: No input file\n") unless $fh;
-    $input=$q->tmpFileName('query');
+    $input=$q->tmpFileName($filename);
 
     if (@custom_table_name)
     {
