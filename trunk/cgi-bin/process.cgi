@@ -11,6 +11,11 @@ use lib "$RealBin/../lib";
 use Utils;
 use Control;
 
+BEGIN
+{
+    $ENV{PERL5LIB}="$ENV{PERL5LIB}:/path/to/perllib";
+}
+
 chdir File::Spec->catdir($RealBin,"..") or die ("Cannot enter installation directory\n"); #go to installation dir for safety
 
 my %server_conf=&Utils::readServConf("$RealBin/../conf/enlight_server.conf")
@@ -278,11 +283,11 @@ sub handleUpload
     die ("ERROR: No input file\n") unless $fh;
     $input=$q->tmpFileName($filename);
 
+    #remove empty elements
+    @custom_table_name=grep { $_ } @custom_table_name;
     if (@custom_table_name)
     {
 	die ("ERROR: No custom data track\n") unless @custom_table_fh;
-	#remove empty elements
-	@custom_table_name=grep { $_ } @custom_table_name;
 
 	for my $i(0..$#custom_table_fh)
 	{
