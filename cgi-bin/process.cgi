@@ -87,6 +87,7 @@ if ( $generic_toggle || $anno_toggle )
 }
 die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_ref) eq lc($ref));
 die ("No marker column\n") unless $markercol;
+die ("No P value column\n") unless $pvalcol;
 die ("No genome build or illegal genome build: $ref\n") unless $ref=~/^hg1[89]$/;
 
 #check upload
@@ -96,6 +97,7 @@ die ("No genome build or illegal genome build: $ref\n") unless $ref=~/^hg1[89]$/
 &modFileName;
 
 &checkBED(%custom_table) if %custom_table;
+&checkHeader($input,$markercol,$pvalcol);
 
 &Utils::generateFeedback();
 
@@ -154,8 +156,8 @@ $param.=" --flank ${flank}kb" if $flank;
 $param.=" --refsnp $refsnp" if $refsnp;
 $param.=" --refgene $refgene" if $refgene;
 $param.=" --chr $chr" if $chr;
-$param.=" --start ${start}MB" if $start;
-$param.=" --end ${end}MB" if $end;
+$param.=" --start ".$start*1000000 if $start; #unit is MB
+$param.=" --end ".$end*1000000 if $end;
 $param.=" --pvalcol $pvalcol" if $pvalcol;
 $param.=" --metal $input" if $input;
 $param.=" --delim $file_format" if $file_format;
@@ -337,5 +339,28 @@ sub modFileName
 	s/^/i/ if /^[\d_]/;
 	$custom_table{$_}=$custom_table{$oldkey};
 	delete $custom_table{$oldkey};
+    }
+}
+sub checkHeader
+{
+    my $file=shift;
+    my @cols_to_check=@_;
+    my $header=`head -n 1 $file`;
+    chomp $header;
+    for (@cols_to_check)
+    {
+	if ($file_format eq 'space')
+	{
+	    die "Cannot find $_ in header of $file\n" unless $header=~/ $_ /; 
+	} elsif ($file_format eq 'comma')
+	{
+	    die "Cannot find $_ in header of $file\n" unless $header=~/,$_,/; 
+	} elsif ($file_format eq 'whitespace')
+	{
+	    die "Cannot find $_ in header of $file\n" unless $header=~/\s$_\s/; 
+	} else
+	{
+	    die "Unkown delimiter: $file_format\n";
+	}
     }
 }
