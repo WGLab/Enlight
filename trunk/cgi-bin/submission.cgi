@@ -119,7 +119,7 @@ var newrow=document.createElement('tr');
 var col=document.createElement('td');
 var label=document.createElement('label');
 var upload=document.createElement('input');
-label.innerHTML='Custom track';
+label.innerHTML='Custom track (BED format)';
 upload.type='file';
 upload.name='custom_table';
 
