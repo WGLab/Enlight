@@ -389,7 +389,7 @@ print $q->table(
 	),
 	$q->td( {-class=>'table_align'},
 	    $q->table(
-		$q->Tr($q->td($q->strong("Data Tracks"))),
+		$q->Tr($q->td($q->strong("Data Tracks (max: $generic_table_max)"))),
 		$q->Tr(
 		    $q->td(
 #the $q->p is necessary, otherwise, only 1 table tag will be printed
