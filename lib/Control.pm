@@ -93,7 +93,7 @@ sub jobRun()
     my $error;
 
     mkdir $outdir or die "$outdir doesn't exist and cannot be created\n" unless -d $outdir;
-    chmod 0777,$outdir;
+    chmod 0733,$outdir;
     chdir $outdir or die "Cannot enter $outdir\n";
     mkdir $access or die "$access doesn't exist and cannot be created\n" unless -d $access;
     chmod 0777,$access;
@@ -104,6 +104,7 @@ sub jobRun()
     #record beginning time, kill long-running process later
     for my $cmd(@command)
     {
+	#the following step has been done in process.cgi
 	#$cmd=~s/>|<|\*|\?|\[|\]|`|\$|\||;|&|\(|\)|\#|'|"//g; #remove shell metacharacters
 	eval {
 	    local $SIG{ALRM}=sub { die "Exceeding maxium time ($max_run_time seconds) allowed.\n" };

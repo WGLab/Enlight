@@ -18,6 +18,7 @@ my %server_conf=&Utils::readServConf("$RealBin/../conf/enlight_server.conf","$Re
 #read list of available locuszoom databases
 my $flank_default=$server_conf{"flank_default"} || "200";
 my $generic_table_max=$server_conf{"generic_table_max"} || 10;
+my $admin_email=$server_conf{'admin'};
 #my $public_key=$server_conf{'public_key'} or die "No public key for reCAPTCHA\n";
 
 my @ref=('hg18','hg19');
@@ -275,6 +276,7 @@ print $q->start_html(
 # </script>
 #RECAPTCHA
 print $q->noscript($q->h1("Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight."));
+print $q->h2("Enlight: integrating GWAS results with biological annotations");
 print $q->start_form(-name=>'main',-action=>"/cgi-bin/process.cgi",-method=>"post");
 print $q->table(
     {-border=>0},
@@ -399,8 +401,6 @@ print $q->table(
     ),
 );
 
-print $q->p("=============================================================");
-
 print $q->table(
     $q->Tr(
 	$q->td(
@@ -411,7 +411,8 @@ print $q->table(
 
 #print $c->get_html($public_key);
 print $q->end_form(),$q->end_html();
-
+print $q->p("Wang Lab, Zilkha Genetic Institute, University of Southern California");
+print $q->p("Please send questions or comments to <strong>$admin_email</strong>") if $admin_email;
 
 #--------------SUBROUTINE-----------------
 sub listGeneric

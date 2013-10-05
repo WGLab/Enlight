@@ -276,7 +276,7 @@ sub handleUpload
 
     die ($q->cgi_error) if ($q->cgi_error);
     die ("ERROR: No input file\n") unless $fh;
-    $input=$q->tmpFileName($filename);
+    $input=$q->tmpFileName('query');
 
     if (@custom_table_name)
     {
@@ -288,7 +288,7 @@ sub handleUpload
 	{
 	    my $fh=$custom_table_fh[$i];
 	    my $name=$custom_table_name[$i];
-	    my $file=File::Spec->catfile($upload_dir,"${name}".rand($$));
+	    my $file=File::Spec->catfile($upload_dir,"custom_bed$$".rand($$));
 	    #improve later
 	    open UPLOAD,'>',$file or die "Can't write to $file: $!\n";
 	    binmode UPLOAD;
