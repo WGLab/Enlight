@@ -265,7 +265,7 @@ print $q->start_html(
 #-src=>'/style/style.css',
 -code=>$disable_table_css,
 },
--onLoad=>"changeTracks();response_to_select_region(document.getElementById('select_region_id'));",
+-onLoad=>"changeTracks();response_to_select_region(document.getElementById('select_region_id').value);",
 );
 ##change reCAPTCHA theme here
 #print <<RECAPTCHA;
