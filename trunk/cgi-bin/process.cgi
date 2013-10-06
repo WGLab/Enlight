@@ -196,7 +196,8 @@ if ($anno_toggle)
 	$in=$filename;
     }
 
-    $anno_table_cmd.="$anno_exe $in . ";
+    $anno_table_cmd.="$anno_exe $in ";
+    $anno_table_cmd.=( %custom_table ? ".":$anno_dir);
     $anno_table_cmd.=" -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table,keys %custom_table);
     $anno_table_cmd.=" -operation g,f,".join(',',map {'r'} (@generic_table,keys %custom_table));
     $anno_table_cmd.=" -nastring $nastring" if $nastring;
