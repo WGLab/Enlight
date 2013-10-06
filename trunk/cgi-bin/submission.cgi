@@ -265,7 +265,7 @@ print $q->start_html(
 #-src=>'/style/style.css',
 -code=>$disable_table_css,
 },
--onLoad=>"changeTracks();response_to_select_region('snp');",
+-onLoad=>"changeTracks();response_to_select_region(document.getElementById('select_region_id'));",
 );
 ##change reCAPTCHA theme here
 #print <<RECAPTCHA;
@@ -317,6 +317,7 @@ print $q->table(
     $q->Tr(
 	$q->td ( 
 	    $q->popup_menu(
+		-id=>'select_region_id',
 		-name=>'select_region',
 		-onchange=>'response_to_select_region(this.form.select_region.value)',
 		-values=> ["snp","gene","chr"],
