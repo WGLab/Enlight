@@ -1,5 +1,4 @@
 MySQL is required
-reCAPTCHA will help prevent DoS attack
 By default, serverlog file in installation root directory records all warnings and errors.
 When setting up the server, the /output URL must be mapped to the location of output folder in the filesystem, or simply just use 'output' as the output folder name. Same case for example, cgi-bin.
 use the html output of cgi-bin/submission.cgi as your index.html
@@ -14,6 +13,5 @@ add data tracks to both locuszoom database and annovar database folder
 python 2.7, annovar, various perl modules are required. Please make sure they appear in apache's PATH. Or you can modify the first line of the script, or add $ENV{PATH}="path:".$ENV{PATH} in perl code
 make sure annotate_variation.pl at the beginning of your PATH
 make the installation folder as the document root for apache (or its virtual host)
-install ucsc liftOver program, download chain file
-
-
+install ucsc liftOver program, download chain file (modify annodb_admin accordingly)
+download hg19 and hg18 builds of refgene, 1000g2012apr databases for ANNOVAR

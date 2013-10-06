@@ -13,7 +13,7 @@ use Control;
 
 BEGIN
 {
-    $ENV{PERL5LIB}="$ENV{PERL5LIB}:/path/to/perllib";
+    $ENV{PERL5LIB}=($ENV{PERL5LIB} ? $ENV{PERL5LIB}:"")."/path/to/perllib";
 }
 
 chdir File::Spec->catdir($RealBin,"..") or die ("Cannot enter installation directory\n"); #go to installation dir for safety
