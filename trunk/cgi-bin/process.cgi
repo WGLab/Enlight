@@ -94,6 +94,8 @@ die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_re
 die ("No marker column\n") unless $markercol;
 die ("No P value column\n") unless $pvalcol;
 die ("No genome build or illegal genome build: $ref\n") unless $ref=~/^hg1[89]$/;
+die ("User must specify one of the following items: refsnp, refgene or chr, start, end together\n")
+	unless ($refsnp || $refgene || ($chr && $start && $end));
 
 #check upload
 &handleUpload;

@@ -112,7 +112,7 @@ sub jobRun()
 	    IPC::System::Simple::system("$cmd 1>&2"); #use this to avoid zombies. It dies upon failures
 	    alarm 0;
 	};
-	$error.="CMD:$cmd\nERR:$@\n" if $@; #capture eval block message
+	$error.="CMD:$cmd\nERR:$@\n" and last if $@; #capture eval block message, exit at first error
     }
 
     chdir $outdir;
