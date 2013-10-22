@@ -288,7 +288,8 @@ print $q->table(
 	$q->td("Input file (first line must be header)"),
 	$q->td($q->filefield(-name=>"query")),
 	$q->td(
-	    $q->p($q->a({-href=>"/example/rs10318.txt"},"example file (plot using default settings)"))
+	    $q->p($q->a({-href=>"/example/rs10318.txt"},"Example input (plot using default settings)"))
+	    $q->p($q->a({-href=>"/example/rs10318-50kb_page_1.png"},"Example output"))
 	),
     ),
     $q->Tr(
