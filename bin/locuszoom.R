@@ -1524,27 +1524,27 @@ grid.log <- function(args,metal,linespacing=1.5,ascii=FALSE,debug=FALSE){
 	grid.text(labels,x=.3,y=unit(1,'npc') - unit(linespacing *(1:length(labels)),'lines'), just='right');
 	grid.text(values,x=.3,y=unit(1,'npc') - unit(linespacing *(1:length(values)),'lines'), just='left');
 
-	if (FALSE && args[['showAnnot']]) {
-	    annotlabels <- c('no annotation','framestop','splice','nonsyn','coding','utr','tfbscons','mcs44placental');
-	    pch <- args[['annotPch']];
-	    annotlabels <- c(annotlabels[-1],annotlabels[1])
-		pch <- c(pch[-1],pch[1])
-		key <- simpleKey(text=annotlabels);
-	    key$points$pch=pch;
-	    key$points$col="navy";
-	    key$points$fill="lightskyblue";
-	    keyGrob <- draw.key(key,draw=FALSE);
-	    annotationBoxTop <- unit(0.95,'npc');
-	    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
-	    pushViewport(viewport(x=.90,y=annotationBoxTop,width=grobWidth(keyGrob),
-			height=annotationBoxHeight,just=c('right','top')));
-	    grid.rect();
-	    pushViewport(viewport(y=unit(.75,'lines'),height = grobHeight(keyGrob),just=c('center','bottom')));
-	    draw.key(key,draw=TRUE);
-	    popViewport();
-	    grid.text('Annotation key',x=.5,y=unit(1,'npc') - unit(1,'lines'),just=c('center','top'))
-		popViewport();
-	} 
+	#if (FALSE && args[['showAnnot']]) {
+	#    annotlabels <- c('no annotation','framestop','splice','nonsyn','coding','utr','tfbscons','mcs44placental');
+	#    pch <- args[['annotPch']];
+	#    annotlabels <- c(annotlabels[-1],annotlabels[1])
+	#	pch <- c(pch[-1],pch[1])
+	#	key <- simpleKey(text=annotlabels);
+	#    key$points$pch=pch;
+	#    key$points$col="navy";
+	#    key$points$fill="lightskyblue";
+	#    keyGrob <- draw.key(key,draw=FALSE);
+	#    annotationBoxTop <- unit(0.95,'npc');
+	#    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
+	#    pushViewport(viewport(x=.90,y=annotationBoxTop,width=grobWidth(keyGrob),
+	#		height=annotationBoxHeight,just=c('right','top')));
+	#    grid.rect();
+	#    pushViewport(viewport(y=unit(.75,'lines'),height = grobHeight(keyGrob),just=c('center','bottom')));
+	#    draw.key(key,draw=TRUE);
+	#    popViewport();
+	#    grid.text('Annotation key',x=.5,y=unit(1,'npc') - unit(1,'lines'),just=c('center','top'))
+	#	popViewport();
+	#} 
 	if ( 'annot' %in% names(metal) && args[['showAnnot']] ) {
 	    annotlabels <- levels(as.factor(metal$annot))
 		pch <- rep(args[['annotPch']],length=length(annotlabels));
@@ -1721,7 +1721,7 @@ height = 11,                           # height of pdf (inches)
     unit=1000000,                         # bp per unit displayed in plot
     ldTable = "results.ld_point6",        # LD Table (for SQL)
     annot=NULL,                           # file for annotation 
-    showAnnot=TRUE,                       # show annotation for each snp?
+    showAnnot=FALSE,                      # show annotation for each snp?
     showGenes=TRUE,                       # show genes?
     annotCol='annotation',                # column to use for annotation, if it exists
     annotPch='24,24,25,22,22,8,7,21,1',   # plot symbols for annotation
