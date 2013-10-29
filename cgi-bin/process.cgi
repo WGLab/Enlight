@@ -106,9 +106,6 @@ die ("User must specify one of the following items: refsnp, refgene or chr, star
 &checkBED(%custom_table) if %custom_table;
 &checkHeader($input,$markercol,$pvalcol);
 
-my $base_url=$q->url(-base=>1);
-my $result_url=$base_url."/output/".$c->access(); #Don't forget to map /output URL to output dir, or just create 'output' dir inside document root
-&Utils::generateFeedback($result_url);
 
 #parameter ok, generate command
 my ($param,$lz_cmd,$anno_table_cmd,@unlink);
@@ -246,6 +243,10 @@ my $c=Control->new(
     'query'			=>$input,
     'param'			=>$param,
 );
+
+my $base_url=$q->url(-base=>1);
+my $result_url=$base_url."/output/".$c->access(); #Don't forget to map /output URL to output dir, or just create 'output' dir inside document root
+&Utils::generateFeedback($result_url);
 
 eval {
     $c->tablePrepare(); #make sure the table exists
