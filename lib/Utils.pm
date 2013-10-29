@@ -84,6 +84,7 @@ sub error
 
 sub generateFeedback 
 {
+    my $result_url=shift;
     my $submission_time=scalar localtime;
     $|++;
     my $q=new CGI;
@@ -91,7 +92,7 @@ sub generateFeedback
     print $q->start_html('Submission status');
     print $q->h1 ("Submission received");
     print $q->p ("Your submission has been received by us at <b>$submission_time</b>.");
-    print $q->p("You will be redirected to result page. Please wait ...");
+    print $q->p("You will be redirected to <a href='$result_url'>result page</a> shortly. Please wait ...");
     print $q->end_html();
 }
 
