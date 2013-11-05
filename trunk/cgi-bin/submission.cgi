@@ -12,7 +12,7 @@ use File::Spec;
 
 
 #read global configurations
-my %server_conf=&Utils::readServConf("$RealBin/../conf/enlight_server.conf","$RealBin/..")
+my %server_conf=&Utils::readServConf(File::Spec->catfile($RealBin,"../conf/enlight_server.conf"))
     or die "Reading server configuration file failed!\n";
 
 #read list of available locuszoom databases
@@ -37,6 +37,8 @@ my @qformat=("whitespace","space","comma");
 my %qformat_label=map {($_,$_)} @qformat;
 my $qformat_default="whitespace";
 my @chr=(1..22,'X');
+
+my $page;
 
 
 my $jscode="
@@ -243,42 +245,20 @@ my $q=new CGI::Pretty;
 #my $c=new Captcha::reCAPTCHA;
 
 #print $q->header; #not useful unless read by APACHE directly
-my $disable_table_css="
-.table_disable
-{
-visibility:hidden;
-}
-
-.table_align
-{
-    vertical-align:top;
-}
-";
-print $q->start_html(
--title=>"Enlight Homepage",
--script=>{
--language=>'javascript',
-#-src=>'/javascript/lib.js',
--code=>$jscode,
-},
--style=>{
-#-src=>'/style/style.css',
--code=>$disable_table_css,
-},
--onLoad=>"changeTracks();response_to_select_region(document.getElementById('select_region_id').value);",
-);
+$page.= "<script type=\"text/javascript\"> //<![CDATA[
+$jscode
+//]]></script>\n";
 ##change reCAPTCHA theme here
-#print <<RECAPTCHA;
+#$page.= <<RECAPTCHA;
 #<script type="text/javascript">
 # var RecaptchaOptions = {
 #    theme : 'clean'
 # };
 # </script>
 #RECAPTCHA
-print $q->noscript($q->h1("Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight."));
-print $q->h2("Enlight: integrating GWAS results with biological annotations");
-print $q->start_form(-name=>'main',-action=>"/cgi-bin/process.cgi",-method=>"post");
-print $q->table(
+$page.= $q->noscript($q->h1("Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight."));
+$page.= $q->start_form(-name=>'main',-action=>"/cgi-bin/process.cgi",-method=>"post");
+$page.= $q->table(
     {-border=>0},
     $q->Tr(
 	$q->td("Email (optional)"),
@@ -316,8 +296,8 @@ print $q->table(
     ),
 );
 
-print $q->p($q->b("Specify a region"));
-print $q->table(
+$page.= $q->p($q->b("Specify a region"));
+$page.= $q->table(
     {-border=>1},
     $q->Tr(
 	$q->td ( 
@@ -338,8 +318,8 @@ print $q->table(
     ),
 );
 
-print $q->p($q->b("Generic plot (using UCSC BED tables)"));
-print $q->table(
+$page.= $q->p($q->b("Generic plot (using UCSC BED tables)"));
+$page.= $q->table(
     $q->Tr(
 	$q->td($q->checkbox(-name=>'generic_toggle',-checked=>1,-label=>'Generic plot?')), #return 'on' if checked
     ),
@@ -370,7 +350,7 @@ print $q->table(
 	),
     ),
 );
-print $q->table(
+$page.= $q->table(
     {-border=>1},
     $q->Tr(
 	$q->td( {-class=>'table_align'},
@@ -407,7 +387,7 @@ print $q->table(
     ),
 );
 
-print $q->table(
+$page.= $q->table(
     $q->Tr(
 	$q->td(
 	    $q->p($q->submit("submit"),$q->reset())
@@ -416,10 +396,10 @@ print $q->table(
 );
 
 #print $c->get_html($public_key);
-print $q->end_form(),$q->end_html();
-print $q->p("Wang Lab, Zilkha Genetic Institute, University of Southern California");
-print $q->p("Please send questions or comments to <strong>$admin_email</strong>") if $admin_email;
+$page.= $q->end_form();
+$page.= $q->p("Please send questions or comments to <strong>$admin_email</strong>") if $admin_email;
 
+&template2real($page);
 #--------------SUBROUTINE-----------------
 sub listGeneric
 {
@@ -448,4 +428,36 @@ sub genJsHash
 	push @return,join(",",@one);
     }
     return @return;
+}
+sub tempalte2real
+{
+    my $content=shift;
+    my $real_dir=File::Spec->catdir($RealBin,"..","html");
+    my $template_dir=File::Spec->catdir($RealBin,"..","template");
+    my $index_in=File::Spec->catfile($tempalte_dir,"index.html");
+    my $index_out=File::Spec->catfile($real_dir,"index.html");
+    my $template_content=`cat $index_in`;
+
+    mkdir $real_dir or die "Failed to create $real_dir" unless -d $real_dir;
+
+    !system("cp -rf $template_dir $real_dir") or die "Failed to copy templates: $!\n";
+
+    open OUT,'>',$index_out or die "Failed to write to $index_out: $!\n";
+    while(split "\n",$template_content)
+    {
+	if (/<body>/)
+	{
+	    print OUT "<body onload=\"changeTracks();response_to_select_region(document.getElementById('select_region_id').value);\">\n";
+
+	} else
+	{
+	    print OUT;
+	}
+	if (/templatemo_main/)
+	{
+	    print $content;
+	}
+    }
+    close OUT;
+    warn "Index page generated in $real_dir\n";
 }
