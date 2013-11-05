@@ -290,7 +290,7 @@ print $q->table(
     ),
     $q->Tr(
 	$q->td(
-	    $q->p($q->a({-href=>"/example/rs10318-50kb_page_1.png"},"Example output")),
+	    $q->p($q->a({-href=>"/example/sample_out.png"},"Example output")),
 	),
 	$q->td(
 	    $q->p($q->a({-href=>"/example/rs10318.txt"},"Example input (plot using default settings)")),
