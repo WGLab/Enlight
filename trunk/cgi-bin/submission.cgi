@@ -374,6 +374,7 @@ $page.= $q->table(
     ),
 );
 
+$page.="<br /> <br />\n";
 $page.= $q->h2("Specify a region");
 $page.= $q->table(
     {-border=>1},
@@ -392,6 +393,7 @@ $page.= $q->table(
     ),
 );
 
+$page.="<br /> <br />\n";
 $page.= $q->h2("Generic plot (using UCSC BED tables)");
 $page.= $q->table( {-class=>'noborder'},
     $q->Tr(
