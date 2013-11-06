@@ -445,7 +445,7 @@ $page.= $q->table(
 	    )
 	),
 	$q->td( {-class=>'table_align'},
-	    $q->table( {-class=>'noborder left_aln' -id=>'dataTrackHere'}, $q->p("")),
+	    $q->table( {-class=>'noborder left_aln',-id=>'dataTrackHere'}, $q->p("")),
 	    ),
     ),
 );
