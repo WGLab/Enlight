@@ -228,9 +228,9 @@ h6 { font-size: 12px; margin: 0 0 5px; padding: 0; }
 font-family: Verdana, Geneva, Arial, Helvetica, sans-serif ;
 font-weight: normal;
 font-size: 11px;
-color: #fff;
+color: #000;
 width: 280px;
-background-color: #666;
+background-color: #FFF;
 border:0px;
 border-collapse: collapse;
 border-spacing: 0px;
@@ -270,6 +270,16 @@ padding-right: 0px;*/
 	border-spacing: 1px 0px;
 }
 
+#templatemo_main table.noborder
+{
+    border: 0px;
+}
+
+#templatemo_main table.left_aln td
+{
+    text-align: left;
+
+}
 #templatemo_main table > caption
 {
 	caption-side:top;

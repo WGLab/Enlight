@@ -393,7 +393,7 @@ $page.= $q->table(
 );
 
 $page.= $q->p($q->b("Generic plot (using UCSC BED tables)"));
-$page.= $q->table(
+$page.= $q->table( {-class=>'noborder'},
     $q->Tr(
 	$q->td($q->checkbox(-name=>'generic_toggle',-id=>'generic_toggle_id',-checked=>1,-label=>'Generic plot?')), #return 'on' if checked
     ),
@@ -422,11 +422,12 @@ $page.= $q->table(
     ),
 );
 $page.= $q->table(
-    {-border=>1},
+    $q->Tr(
+	$q->th(["Cell Line","Experiment Type","Data Tracks (max: $generic_table_max)"]),
+    ),
     $q->Tr(
 	$q->td( {-class=>'table_align'},
-	    $q->table(
-		$q->Tr($q->td($q->strong("Cell Line"))),
+	    $q->table( {-class=>'noborder left_aln'},
 		$q->Tr([
 		    map { $q->td( 
 			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
@@ -435,8 +436,7 @@ $page.= $q->table(
 	    )
 	),
 	$q->td( {-class=>'table_align'},
-	    $q->table(
-		$q->Tr($q->td($q->strong("Experiment Type"))),
+	    $q->table( {-class=>'noborder left_aln'},
 		$q->Tr([
 		    map { $q->td( 
 			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
@@ -445,20 +445,12 @@ $page.= $q->table(
 	    )
 	),
 	$q->td( {-class=>'table_align'},
-	    $q->table(
-		$q->Tr($q->td($q->strong("Data Tracks (max: $generic_table_max)"))),
-		$q->Tr(
-		    $q->td(
-#the $q->p is necessary, otherwise, only 1 table tag will be printed
-			$q->table( {-id=>'dataTrackHere'},$q->p(""))
-		    ),
-		),
+	    $q->table( {-class=>'noborder left_aln' -id=>'dataTrackHere'}, $q->p("")),
 	    ),
-	),
     ),
 );
 
-$page.= $q->table(
+$page.= $q->table( -class=>'noborder',
     $q->Tr(
 	$q->td(
 	    $q->p($q->submit("submit"),$q->reset())
