@@ -177,7 +177,7 @@ function response_to_select_region(input_value)
 	var col2_1=document.createElement('td');
 	var col2_2=document.createElement('td');
 	var input2=document.createElement('input');
-	col2_1.innerHTML="Flanking region (Kb)";
+	col2_1.innerHTML='Flanking region (Kb)';
 	input2.type='text';
 	input2.name='snpflank';
 	input2.value='$flank_default';
