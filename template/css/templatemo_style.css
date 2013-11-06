@@ -229,7 +229,7 @@ font-family: Verdana, Geneva, Arial, Helvetica, sans-serif ;
 font-weight: normal;
 font-size: 11px;
 color: #000;
-width: 280px;
+width: auto;
 background-color: #FFF;
 border:0px;
 border-collapse: collapse;
@@ -270,7 +270,7 @@ padding-right: 0px;*/
 	border-spacing: 1px 0px;
 }
 
-#templatemo_main table.noborder
+#templatemo_main table.noborder td
 {
     border: 0px;
 }
