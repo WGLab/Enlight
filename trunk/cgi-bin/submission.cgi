@@ -348,7 +348,7 @@ $page.= $q->table(
     ),
     $q->Tr(
 	$q->td("Email (optional)"),
-	$q->td($q->textfield(-name=>'email')),
+	$q->td($q->textfield(-name=>'email',-onclick=>"this.value=''")),
     ),
     $q->Tr(
 	$q->td("Input file (first line must be header)"),
@@ -360,11 +360,11 @@ $page.= $q->table(
     ),
     $q->Tr(
 	$q->td("Marker Column (case sensitive)"),
-	$q->td($q->textfield(-name=>'markercol',-id=>'markercol_id',-default=>'dbSNP135')),
+	$q->td($q->textfield(-name=>'markercol',-id=>'markercol_id',-default=>'dbSNP135', -onclick=>"this.value=''")),
     ),
     $q->Tr(
 	$q->td("P value column (case-sensitive)"),
-	$q->td($q->textfield(-name=>"pvalcol",-id=>'pvalcol_id',-default=>'p')),
+	$q->td($q->textfield(-name=>"pvalcol",-id=>'pvalcol_id',-default=>'p', -onclick=>"this.value=''")),
     ),
     $q->Tr(
 	$q->td('Genome Build/LD source/Population'),
