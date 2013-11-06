@@ -44,199 +44,279 @@ my $page;
 my $jscode="
 function changeTracks()
 {
-var insertPos=document.getElementById('dataTrackHere');
-var all=[ ".join(",\n",&genJsHash(%tracks))." ];
+    var insertPos=document.getElementById('dataTrackHere');
+    var all=[ ".join(",\n",&genJsHash(%tracks))." ];
 
-var cell=document.getElementsByClassName('cell');
-var experiment=document.getElementsByClassName('experiment');
+    var cell=document.getElementsByClassName('cell');
+    var experiment=document.getElementsByClassName('experiment');
 
-var selectedCell=[];
-var selectedExperiment=[];
-var tracks=[];
+    var selectedCell=[];
+    var selectedExperiment=[];
+    var tracks=[];
 
-//get selected cell
-for (var i=0;i<cell.length;i++)
-{
-if (cell[i].checked)
-{
-selectedCell.push(cell[i].value);
-}
+    //get selected cell
+    for (var i=0;i<cell.length;i++)
+    {
+	if (cell[i].checked)
+	{
+	    selectedCell.push(cell[i].value);
+	}
+    }
+
+    //get selected assay
+    for (var i=0;i<experiment.length;i++)
+    {
+	if (experiment[i].checked)
+	{
+	    selectedExperiment.push(experiment[i].value);
+	}
+    }
+
+    //get selected tracks
+    for (var i=0;i<all.length;i++)
+    {
+	if (selectedCell.indexOf(all[i].cell) != -1)
+	{
+	    if (selectedExperiment.indexOf(all[i].experiment) != -1)
+	    {
+		tracks.push(all[i].name);
+	    }
+	}
+    }
+
+    //remove all child nodes
+    while(insertPos.firstChild)
+    {
+	insertPos.removeChild(insertPos.firstChild);
+    }
+
+    //add selected tracks
+    for (var i=0;i<tracks.length;i++)
+    {
+	if (i>".($generic_table_max-1).")
+	{
+	    alert('At most $generic_table_max tracks can be selected.');
+	    break;
+	}
+	var newrow=document.createElement('tr');
+	var col=document.createElement('td');
+	var label=document.createElement('label');
+	var checkbox=document.createElement('input');
+	label.innerHTML=tracks[i];
+	checkbox.type='checkbox';
+	checkbox.value=tracks[i];
+	checkbox.name='generic_table';
+	checkbox.checked=true;
+
+	label.appendChild(checkbox);
+	col.appendChild(label);
+	newrow.appendChild(col);
+	insertPos.appendChild(newrow);
+
+    }
+
+    //add custom tracks upload fields
+    for (var i=0;i<$generic_table_max-tracks.length;i++)
+    {
+	var newrow=document.createElement('tr');
+	var col=document.createElement('td');
+	var label=document.createElement('label');
+	var upload=document.createElement('input');
+	label.innerHTML='Custom track (BED format)';
+	upload.type='file';
+	upload.name='custom_table';
+
+	label.appendChild(upload);
+	col.appendChild(label);
+	newrow.appendChild(col);
+	insertPos.appendChild(newrow);
+    }
 }
 
-//get selected assay
-for (var i=0;i<experiment.length;i++)
+function getCheckedRadio(radio_group) 
 {
-if (experiment[i].checked)
-{
-selectedExperiment.push(experiment[i].value);
-}
-}
-
-//get selected tracks
-for (var i=0;i<all.length;i++)
-{
-if (selectedCell.indexOf(all[i].cell) != -1)
-{
-if (selectedExperiment.indexOf(all[i].experiment) != -1)
-{
-tracks.push(all[i].name);
-}
-}
-}
-
-//remove all child nodes
-while(insertPos.firstChild)
-{
-insertPos.removeChild(insertPos.firstChild);
-}
-
-//add selected tracks
-for (var i=0;i<tracks.length;i++)
-{
-if (i>".($generic_table_max-1).")
-{
-alert('At most $generic_table_max tracks can be selected.');
-break;
-}
-var newrow=document.createElement('tr');
-var col=document.createElement('td');
-var label=document.createElement('label');
-var checkbox=document.createElement('input');
-label.innerHTML=tracks[i];
-checkbox.type='checkbox';
-checkbox.value=tracks[i];
-checkbox.name='generic_table';
-checkbox.checked=true;
-
-label.appendChild(checkbox);
-col.appendChild(label);
-newrow.appendChild(col);
-insertPos.appendChild(newrow);
-
-}
-
-//add custom tracks upload fields
-for (var i=0;i<$generic_table_max-tracks.length;i++)
-{
-var newrow=document.createElement('tr');
-var col=document.createElement('td');
-var label=document.createElement('label');
-var upload=document.createElement('input');
-label.innerHTML='Custom track (BED format)';
-upload.type='file';
-upload.name='custom_table';
-
-label.appendChild(upload);
-col.appendChild(label);
-newrow.appendChild(col);
-insertPos.appendChild(newrow);
-}
+    for (var i = 0; i < radio_group.length; i++) 
+    {
+	var button = radio_group[i];
+	if (button.checked) 
+	{
+	    return button;
+	}
+    }
+    return undefined;
 }
 
 function response_to_select_region(input_value)
 {
-var insert=document.getElementById('insertRegionHere');
 
-//remove all child nodes
-while(insert.firstChild)
-{
-insert.removeChild(insert.firstChild);
+    var insert=document.getElementById('insertRegionHere');
+    var radio_group=document.getElementsByName('region_method');
+    var input_value=getCheckedRadio(radio_group).value;
+
+    //remove all child nodes
+    while(insert.firstChild)
+    {
+	insert.removeChild(insert.firstChild);
+    }
+
+    if (input_value=='snp')
+    {
+	var row1=document.createElement('tr');
+	var col1_1=document.createElement('td');
+	var col1_2=document.createElement('td');
+	var input1=document.createElement('input');
+	col1_1.innerHTML='Index SNP';
+	input1.type='text';
+	input1.name='refsnp';
+	input1.id='refsnp_id';
+	input1.onclick=function (){ this.value=''};
+	row1.appendChild(col1_1);
+	row1.appendChild(col1_2.appendChild(input1));
+
+	var row2=document.createElement('tr');
+	var col2_1=document.createElement('td');
+	var col2_2=document.createElement('td');
+	var input2=document.createElement('input');
+	col2_1.innerHTML="Flanking region (Kb)";
+	input2.type='text';
+	input2.name='snpflank';
+	input2.value='$flank_default';
+	input2.onclick=function (){ this.value=''};
+	row2.appendChild(col2_1);
+	row2.appendChild(col2_2.appendChild(input2));
+
+	insert.appendChild(row1);
+	insert.appendChild(row2);
+    } else if (input_value=='gene')
+    {
+	var row1=document.createElement('tr');
+	var col1_1=document.createElement('td');
+	var col1_2=document.createElement('td');
+	var input1=document.createElement('input');
+	col1_1.innerHTML="Reference Gene";
+	input1.type='text';
+	input1.name='refgene';
+	input1.onclick=function (){ this.value=''};
+	row1.appendChild(col1_1);
+	row1.appendChild(col1_2.appendChild(input1));
+
+	var row2=document.createElement('tr');
+	var col2_1=document.createElement('td');
+	var col2_2=document.createElement('td');
+	var input2=document.createElement('input');
+	col2_1.innerHTML="Flanking region (kb)";
+	input2.type='text';
+	input2.name='geneflank';
+	input2.value='$flank_default';
+	input2.onclick=function (){ this.value=''};
+	row2.appendChild(col2_1);
+	row2.appendChild(col2_2.appendChild(input2));
+
+	var row3=document.createElement('tr');
+	var col3_1=document.createElement('td');
+	var col3_2=document.createElement('td');
+	var input3=document.createElement('input');
+	col3_1.innerHTML=('Optional Index SNP (default is SNP with lowest P value)');
+	input3.type='text';
+	input3.name='refsnp';
+	input3.onclick=function (){ this.value=''};
+	row3.appendChild(col3_1);
+	row3.appendChild(col3_2.appendChild(input3));
+
+	insert.appendChild(row1);
+	insert.appendChild(row2);
+	insert.appendChild(row3);
+    } else if (input_value=='chr')
+    {
+	var row1=document.createElement('tr');
+	var col1=document.createElement('td');
+	var input1=document.createElement('select');
+	input1.name='chr';
+	var list=[".join(',',map { "'$_'" } @chr)."];
+
+	for (var i=0;i<list.length;i++)
+	{
+	    var option=document.createElement('option');
+	    option.value=list[i];
+	    option.innerHTML=list[i];
+	    input1.appendChild(option);
+	}
+	row1.appendChild(col1.appendChild(input1));
+
+	var row2=document.createElement('tr');
+	var col2_1=document.createElement('td');
+	var col2_2=document.createElement('td');
+	var input2=document.createElement('input');
+	col2_1.innerHTML='Start (Mb)';
+	input2.type='text';
+	input2.name='start';
+	input2.onclick=function (){ this.value=''};
+	row2.appendChild(col2_1);
+	row2.appendChild(col2_2.appendChild(input2));
+
+	var row3=document.createElement('tr');
+	var col3_1=document.createElement('td');
+	var col3_2=document.createElement('td');
+	var input3=document.createElement('input');
+	col3_1.innerHTML='End (Mb)';
+	input3.type='text';
+	input3.name='end';
+	input3.onclick=function (){ this.value=''};
+	row3.appendChild(col3_1);
+	row3.appendChild(col3_2.appendChild(input3));
+
+	var row4=document.createElement('tr');
+	var col4_1=document.createElement('td');
+	var col4_2=document.createElement('td');
+	var input4=document.createElement('input');
+	col4_1.innerHTML=('Optional Index SNP (default is SNP with lowest P value)');
+	input4.type='text';
+	input4.name='refsnp';
+	input4.onclick=function (){ this.value=''};
+	row4.appendChild(col4_1);
+	row4.appendChild(col4_2.appendChild(input4));
+
+	insert.appendChild(row1);
+	insert.appendChild(row2);
+	insert.appendChild(row3);
+	insert.appendChild(row4);
+    }
 }
-
-if (input_value=='snp')
+function clear_datatrack_selection()
 {
-var row1=document.createElement('tr');
-var col1=document.createElement('td');
-var input1=document.createElement('input');
-input1.type='text';
-input1.name='refsnp';
-input1.value='rs10318';
-row1.appendChild(col1.appendChild(input1));
-
-var row2=document.createElement('tr');
-var col2=document.createElement('td');
-var input2=document.createElement('p');
-input2.innerHTML='SNP Flanking Region (Kb)';
-row2.appendChild(col2.appendChild(input2));
-
-var row3=document.createElement('tr');
-var col3=document.createElement('td');
-var input3=document.createElement('input');
-input3.type='text';
-input3.name='snpflank';
-input3.value='$flank_default';
-row3.appendChild(col3.appendChild(input3));
-
-insert.appendChild(row1);
-insert.appendChild(row2);
-insert.appendChild(row3);
-} else if (input_value=='gene')
-{
-var row1=document.createElement('tr');
-var col1=document.createElement('td');
-var input1=document.createElement('input');
-input1.type='text';
-input1.name='refgene';
-row1.appendChild(col1.appendChild(input1));
-
-var row2=document.createElement('tr');
-var col2=document.createElement('td');
-var input2=document.createElement('p');
-input2.innerHTML='Gene Flanking Region (Kb)';
-row2.appendChild(col2.appendChild(input2));
-
-var row3=document.createElement('tr');
-var col3=document.createElement('td');
-var input3=document.createElement('input');
-input3.type='text';
-input3.name='geneflank';
-input3.value='$flank_default';
-row3.appendChild(col3.appendChild(input3));
-
-insert.appendChild(row1);
-insert.appendChild(row2);
-insert.appendChild(row3);
-} else if (input_value=='chr')
-{
-var row1=document.createElement('tr');
-var col1=document.createElement('td');
-var input1=document.createElement('select');
-input1.name='chr';
-var list=[".join(',',map { "'$_'" } @chr)."];
-
-for (var i=0;i<list.length;i++)
-{
-var option=document.createElement('option');
-option.value=list[i];
-option.innerHTML=list[i];
-input1.appendChild(option);
+    var cell=document.getElementsByClassName( 'cell');
+    for (var i=0;i<cell.length;i++)
+    {
+	cell[i].checked=false;
+    }
+    var experiment=document.getElementsByClassName( 'experiment');
+    for (var i=0;i<experiment.length;i++)
+    {
+	experiment[i].checked=false;
+    }
 }
-row1.appendChild(col1.appendChild(input1));
+function loadExampleSetting()
+{
+    document.getElementById('qformat_whitespace').checked=true;
+    document.getElementById('markercol_id').value='dbSNP135';
+    document.getElementById('pvalcol_id').value='p';
+    document.getElementById('source_ref_pop_id').value='1000G_Aug2009,hg18,CEU';	
+    document.getElementById('region_method_snp').checked=true;
+    response_to_select_region();
 
-var row2=document.createElement('tr');
-var col2_1=document.createElement('td');
-var col2_2=document.createElement('td');
-var input2=document.createElement('input');
-col2_1.innerHTML='Start (Mb)';
-input2.type='text';
-input2.name='start';
-row2.appendChild(col2_1);
-row2.appendChild(col2_2.appendChild(input2));
+    document.getElementById('refsnp_id').value='rs10318';
+    document.getElementById('generic_toggle_id').checked=true;
+    document.getElementById('anno_toggle_id').checked=true;
+    document.getElementById('avinput_id').checked=true;
+    document.getElementById('ref_hg19').checked=true;
 
-var row3=document.createElement('tr');
-var col3_1=document.createElement('td');
-var col3_2=document.createElement('td');
-var input3=document.createElement('input');
-col3_1.innerHTML='End (Mb)';
-input3.type='text';
-input3.name='end';
-row3.appendChild(col3_1);
-row3.appendChild(col3_2.appendChild(input3));
-
-insert.appendChild(row1);
-insert.appendChild(row2);
-insert.appendChild(row3);
-}
+    //clear data track selection
+    clear_datatrack_selection();
+    document.getElementById('Caco-2').checked=true;	
+    document.getElementById('HCT116').checked=true;	
+    document.getElementById('ChIP-seq_CTCF').checked=true;
+    document.getElementById('ChIP-seq_H3K27ac').checked=true;
+    changeTracks();
 }
 ";
 
@@ -259,8 +339,13 @@ $jscode
 #RECAPTCHA
 $page.= $q->noscript($q->h1("Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight."));
 $page.= $q->start_form(-name=>'main',-action=>"/cgi-bin/process.cgi",-method=>"post");
+$page.= $q->h2("Input");
 $page.= $q->table(
     {-border=>0},
+    $q->Tr(
+	$q->td("<button type='button' onclick=\"download('/example/rs10318.txt')\">Download example input"),
+	$q->td("<button type='button' onclick='loadExampleSetting()'>Load settings for example input</button>"),
+    )
     $q->Tr(
 	$q->td("Email (optional)"),
 	$q->td($q->textfield(-name=>'email')),
@@ -270,45 +355,34 @@ $page.= $q->table(
 	$q->td($q->filefield(-name=>"query")),
     ),
     $q->Tr(
-	$q->td(
-	    $q->p($q->a({-href=>"/example/sample_out.png"},"Example output")),
-	),
-	$q->td(
-	    $q->p($q->a({-href=>"/example/rs10318.txt"},"Example input (plot using default settings)")),
-	),
-    ),
-    $q->Tr(
 	$q->td("Field delimiter"),
-	$q->td($q->radio_group(-name=>"qformat",-values=>\@qformat,-labels=>\%qformat_label,-default=>$qformat_default)),
+	$q->td($q->radio_group(-name=>"qformat",-id=>"qformat_whitespace",-values=>\@qformat,-labels=>\%qformat_label,-default=>$qformat_default)),
     ),
     $q->Tr(
 	$q->td("Marker Column (case sensitive)"),
-	$q->td($q->textfield(-name=>'markercol',-default=>'dbSNP135')),
+	$q->td($q->textfield(-name=>'markercol',-id=>'markercol_id',-default=>'dbSNP135')),
     ),
     $q->Tr(
 	$q->td("P value column (case-sensitive)"),
-	$q->td($q->textfield(-name=>"pvalcol",-default=>'p')),
+	$q->td($q->textfield(-name=>"pvalcol",-id=>'pvalcol_id',-default=>'p')),
     ),
     $q->Tr(
 	$q->td('Genome Build/LD source/Population'),
 	$q->td(
-	    $q->popup_menu(-name=>'source_ref_pop',-values=> \@source_ref_pop,-labels=>\%source_ref_pop_label,-default=>[$default_source_ref_pop])
+	    $q->popup_menu(-name=>'source_ref_pop',-id=>'source_ref_pop_id',-values=> \@source_ref_pop,-labels=>\%source_ref_pop_label,-default=>[$default_source_ref_pop])
 	),
     ),
 );
 
-$page.= $q->p($q->b("Specify a region"));
+$page.= $q->h2("Specify a region");
 $page.= $q->table(
     {-border=>1},
     $q->Tr(
 	$q->td ( 
-	    $q->popup_menu(
-		-id=>'select_region_id',
-		-name=>'select_region',
-		-onchange=>'response_to_select_region(this.form.select_region.value)',
-		-values=> ["snp","gene","chr"],
-		-labels=> {"snp"=>"Reference SNP","gene"=>"Reference Gene","chr"=>"Chromosomal Region"},
-		-default=> ["snp"],
+	    "<input type='radio' name='region_method' id='region_method_snp' value='snp'  onclick='response_to_select_region()' checked >Reference SNP<br>
+	      <input type='radio' name='region_method' onclick='response_to_select_region()' value='gene'>Reference Gene<br>
+	        <input type='radio' name='region_method' onclick='response_to_select_region()' value='chr'>Chromosomal Region<br>
+		"
 	    )
 	),
     ),
@@ -322,31 +396,28 @@ $page.= $q->table(
 $page.= $q->p($q->b("Generic plot (using UCSC BED tables)"));
 $page.= $q->table(
     $q->Tr(
-	$q->td($q->checkbox(-name=>'generic_toggle',-checked=>1,-label=>'Generic plot?')), #return 'on' if checked
+	$q->td($q->checkbox(-name=>'generic_toggle',-id=>'generic_toggle_id',-checked=>1,-label=>'Generic plot?')), #return 'on' if checked
     ),
     $q->Tr(
 	$q->td(
-	    $q->checkbox(-name=>'anno_toggle',-checked=>0,-label=>'Output ANNOVAR annotation?'),
+	    $q->checkbox(-name=>'anno_toggle',-id=>'anno_toggle_id',-checked=>0,-label=>'Output ANNOVAR annotation?'),
 	),
     ),
     $q->Tr(
 	$q->td(
-	    $q->checkbox(-name=>'avinput',-checked=>0,-label=>'Input file in ANNOVAR format?'),
-	),
-    ),
-    $q->Tr(
-	$q->td(
-	    $q->p(
-		"Missing value for OUTPUT",
-		$q->textfield(-name=>'nastring',-default=>'NA'),
-	    )
+	    $q->checkbox(-name=>'avinput',-id=>'avinput_id',-checked=>0,-label=>'Input file in ANNOVAR format?'),
 	),
     ),
     $q->Tr(
 	$q->td(
 	    $q->p(
 		"Genome Build",
-		$q->radio_group(-name=>'ref',-values=>\@ref,-default=>$ref_default,-labels=>\%ref_label)
+		'<label>
+		<input type="radio" name="ref" value="hg18">hg18
+		</label>
+		<label>
+		<input type="radio" name="ref" id="ref_hg19" value="hg19" checked="checked">hg19
+		</label>'
 	    )
 	),
     ),
@@ -448,7 +519,7 @@ sub template2real
     {
 	if (/<body>/)
 	{
-	    print OUT "<body onload=\"changeTracks();response_to_select_region(document.getElementById('select_region_id').value);\">\n";
+	    print OUT "<body onload=\"changeTracks();response_to_select_region();\">\n";
 
 	} else
 	{
