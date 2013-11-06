@@ -300,7 +300,7 @@ function loadExampleSetting()
     document.getElementById('qformat_whitespace').checked=true;
     document.getElementById('markercol_id').value='dbSNP135';
     document.getElementById('pvalcol_id').value='p';
-    document.getElementById('source_ref_pop_id').value='1000G_Aug2009,hg18,CEU';	
+    document.getElementById('source_ref_pop_id').value='1000G_Nov2010,hg19,EUR';	
     document.getElementById('region_method_snp').checked=true;
     response_to_select_region();
 
@@ -392,7 +392,7 @@ $page.= $q->table(
     ),
 );
 
-$page.= $q->p($q->b("Generic plot (using UCSC BED tables)"));
+$page.= $q->h2("Generic plot (using UCSC BED tables)");
 $page.= $q->table( {-class=>'noborder'},
     $q->Tr(
 	$q->td($q->checkbox(-name=>'generic_toggle',-id=>'generic_toggle_id',-checked=>1,-label=>'Generic plot?')), #return 'on' if checked
