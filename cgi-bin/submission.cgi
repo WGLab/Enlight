@@ -444,7 +444,7 @@ sub template2real
     !system("cp -rf $template_dir/* $real_dir") or die "Failed to copy templates: $!\n";
 
     open OUT,'>',$index_out or die "Failed to write to $index_out: $!\n";
-    while(split "\n",$template_content)
+    for(split "\n",$template_content)
     {
 	if (/<body>/)
 	{
