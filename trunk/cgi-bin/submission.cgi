@@ -450,7 +450,7 @@ $page.= $q->table(
     ),
 );
 
-$page.= $q->table( -class=>'noborder',
+$page.= $q->table( {-class=>'noborder'},
     $q->Tr(
 	$q->td(
 	    $q->p($q->submit("submit"),$q->reset())
