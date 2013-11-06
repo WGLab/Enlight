@@ -343,7 +343,7 @@ $page.= $q->h2("Input");
 $page.= $q->table(
     {-border=>0},
     $q->Tr(
-	$q->td("<button type='button' onclick=\"download('/example/rs10318.txt')\">Download example input"),
+	$q->td("<a class='button' href=\"/example/rs10318.txt\"><strong>Download example input</strong></a><br />(right click and save as)"),
 	$q->td("<button type='button' onclick='loadExampleSetting()'>Load settings for example input</button>"),
     ),
     $q->Tr(
