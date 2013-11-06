@@ -245,7 +245,8 @@ my $q=new CGI::Pretty;
 #my $c=new Captcha::reCAPTCHA;
 
 #print $q->header; #not useful unless read by APACHE directly
-$page.= "<script type=\"text/javascript\"> //<![CDATA[
+$page.= 
+"<script type=\"text/javascript\"> //<![CDATA[
 $jscode
 //]]></script>\n";
 ##change reCAPTCHA theme here
@@ -429,18 +430,18 @@ sub genJsHash
     }
     return @return;
 }
-sub tempalte2real
+sub template2real
 {
     my $content=shift;
     my $real_dir=File::Spec->catdir($RealBin,"..","html");
     my $template_dir=File::Spec->catdir($RealBin,"..","template");
-    my $index_in=File::Spec->catfile($tempalte_dir,"index.html");
+    my $index_in=File::Spec->catfile($template_dir,"index.html");
     my $index_out=File::Spec->catfile($real_dir,"index.html");
     my $template_content=`cat $index_in`;
 
     mkdir $real_dir or die "Failed to create $real_dir" unless -d $real_dir;
 
-    !system("cp -rf $template_dir $real_dir") or die "Failed to copy templates: $!\n";
+    !system("cp -rf $template_dir/* $real_dir") or die "Failed to copy templates: $!\n";
 
     open OUT,'>',$index_out or die "Failed to write to $index_out: $!\n";
     while(split "\n",$template_content)
@@ -451,11 +452,11 @@ sub tempalte2real
 
 	} else
 	{
-	    print OUT;
+	    print OUT "$_\n";
 	}
 	if (/templatemo_main/)
 	{
-	    print $content;
+	    print OUT $content,"\n";
 	}
     }
     close OUT;
