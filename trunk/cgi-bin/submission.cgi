@@ -193,7 +193,7 @@ function response_to_select_region(input_value)
 	var col1_1=document.createElement('td');
 	var col1_2=document.createElement('td');
 	var input1=document.createElement('input');
-	col1_1.innerHTML="Reference Gene";
+	col1_1.innerHTML='Reference Gene';
 	input1.type='text';
 	input1.name='refgene';
 	input1.onclick=function (){ this.value=''};
@@ -204,7 +204,7 @@ function response_to_select_region(input_value)
 	var col2_1=document.createElement('td');
 	var col2_2=document.createElement('td');
 	var input2=document.createElement('input');
-	col2_1.innerHTML="Flanking region (kb)";
+	col2_1.innerHTML='Flanking region (kb)';
 	input2.type='text';
 	input2.name='geneflank';
 	input2.value='$flank_default';
@@ -345,7 +345,7 @@ $page.= $q->table(
     $q->Tr(
 	$q->td("<button type='button' onclick=\"download('/example/rs10318.txt')\">Download example input"),
 	$q->td("<button type='button' onclick='loadExampleSetting()'>Load settings for example input</button>"),
-    )
+    ),
     $q->Tr(
 	$q->td("Email (optional)"),
 	$q->td($q->textfield(-name=>'email')),
@@ -383,7 +383,6 @@ $page.= $q->table(
 	      <input type='radio' name='region_method' onclick='response_to_select_region()' value='gene'>Reference Gene<br>
 	        <input type='radio' name='region_method' onclick='response_to_select_region()' value='chr'>Chromosomal Region<br>
 		"
-	    )
 	),
     ),
     $q->Tr(
