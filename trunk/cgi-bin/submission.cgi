@@ -11,6 +11,7 @@ use Utils;
 use File::Spec;
 
 
+my $intro="Enlight draws regional plots for GWAS results, and overlays epigenetic modification, DNase sensitivity site, transcription factor binding annotation onto it. The combined plot will help identify causal variants. Users can also upload custom annotation, obtain text annotation for each SNP.";
 #read global configurations
 my %server_conf=&Utils::readServConf(File::Spec->catfile($RealBin,"../conf/enlight_server.conf"))
     or die "Reading server configuration file failed!\n";
@@ -338,6 +339,8 @@ $jscode
 # </script>
 #RECAPTCHA
 $page.= $q->noscript($q->h1("Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight."));
+$page.= $q->h2("Introduction");
+$page.= $q->p($intro);
 $page.= $q->start_form(-name=>'main',-action=>"/cgi-bin/process.cgi",-method=>"post");
 $page.= $q->h2("Input");
 $page.= $q->table(
