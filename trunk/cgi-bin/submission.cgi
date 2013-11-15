@@ -340,7 +340,7 @@ $jscode
 #RECAPTCHA
 $page.= $q->noscript($q->h1("Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight."));
 $page.= $q->h2("Introduction");
-$page.= $q->p($intro);
+$page.= $q->p("$intro<br /><br />");
 $page.= $q->start_form(-name=>'main',-action=>"/cgi-bin/process.cgi",-method=>"post");
 $page.= $q->h2("Input");
 $page.= $q->table(
@@ -428,7 +428,9 @@ $page.= $q->table( {-class=>'noborder'},
 );
 $page.= $q->table(
     $q->Tr(
-	$q->th(["Cell Line","Experiment Type","Data Tracks (max: $generic_table_max)"]),
+	$q->th(["Cell Line",
+	    "Experiment Type",
+	    "Data Tracks (max: $generic_table_max; <a class='button' href=\"/example/example.bed\"><strong>BED Example</strong></a>)"]),
     ),
     $q->Tr(
 	$q->td( {-class=>'table_align'},
