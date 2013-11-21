@@ -241,6 +241,7 @@ ryan.theme <- function(args) {
 	    format="pdf",
 	    refDot=NULL,
 	    geneFontSize=1.1,
+	    categoryFontSize=1.1,
 	    refsnpTextSize=1.5,
 	    axisTextSize=1.45,
 	    legendSize=1,
@@ -288,7 +289,6 @@ giant.theme <-  function(args) {
     args <- ModifyList(args,argUpdates);
     return(args);
 }
-
 #############################################################
 #
 # Remove temporary files (used in final clean-up)
@@ -382,7 +382,7 @@ AdjustModesOfArgs <- function(args) {
 	    c('legendAlpha', 'width','height',
 		'frameAlpha','hiAlpha','rugAlpha',
 		'refsnpLineAlpha', 'recombFillAlpha','recombLineAlpha', 'refsnpTextAlpha',
-		'ymin','ymax','legendSize','refsnpTextSize','axisSize','axisTextSize','geneFontSize','smallDot',
+		'ymin','ymax','legendSize','refsnpTextSize','axisSize','axisTextSize','geneFontSize','categoryFontSize','smallDot',
 		'largeDot','refDot'),
 	    as.numeric);
 #generic mark
@@ -966,6 +966,17 @@ panel.flatbed <-  function (x=NULL, y=NULL, flat, fill = "navy", col = "navy", a
     }
 }
 
+getGenericPlotHeight <- function (no,nrow)
+{
+	if (no == 0)
+	{
+	  return (0);
+	} else
+	{
+	  return (no+nrow);
+	}
+}
+
 #############################################################
 #
 # generic plot (input has four columns chr,start,end,score)
@@ -985,6 +996,105 @@ panel.generic <- function (genscore,unit,start,end,score,color=NULL,...)
     plot_grob=grid.rect(x=start,y=0,width=start-end,height=score,gp=gpar(fill=color,col=color),default.units='native',just=c('left','bottom'));
 }
 
+readCatKey <- function (key,header=TRUE)
+{
+#key file contains: key\tcolor\tdescription
+    x=read.delim(key,header=header);
+    return(x);
+}
+#############################################################
+#
+# category plot (input has four columns chr,start,end,annotation)
+#
+panel.category <- function (x,unit,key=NULL,alpha=1,...) 
+{
+    start=x$start;
+    end=x$end;
+    annotation=as.factor(x$annotation);
+
+    if (length(start) != length(end) || length(start) != length(annotation))
+    {
+	warning("Category annotation must have equal columns each row!");
+    }
+    if (is.null(key))
+    {
+	levels(annotation)=rainbow(length(levels(annotation))); 
+    } else
+    {
+	level2color=readCatKey(key);
+	keyMatch=levels(annotation) %in% level2color$key;
+
+	if (length(which(keyMatch)) != length(levels(annotation)) )
+	{
+	    warning("Not all levels found in annotation are defined by the category key file!");
+	    warning("Use rainbow instead\n");
+	    levels(annotation)=rainbow(length(levels(annotation))); 
+	} else
+	{
+	    for (i in 1:length(levels(annotation)) )
+	    {
+		levels(annotation)[i]=as.character(level2color$color[level2color$key==levels(annotation)[i]]);
+	    }
+	}
+    }
+    grid.rect(  x=start/unit,
+	    width=(end-start)/unit,
+	    gp=gpar(fill=as.character(annotation),lty=0,alpha=alpha),
+	    just=c("left","center"),
+	    default.units="native",
+	    )
+}
+
+grid.legend <- function (pch, labels, frame = TRUE, hgap = unit(0.5, "lines"), 
+    vgap = unit(0.5, "lines"), default.units = "lines", gp = gpar(), 
+        draw = TRUE, vp = NULL,args=NULL) 
+{
+    labels <- as.character(labels);
+    nkeys <- length(labels);
+    if (length(pch) != nkeys)
+	stop("'pch' and 'labels' not the same length");
+    if (!is.unit(hgap))
+	hgap <- unit(hgap, default.units);
+    if (length(hgap) != 1)
+	stop("'hgap' must be single unit");
+    if (!is.unit(vgap))
+	vgap <- unit(vgap, default.units);
+    if (length(vgap) != 1)
+	stop("'vgap' must be single unit");
+    legend.layout <- grid.layout(nkeys, 3, widths = unit.c(unit(2,
+		    "lines"), max(unit(rep(1, nkeys), "strwidth", as.list(labels))),
+		hgap), heights = unit.pmax(unit(2, "lines"), vgap + unit(rep(1,
+			    nkeys), "strheight", as.list(labels))));
+    fg <- frameGrob(layout = legend.layout, vp = vp, gp = gp);
+    for (i in 1L:nkeys) 
+    {
+	if (length(gp$col)>1 )
+	{
+	    gp.local=gp;
+	    gp.local$col=gp.local$col[i];
+	    fg <- placeGrob(fg, pointsGrob(0.5, 0.5, pch = pch[i],gp=gp.local), 
+		    col = 1, row = i);
+
+	    if (! is.null(args[['legendColor']]))
+	    {
+		gp.local$col=args[['legendColor']];
+	    }
+	    fg <- placeGrob(fg, textGrob(labels[i], x = 0, y = 0.5, 
+			just = c("left", "centre"),gp=gp.local), col = 2, row = i);
+	} else
+	{
+	    fg <- placeGrob(fg, pointsGrob(0.5, 0.5, pch = pch[i]), 
+		    col = 1, row = i);
+	    fg <- placeGrob(fg, textGrob(labels[i], x = 0, y = 0.5, 
+			just = c("left", "centre")), col = 2, row = i);
+	}
+    }
+    if (draw)
+	grid.draw(fg);
+    fg;
+}
+
+
 
 #############################################################
 #
@@ -995,25 +1105,52 @@ panel.generic <- function (genscore,unit,start,end,score,color=NULL,...)
 # NB: *** passing in entire args list *** 
 #
 #generic mark
-zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,refidx=NULL,nrugs=0,postlude=NULL,args=NULL,...){
+zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,refidx=NULL,nrugs=0,postlude=NULL,args=NULL,...)
+{
 
-#check number of generic tables first and determine the layout of entire plot (also check for empty generic scores)
-    genericNo=length(names(genscore));
+#get number of generic plots and category plots to adjust widths and heights
+    genericNo=0;
+    categoryNo=0;
+
+    if (length(names(genscore)) > 0)
+    {
+      genericNo=length(names(genscore));
+    }
+    if (length(names(category_anno)) > 0)
+    {
+      categoryNo=length(names(category_anno));
+    }
+
+    if (! args[['showGeneric']])
+    {
+	genericNo=0;
+    }
+
+    if (! args[['showCategory']])
+    {
+	categoryNo=0;
+    }
+
+
     refSnp <- metal$MarkerName[refidx];
 
     metal$P.value <- as.numeric(metal$P.value);
 
-    if ( char2Rname(args[['weightCol']]) %in% names(metal) ){
+    if ( char2Rname(args[['weightCol']]) %in% names(metal) )
+    {
 	metal$Weight <- metal[ ,char2Rname(args[['weightCol']]) ];
 	dotSizes <- rescale( log(pmax(1,metal$Weight)), c(log(1000), log(100000)), 
 		c(args[['smallDot']],args[['largeDot']] ) ) ; 
     } else {
 	dotSizes <- rep(args[['largeDot']], dim(metal)[1] );
-	if (! is.null(args[['refDot']]) ) {
+	if (! is.null(args[['refDot']]) ) 
+	{
 	    dotSizes[refidx] <- args[['refDot']];
 	} 
     }	
-    if ( is.null(args[['refDot']]) ) {
+
+    if ( is.null(args[['refDot']]) ) 
+    {
 # this avoids problems downstream, but dotSize[refidx] has already been set in most cases.
 	args[['refDot']] <- args[['largeDot']];
     }
@@ -1065,54 +1202,56 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,refidx=NULL,nrugs=0,p
     popViewport(2);
 
 # OK.  Now we know how many rows to use and we can set up the layout we will actually use.
+print("number:");
+print(genericNo);
+print(categoryNo);
+    globalVp=viewport( layout=grid.layout(
+		    2+3+1+2+1+2,1+2, 
+		    widths=unit(
+			c(args[['axisTextSize']]*args[['leftMarginLines']],1,args[['axisTextSize']]*args[['rightMarginLines']]),c('lines','null','lines')
+			),
+		    heights=unit(
+			c(.5,
+			    3,
+			    nrugs,
+			    1,
+			    3,
+			    1+args[['categoryFontSize']]*args[['categoryRows']]*categoryNo,
+			    1,
+			    2*args[['geneFontSize']]*args[['rfrows']],
+			    getGenericPlotHeight(genericNo,5*args[['genericRows']]),
+			    1,
+			    4),
 
-    if (genericNo && args[['showGeneric']])
-    {
-	pushViewport(viewport(
-		    layout=grid.layout(2+3+2+2*genericNo+2,1+2, 
-			widths=unit(c(args[['axisTextSize']]*args[['leftMarginLines']],1,args[['axisTextSize']]*args[['rightMarginLines']]),c('lines','null','lines')),
-			heights=unit(c(.5,      3,nrugs,      1,     3*genericNo,      1,   2*args[['geneFontSize']]*args[['rfrows']],       rep(c(1, 5/genericNo*args[['genericRows']]),genericNo),4,.5),
-			    c('lines','lines',        'lines','lines','null','lines',              'lines', rep(c('lines','lines'),genericNo),'lines','lines'))
-			)
-		    ));
-    } else
-    {
-	pushViewport(viewport(
-		    layout=grid.layout(2+3+2+2,1+2, 
-			widths=unit(c(args[['axisTextSize']]*args[['leftMarginLines']],1,args[['axisTextSize']]*args[['rightMarginLines']]),c('lines','null','lines')),
-			heights=unit(c(.5,      3,nrugs,      1,     15,      1,   2*args[['geneFontSize']]*args[['rfrows']],   1,4),
-			    c('lines','lines',        'lines','lines','null','lines',              'lines', 'lines','lines'))
-			)
-		    ));
-    }
+			c('lines',
+			    'lines',
+			    'lines',
+			    'lines',
+			    'null',
+			    'lines',
+			    'lines',
+			    'lines',
+			    'lines', 
+			    'lines',
+			    'lines',
+			    'lines')
+			    )
+			    ) );
+    pushViewport(globalVp);
 
+print(1171);
 ##
-# layout (top to bottom with generic plot)
+# layout (top to bottom with generic plot and category plot)
 # ----------------------
 #    spacer
 #    title text
 #    rugs
 #    separation
 #    pvals
-#    separation 
-#    genes
-#    separation1
-#    generic plot1
-#    separation2
-#    generic plot2
-#    ...
-#    subtitle text 
-#    spacer
-#
-# layout (top to bottom WITHOUT generic plot)
-# ----------------------
-#    spacer
-#    title text
-#    rugs
+#    separation,category strip1,category strip2,...
 #    separation
-#    pvals
-#    separation 
 #    genes
+#    separation1,generic plot1,separation2,generic plot2,...
 #    subtitle text 
 #    spacer
 #
@@ -1132,6 +1271,35 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,refidx=NULL,nrugs=0,p
     grid.text(args[['title']],gp=gpar(cex=2,col=args[['titleColor']]));
     upViewport(1);
 
+########## rugs for snpsets
+print("1204:");
+    pushViewport(viewport(xscale=pvalVp$xscale,layout.pos.row=3,
+		layout.pos.col=2,name="rugs",clip="off"));
+    i <- nrugs;
+    for (snpset in levels(rug$snp_set)) {
+	grid.text(as.character(snpset),x=unit(-.25,"lines"),
+		y=(i-.5)/nrugs, just="right",
+		gp=gpar(col=args[['rugColor']], alpha=args[['rugAlpha']],cex=.90*args[['axisTextSize']])
+		);
+	i <- i-1;
+    }
+
+    pushViewport(viewport(xscale=pvalVp$xscale,layout.pos.row=3,
+		layout.pos.col=2,name="rugsClipped",clip="on"));
+    i <- nrugs;
+    for (snpset in levels(rug$snp_set)) {
+	panel.rug( rug[ which(rug$snp_set==snpset), "pos" ] , 
+		start = (i-1)/(nrugs) + (.15/nrugs),
+		end = (i)/(nrugs) - (.15/nrugs),
+		y.units=rep("native",2),
+		col=args[['rugColor']],
+		alpha=args[['rugAlpha']]
+		);
+	i <- i-1;
+    }
+
+    upViewport(2);
+print(1230);
 ########## pvals
 # this viewport is defined above
 #            pvalVp=dataViewport(
@@ -1143,10 +1311,10 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,refidx=NULL,nrugs=0,p
     pushViewport(pvalVp);
     grid.yaxis(at=args[['yat']],gp=gpar(cex=args[['axisSize']],col=args[['frameColor']],alpha=args[['frameAlpha']]));
 #		grid.xaxis(at=args[['xat']],gp=gpar(cex=args[['axisSize']],col=args[['frameColor']],alpha=args[['frameAlpha']]));
-    if (length(args[['ylab']]) > 0) {
+    if (length(args[['ylab']])>1) {
 	grid.text(x=unit(args[['ylabPos']],'lines'),label=args[['ylab']],rot=90, gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]) );
     } else {
-	grid.text(x=unit(args[['ylabPos']],'lines'),label=expression(paste(-log[10] ,"(p-value)")), rot=90,   gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]) );
+	grid.text(x=unit(args[['ylabPos']],'lines'),label=expression(paste(-log[10] ," P")), rot=90,   gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]) );
     }
 
     pushViewport(dataViewport(extension=c(0,.05),xRange,recrateRange,name='recrate',clip="off"));
@@ -1195,8 +1363,8 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,refidx=NULL,nrugs=0,p
     for (i in groupIds) 
     { 
 	idx <- which(metal$group == i);
-	gmetal <- metal[idx,];
-	colors <- args[['ldColors']][gmetal$group]; 
+	gmetal <- metal[idx,]
+        colors <- args[['ldColors']][gmetal$group]; 
 	colors[which(gmetal$pch %in% 21:25)] <- 'gray20';
 	grid.points(x=gmetal$pos,y=transformation(gmetal$P.value),
 		pch=gmetal$pch,
@@ -1275,16 +1443,72 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,refidx=NULL,nrugs=0,p
     } # end if show legend on left or right
 
     upViewport(4);   
+print(1374);
+########## category plot
+    if ( categoryNo && args[['showCategory']] ) 
+    {
+	pushViewport(
+		viewport(
+		    layout.pos.row=6,
+		    layout.pos.col=2,
+		    name="categoryOuter")
+		);
+	pushViewport(
+		viewport(
+		    name="categoryInner",
+		    clip="on",
+		    layout=grid.layout(2,1,
+		    			   heights=unit(c(1,categoryNo),c("null","null")) 
+					   )
+		    ) );
 
-######### subtitle space; place holder for now
-   # pushViewport(viewport(layout.pos.row=10,layout.pos.col=2,name="subtitle"));
-   # upViewport(1);
+	pushViewport(
+		viewport(
+		    name="categorySpacer",
+		    layout.pos.row=1,
+		    layout.pos.col=1
+		    )
+	);
+	upViewport(1);
+
+	pushViewport(viewport(
+				name="categoryPlotArea",
+				clip="on",
+				layout=grid.layout(categoryNo,1),
+				layout.pos.row=2,
+				layout.pos.col=1
+				));
+
+	for ( i in 1:categoryNo)
+	{
+	    pushViewport(
+		    viewport(
+		    		xscale=pvalVp$xscale,
+				layout.pos.row=i,
+				layout.pos.col=1)
+		    );
+
+	    panel.category(category_anno[[i]],args[['unit']],key=args[['categoryKey']],alpha=args[['categoryAlpha']]);
+
+	    grid.text(
+		    label=names(category_anno)[i],
+		    just=c("center"),
+		    gp=gpar(col=args[['categoryFontColor']],cex=args[['categoryFontSize']],alpha=args[['categoryAlpha']])
+		    );
+	    upViewport(1);
+	}
+	grid.rect(gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
+	upViewport(1);
+
+	upViewport(2);
+    }
+print(1412);
 ########## annotation (genes)
     if(args[['rfrows']] > 0) 
     {
 	pushViewport(
 		viewport(xscale=pvalVp$xscale,
-		    layout.pos.row=7,
+		    layout.pos.row=8,
 		    layout.pos.col=2,
 		    name="refFlatOuter")
 		);
@@ -1314,162 +1538,134 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,refidx=NULL,nrugs=0,p
 		);
 	upViewport(1);
     }
-#multiple generic plots
-    if ( args[['showGeneric']] ) 
-    {
-	count=0; #count untill the last generic plot, then add x-xaixs and xlab
-	    for (genscore_index in 1:length(names(genscore)) )
-	    {
-##########generic plot title
-		count=count+1;
-		genscoreMax=max(genscore[[genscore_index]]$score);
-		#y axis range, default is (0,100)
-		genscoreRange=c(0,100); 
-		if (genscoreMax > 0)
-		{
-			genscoreRange=c(0,min(genscoreMax*1.3,1000));
-		}
-
-		pushViewport(
-			viewport(layout.pos.row=7+2*count-1,layout.pos.col=2,name=paste("generictitle",genscore_index,sep=""))
-			);
-		grid.text( names(genscore[genscore_index]) );
-		upViewport(1);
-##########generic plot
-		pushViewport(
-		     viewport(xscale=pvalVp$xscale,
-			 layout.pos.row=8+2*count-1,
-			 layout.pos.col=2,
-			 name=paste("genericOuter",genscore_index,sep=""))
-		    );
-		pushViewport(
-		     dataViewport(extension=c(0,.05),xRange,genscoreRange,name=paste('genscore',genscore_index,sep=""),clip="off")
-		    );
-
-		grid.yaxis(at=args[['yat']],
-		           gp=gpar(cex=args[['axisSize']],col=args[['frameColor']],alpha=args[['frameAlpha']] )
-			   );
-
-		if (length(args[['genericylab']]) > 0) 
-		{
-		    grid.text(x=unit(args[['ylabPos']],'lines'),label=args[['genericylab']], rot=90,gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]));
-		} else
-		{
-		    grid.text( x=unit(args[['ylabPos']],'lines'), label="Score",rot=90, gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]));
-		}
-
-		panel.generic(
-		               genscore[[genscore_index]],unit=args[['unit']],color=args[['genericColor']]);
-		upViewport(1);
-		grid.rect(gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
-
-#add x-axis and xlabs
-		if ( count==length(names(genscore)) )
-		{
-		    if ( !is.null(args[['xnsmall']]) && !is.null(args[['xat']]) ) 
-		    {
-			grid.xaxis(
-			     at=args[['xat']], label=format(args[['xat']], nsmall=args[['xnsmall']]),gp=gpar(cex=args[['axisSize']],col=args[['frameColor']],alpha=args[['frameAlpha']])
-			    );
-		    } else 
-		    {
-			grid.xaxis(
-			     at=args[['xat']],gp=gpar(cex=args[['axisSize']],col=args[['frameColor']],alpha=args[['frameAlpha']])
-			    );
-		    }
-		    grid.text(
-			 paste('Position on',chr2chrom(args[['chr']]),unit2char(args[['unit']])), y=unit(args[['xlabPos']],'lines'),just=c('center',"bottom"),	gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']])
-			);
-		}
-
-		upViewport(1);
-	    }
-    }
-
-#add xaxis when generic plots are not plotted
-    if (! args[['showGeneric']])
+    print(1448);
+###########	multiple generic plots
+    if ( genericNo && args[['showGeneric']] ) 
     {
 	pushViewport(
-		viewport(xscale=pvalVp$xscale,
-		    layout.pos.row=8,
+		viewport(
+		    layout.pos.row=9,
 		    layout.pos.col=2,
-		    name="xaxis",
+		    name="genericOuter",
+		    clip="off")
+		);
+	pushViewport(
+		viewport(
+		    name="genericInner",
+		    layout=grid.layout(genericNo,1),
 		    )
 		);
-	if ( !is.null(args[['xnsmall']]) && !is.null(args[['xat']]) ) 
-	{
-	    grid.xaxis(
-		    at=args[['xat']], label=format(args[['xat']], nsmall=args[['xnsmall']]),gp=gpar(cex=args[['axisSize']],col=args[['frameColor']],alpha=args[['frameAlpha']])
-		    );
-	} else 
-	{
-	    grid.xaxis(
-		    at=args[['xat']],gp=gpar(cex=args[['axisSize']],col=args[['frameColor']],alpha=args[['frameAlpha']])
-		    );
-	}
 
-	grid.text(
-		paste('Position on',chr2chrom(args[['chr']]),unit2char(args[['unit']])), y=unit(args[['xlabPos']],'lines'),just=c('center',"bottom"),	gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']])
+
+	for (genscore_index in 1:length(names(genscore)) )
+	{
+##########generic plot title
+	    genscoreMax=max(genscore[[genscore_index]]$score);
+#default y range 0,100
+	    genscoreRange=c(0,100); 
+	    if (genscoreMax > 0)
+	    {
+		genscoreRange=c(0,genscoreMax*1.2);
+	    }
+
+	    pushViewport(viewport(layout.pos.row=genscore_index,layout.pos.col=1));
+
+	    pushViewport(viewport(
+			layout=grid.layout(2,1,
+			    heights=unit(c(1,5/genericNo*args[['genericRows']]),c("null","null"))
+			    )
+			));
+
+	    pushViewport(
+		    viewport(layout.pos.row=1,layout.pos.col=1,name=paste("genericTitle",genscore_index,sep=""))
+		    );
+	    grid.text( names(genscore[genscore_index]) );
+	    upViewport(1);
+##########generic plot
+	    pushViewport(
+		    viewport(xscale=pvalVp$xscale,yscale=genscoreRange,
+			layout.pos.row=2,
+			layout.pos.col=1,
+			name=paste("genericPlot",genscore_index,sep=""),
+			clip="off",
+			));
+	#    pushViewport(
+	#	    dataViewport(extension=c(0,.05),xRange,genscoreRange,name=paste('genscore',genscore_index,sep=""),clip="off",
+	#	    ));
+	    grid.yaxis(at=args[['yat']],
+		    gp=gpar(cex=args[['axisSize']],col=args[['frameColor']],alpha=args[['frameAlpha']] )
+		    );
+
+	    if (length(args[['genericylab']]) > 0) 
+	    {
+		grid.text(x=unit(args[['ylabPos']],'lines'),label=args[['genericylab']], rot=90,gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]));
+	    } else
+	    {
+		grid.text( x=unit(args[['ylabPos']],'lines'), label="Normalized Score",rot=90, gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]));
+	    }
+
+	    #upViewport(1);
+
+	    pushViewport(
+		    dataViewport(extension=c(0,.05),xRange,genscoreRange,name=paste('genscore',genscore_index,sep=""),clip="on")
+		    );
+	    panel.generic(
+		    genscore[[genscore_index]],unit=args[['unit']],color=args[['genericColor']]);
+	    upViewport(1);
+	    grid.rect(gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
+
+	    upViewport(1);
+	    upViewport(2);
+	}
+	upViewport(2);
+    }
+    print(1521);
+#add xaxis 
+    pushViewport(
+	    viewport(xscale=pvalVp$xscale,
+		layout.pos.row=10,
+		layout.pos.col=2,
+		name="xaxis",
+		)
+	    );
+    if ( !is.null(args[['xnsmall']]) && !is.null(args[['xat']]) ) 
+    {
+	grid.xaxis(
+		at=args[['xat']], label=format(args[['xat']], main=FALSE,nsmall=args[['xnsmall']]),gp=gpar(cex=args[['axisSize']],col=args[['frameColor']],alpha=args[['frameAlpha']])
 		);
-		upViewport(1);
+    } else 
+    {
+	grid.xaxis(
+		at=args[['xat']],gp=gpar(cex=args[['axisSize']],main=FALSE,col=args[['frameColor']],alpha=args[['frameAlpha']])
+		);
     }
 
-
-########## rugs for snpsets
-				pushViewport(viewport(xscale=pvalVp$xscale,layout.pos.row=3,
-					layout.pos.col=2,name="rugs",clip="off"));
-				i <- nrugs;
-				for (snpset in levels(rug$snp_set)) {
-				    grid.text(as.character(snpset),x=unit(-.25,"lines"),
-					    y=(i-.5)/nrugs, just="right",
-					    gp=gpar(col=args[['rugColor']], alpha=args[['rugAlpha']],cex=.90*args[['axisTextSize']])
-					    );
-				    i <- i-1;
-				}
-
-				pushViewport(viewport(xscale=pvalVp$xscale,layout.pos.row=3,
-					    layout.pos.col=2,name="rugsClipped",clip="on"));
-				i <- nrugs;
-				for (snpset in levels(rug$snp_set)) {
-				    panel.rug( rug[ which(rug$snp_set==snpset), "pos" ] , 
-					    start = (i-1)/(nrugs) + (.15/nrugs),
-					    end = (i)/(nrugs) - (.15/nrugs),
-					    y.units=rep("native",2),
-					    col=args[['rugColor']],
-					    alpha=args[['rugAlpha']]
-					    );
-				    i <- i-1;
-				}
-
-				upViewport(2);
-
-				if (is.character(postlude) && file.exists(postlude)) {
-				    source(postlude);
-				}
-
+    grid.text(
+	    paste('Position on',chr2chrom(args[['chr']]),unit2char(args[['unit']])), y=unit(args[['xlabPos']],'lines'),just=c('center',"bottom"),	gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']])
+	    );
+    upViewport(1);
+print(1546);
+    if (is.character(postlude) && file.exists(postlude)) {
+	source(postlude);
+    }
 }  ## end zplot
 
-grid.log <- function(args,metal,linespacing=1.5,ascii=FALSE,debug=FALSE){
+grid.log <- function(args,metal,linespacing=1.5,debug=FALSE)
+{
     labels=c("date");
     values=c(date());
-#    labels=c(labels,"working directory");
-#    values=c(values,getwd());
-
-#    labels=c(labels,"unit");
-#    values=c(values,args[['unit']]);
     labels=c(labels,"build");
     values=c(values,args[['build']]);
     labels=c(labels,"display range");
     values=c(values,paste( 'chr',args[['chr']],":",args[['start']], "-", args[['end']], " [",args[['startBP']],"-",args[['endBP']], "]",sep=""));
+    if (args[['hiStart']] && args[['hiEnd']] && args[['hiStartBP']] && args[['hiEndBP']])
+    {
     labels=c(labels,"hilite range");
     values=c(values,paste( args[['hiStart']], "-", args[['hiEnd']], " [",args[['hiStartBP']],"-",args[['hiEndBP']], "]"));
+    }
     labels=c(labels,"reference SNP");
     values=c(values,args[['refsnp']]);
 
-#    labels=c(labels,"prefix");
-#    values=c(values,args[['prefix']]);
-#    labels=c(labels,"log");
-#    values=c(values,args[['log']]);
     if (!is.null(args[['reload']])) {
 	labels=c(labels,"reload");
 	values=c(values,args[['reload']]);
@@ -1516,15 +1712,55 @@ grid.log <- function(args,metal,linespacing=1.5,ascii=FALSE,debug=FALSE){
 
     labels=paste(labels, ":  ",sep='');
 
-    if (ascii) {
-	cat(paste(format(labels,width=20,justify="right"),values,sep=" ",collapse="\n"));
-	cat('\n');
-	cat('\n');
-    } else {
-	grid.text(labels,x=.3,y=unit(1,'npc') - unit(linespacing *(1:length(labels)),'lines'), just='right');
-	grid.text(values,x=.3,y=unit(1,'npc') - unit(linespacing *(1:length(values)),'lines'), just='left');
+    #print out
+    grid.text(labels,x=.3,y=unit(1,'npc') - unit(linespacing *(1:length(labels)),'lines'), just='right');
+    grid.text(values,x=.3,y=unit(1,'npc') - unit(linespacing *(1:length(values)),'lines'), just='left');
 
-	#if (FALSE && args[['showAnnot']]) {
+    if (! is.null(args[['categoryKey']]))
+    {
+	grid.text("Category Plot Legend",x=0.5,hjust='center',y=unit(1,'npc')-unit(linespacing*(length(labels)+1),'lines'),vjust='top',gp=gpar(col=args[['legendColor']]));
+
+	key=args[['categoryKey']];
+	info=readCatKey(key);
+	nrow=dim(info)[1];
+	legend.gb <- grid.legend(
+		rep(15,nrow),
+		as.character(info$description),
+		draw=FALSE,
+		gp=gpar(col=as.character(info$color)),
+		args=args,
+		);
+	legend.vp <- viewport (x=0.2,
+		y=unit(1,'npc') - unit(linespacing*(length(labels)+2),'lines'),
+		just=c('left','top'),
+		width=1.1*grobWidth(legend.gb),
+		height=1.1*grobHeight(legend.gb),
+		);
+	pushViewport(legend.vp);
+	grid.rect(gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
+	grid.draw(legend.gb);
+	upViewport(1);
+    }
+
+	#if ( 'annot' %in% names(metal) && args[['showAnnot']] ) {
+	#    annotlabels <- levels(as.factor(metal$annot))
+	#	pch <- rep(args[['annotPch']],length=length(annotlabels));
+	#    key <- simpleKey(text=annotlabels);
+	#    key$points$pch=pch;
+	#    key$points$col="navy";
+	#    key$points$fill="lightskyblue";
+	#    keyGrob <- draw.key(key,draw=FALSE);
+	#    annotationBoxTop <- unit(0.95,'npc');
+	#    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
+	#    pushViewport(viewport(x=.90,y=annotationBoxTop,width=grobWidth(keyGrob),
+	#		height=annotationBoxHeight,just=c('right','top')));
+	#    pushViewport(viewport(y=unit(.75,'lines'),height = grobHeight(keyGrob),just=c('center','bottom')));
+	#    draw.key(key,draw=TRUE);
+	#    grid.rect();
+	#    popViewport();
+	#    grid.text('annotation key',x=.5,y=unit(1,'npc') - unit(1,'lines'),just=c('center','top'))
+	#	popViewport();
+	#} else { if (args[['showAnnot']]) { 
 	#    annotlabels <- c('no annotation','framestop','splice','nonsyn','coding','utr','tfbscons','mcs44placental');
 	#    pch <- args[['annotPch']];
 	#    annotlabels <- c(annotlabels[-1],annotlabels[1])
@@ -1538,105 +1774,65 @@ grid.log <- function(args,metal,linespacing=1.5,ascii=FALSE,debug=FALSE){
 	#    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
 	#    pushViewport(viewport(x=.90,y=annotationBoxTop,width=grobWidth(keyGrob),
 	#		height=annotationBoxHeight,just=c('right','top')));
-	#    grid.rect();
-	#    pushViewport(viewport(y=unit(.75,'lines'),height = grobHeight(keyGrob),just=c('center','bottom')));
-	#    draw.key(key,draw=TRUE);
 	#    popViewport();
-	#    grid.text('Annotation key',x=.5,y=unit(1,'npc') - unit(1,'lines'),just=c('center','top'))
-	#	popViewport();
-	#} 
-	if ( 'annot' %in% names(metal) && args[['showAnnot']] ) {
-	    annotlabels <- levels(as.factor(metal$annot))
-		pch <- rep(args[['annotPch']],length=length(annotlabels));
-	    key <- simpleKey(text=annotlabels);
-	    key$points$pch=pch;
-	    key$points$col="navy";
-	    key$points$fill="lightskyblue";
-	    keyGrob <- draw.key(key,draw=FALSE);
-	    annotationBoxTop <- unit(0.95,'npc');
-	    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
-	    pushViewport(viewport(x=.90,y=annotationBoxTop,width=grobWidth(keyGrob),
-			height=annotationBoxHeight,just=c('right','top')));
-	    pushViewport(viewport(y=unit(.75,'lines'),height = grobHeight(keyGrob),just=c('center','bottom')));
-	    draw.key(key,draw=TRUE);
-	    grid.rect();
-	    popViewport();
-	    grid.text('annotation key',x=.5,y=unit(1,'npc') - unit(1,'lines'),just=c('center','top'))
-		popViewport();
-	} else { if (args[['showAnnot']]) { 
-	    annotlabels <- c('no annotation','framestop','splice','nonsyn','coding','utr','tfbscons','mcs44placental');
-	    pch <- args[['annotPch']];
-	    annotlabels <- c(annotlabels[-1],annotlabels[1])
-		pch <- c(pch[-1],pch[1])
-		key <- simpleKey(text=annotlabels);
-	    key$points$pch=pch;
-	    key$points$col="navy";
-	    key$points$fill="lightskyblue";
-	    keyGrob <- draw.key(key,draw=FALSE);
-	    annotationBoxTop <- unit(0.95,'npc');
-	    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
-	    pushViewport(viewport(x=.90,y=annotationBoxTop,width=grobWidth(keyGrob),
-			height=annotationBoxHeight,just=c('right','top')));
-	    popViewport();
-	} }
+	#} }
 
-	breaks <- union(args[['ldCuts']],c(0,1));
-	breaks <- sort(unique(breaks));
-	nb <- length(breaks);
-	cols <- args[['ldColors']]
-	    cols <- rep(cols, length=nb+2);
-	rl <- ribbonLegend(
-		breaks=breaks,
-		cols=cols[2:(1+nb)],
-		gp=gpar(cex=args[['legendSize']],col=args[['frameColor']],alpha=args[['frameAlapha']])
-		);
+	#breaks <- union(args[['ldCuts']],c(0,1));
+	#breaks <- sort(unique(breaks));
+	#nb <- length(breaks);
+	#cols <- args[['ldColors']]
+	#    cols <- rep(cols, length=nb+2);
+	#rl <- ribbonLegend(
+	#	breaks=breaks,
+	#	cols=cols[2:(1+nb)],
+	#	gp=gpar(cex=args[['legendSize']],col=args[['frameColor']],alpha=args[['frameAlapha']])
+	#	);
 
-	if ( args[['legend']] %in% c('left','right') ) {
-	    annotlabels <- c('no annotation','framestop','splice','nonsyn','coding','utr','tfbscons','mcs44placental');
-	    pch <- args[['annotPch']];
-	    annotlabels <- c(annotlabels[-1],annotlabels[1])
-		pch <- c(pch[-1],pch[1])
-		key <- simpleKey(text=annotlabels);
-	    key$points$pch=pch;
-	    key$points$col="navy";
-	    key$points$fill="lightskyblue";
-	    keyGrob <- draw.key(key,draw=FALSE);
-	    annotationBoxTop <- unit(0.95,'npc');
-	    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
-	    pushViewport(viewport(name='legendVpPage2',
-			x=unit(.9,'npc'),
-			y=annotationBoxTop - annotationBoxHeight - unit(2,'lines'),
-			just=c('right','top'),
-			width=unit(4,'char'),
-			height=unit(8,'lines')
-			));
-	    grid.rect(gp=gpar(col='transparent',fill='white',alpha=args[['legendAlpha']]));
-	    grid.rect(gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
+	#if ( args[['legend']] %in% c('left','right') ) {
+	#    annotlabels <- c('no annotation','framestop','splice','nonsyn','coding','utr','tfbscons','mcs44placental');
+	#    pch <- args[['annotPch']];
+	#    annotlabels <- c(annotlabels[-1],annotlabels[1])
+	#	pch <- c(pch[-1],pch[1])
+	#	key <- simpleKey(text=annotlabels);
+	#    key$points$pch=pch;
+	#    key$points$col="navy";
+	#    key$points$fill="lightskyblue";
+	#    keyGrob <- draw.key(key,draw=FALSE);
+	#    annotationBoxTop <- unit(0.95,'npc');
+	#    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
+	#    pushViewport(viewport(name='legendVpPage2',
+	#		x=unit(.9,'npc'),
+	#		y=annotationBoxTop - annotationBoxHeight - unit(2,'lines'),
+	#		just=c('right','top'),
+	#		width=unit(4,'char'),
+	#		height=unit(8,'lines')
+	#		));
+	#    grid.rect(gp=gpar(col='transparent',fill='white',alpha=args[['legendAlpha']]));
+	#    grid.rect(gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
 
-	    pushViewport(viewport(name='ribbonLegendPage2',
-			y=0,
-			just=c('center','bottom'),
-			width=unit(4,'char'),
-			height=unit(7,'lines')
-			))
-		grid.draw(rl);
-	    upViewport(1);
+	#    pushViewport(viewport(name='ribbonLegendPage2',
+	#		y=0,
+	#		just=c('center','bottom'),
+	#		width=unit(4,'char'),
+	#		height=unit(7,'lines')
+	#		))
+	#	grid.draw(rl);
+	#    upViewport(1);
 
-	    pushViewport(viewport(name='LDTitlePage2',
-			clip="off", 
-			width=unit(4,"char"),
-			y=unit(1,'npc') - unit(.25,'char'),
-			just=c('center','top'),
-			height=unit(1,'lines')
-			))
-		grid.text(args[['LDTitle']], gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
-	    upViewport(1);
+	#    pushViewport(viewport(name='LDTitlePage2',
+	#		clip="off", 
+	#		width=unit(4,"char"),
+	#		y=unit(1,'npc') - unit(.25,'char'),
+	#		just=c('center','top'),
+	#		height=unit(1,'lines')
+	#		))
+	#	grid.text(args[['LDTitle']], gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
+	#    upViewport(1);
 
-	    upViewport(1);
-	}
+	#    upViewport(1);
+	#}
 
-	grid.text('Make more plots at http://enlight.usc.edu', y=unit(1,'lines'), just=c('center','bottom'));
-    }
+        grid.text('Make more plots at http://enlight.usc.edu', y=unit(1,'lines'), just=c('center','bottom'));
 }
 
 #############################################################
@@ -1670,11 +1866,20 @@ refSnpPos <- empty.data.frame();
 # set program defaults -- may be overridden with command line arguments
 #
 default.args <- list(
-        genericylab= "",                      # overrides default label for y-axis in generic plot
-        genericRows = '3',                    # number of rows for generic plot
-        showGeneric = TRUE,	                  # show generic plot?
-        generic=NULL,			  # generic table name
-        genericColor='blue',                  # color for generic score on plot
+	genericylab= NULL,                      # overrides default label for y-axis in generic plot
+	genericRows = '3',                    # number of rows for generic plot
+	showGeneric = TRUE,	              # show generic plot?
+	generic=NULL,			      # generic table name
+	genericColor='blue',                  # color for generic score on plot
+
+	showCategory = TRUE,		      #show category plot?
+	category=NULL,			      #category table name (comma-delimited list)
+	categoryKey=NULL,		      #legend file for category plot (every line:key\tcolor\tdescription,1st line must be header,key is one of the categories)
+	categoryRows=1,			      #number of rows for each category plot
+	categoryFontSize=.8, 		      #font size for category plot
+	categoryFontColor='gray50',	      #font color for category plot
+	categoryAlpha=.8,		      #alpha value for category plot and text
+
 	theme = NULL,                         # select a theme (collection of settings) for plot
 	experimental = FALSE,                 # try some experimental features?
 	format = "pdf",        	              # file format (pdf only)
@@ -1690,90 +1895,91 @@ default.args <- list(
 	ymin=0,                               # min for p-value range (expanded to fit all p-vals if needed)
 	ymax=10,                              # max for p-value range (expanded to fit all p-vals if needed)
 	yat=NULL,                             # values for y-axis ticks
-xat=NULL,                             # values for x-axis ticks
-xnsmall=NULL,                         # number of digits after decimal point on x-axis labels
-    chr = NULL,                           # chromosome
-    start = NULL,                         # start of region (string, may include Mb, kb, etc.)
-end = NULL,                           # end of region (string, may include Mb, kb, etc.)
-    flank = "300kb",                      # surround refsnp by this much
-    xlabPos = -3.0,                       # position of xaxis label (in lines relative to bottom panel)
-ylabPos = -3.0,                       # position of yaxis label (in lines relative to left edge of panel)
-    ylab = "",                            # override default label for y-axis
-recombPos = 3.0,                      # position of recomb label (in lines relative to right edge of panel)
-    axisSize = 1,                         # sclaing factor for axes
-    axisTextSize = 1,                     # sclaing factor for axis labels
-    axisTextColor = "gray30",             # color of axis labels
-    requiredGene = NULL,                  # gene name (string)
-    refsnp = NULL,                        # snp name (string)
-refsnpName = NULL,					  # name given to refsnp on plot (usually same as refsnp)
-    refsnpTextColor = "black",            # color for ref snp label
-    refsnpTextSize = 1,                   # sclaing factor for text size
-    refsnpTextAlpha = 1,                  # alpha for ref snp label
-    refsnpLineColor = "transparent",      # color for ref snp line (invisible by default)
-    refsnpLineAlpha = .5,                 # alpha for ref snp line
-    title = "",                           # title for plot
-    titleColor = "black",                 # color for title 
-    thresh = 1,                           # only get pvalues <= thresh   # this is now ignored.
-    width = 8.5,                           # width of pdf (inches)
-height = 11,                           # height of pdf (inches)
-    leftMarginLines = 5,                  # margin (in lines) on left
-    rightMarginLines = 5,                 # margin (in lines) on right
-    unit=1000000,                         # bp per unit displayed in plot
-    ldTable = "results.ld_point6",        # LD Table (for SQL)
-    annot=NULL,                           # file for annotation 
-    showAnnot=FALSE,                      # show annotation for each snp?
-    showGenes=TRUE,                       # show genes?
-    annotCol='annotation',                # column to use for annotation, if it exists
-    annotPch='24,24,25,22,22,8,7,21,1',   # plot symbols for annotation
-    annotOrder=NULL,                      # ordering of annotation classes
-    showRefsnpAnnot=TRUE,                 # show annotation for reference snp too?
-    bigDiamond=FALSE,                     # put big diamond around refsnp?
-    ld=NULL,                              # file for LD information
-    ldCuts = "0,.2,.4,.6,.8,1",           # cut points for LD coloring
-    ldColors = "gray50,navy,lightskyblue,green,orange,red,purple3",  # colors for LD
-    ldCol='rsquare',                      # name for LD column
-    LDTitle=NULL,                         # title for LD legend
-    smallDot = .4,                        # smallest p-value cex 
-    largeDot = .8,                        # largest p-value cex 
-    refDot = NULL,                        # largest p-value cex 
-    rfrows = '4',                         # max number of rows for reflat genes
-    warnMissingGenes = FALSE,             # should we warn about missing genese on the plot?
-    showPartialGenes = TRUE,              # should genes that don't fit completely be displayed?
-    shiftGeneNames = TRUE,                # should genes that don't fit completely be displayed?
-    geneFontSize = .8,                    # size for gene names
-    geneColor = "navy",                   # color for genes
-    snpset = "Affy500,Illu318,HapMap",    # SNP sets to show
-    snpsetFile = NULL,                    # use this file for SNPset data
-    rugColor = "gray30",                  # color for snpset rugs
-    rugAlpha = 1,                         # alpha for snpset rugs
-    metalRug = NULL,                      # if not null, use as label for rug of metal positions
-    refFlat = NULL,                       # use this file with refFlat info
-    showIso=FALSE,                        # show each isoform of gene separately
-    showRecomb = TRUE,                    # show recombination rate?
-    recomb=NULL,                          # rcombination rate file
-    recombAxisColor=NULL,                 # color for reccomb rate axis labeing
-    recombAxisAlpha=NULL,                 # color for reccomb rate axis labeing
-    recombColor='blue',                   # color for reccomb rate on plot
-    recombOver = FALSE,                   # overlay recombination rate? (else underlay it)
-recombFill = FALSE,                   # fill recombination rate? (else line only)
-    recombFillAlpha=0.2,                  # recomb fill alpha
-    recombLineAlpha=0.8,                  # recomb line/text alpha
-    frameColor='gray30',                  # frame color for plots
-    frameAlpha=1,                         # frame alpha for plots
-    legendSize=.8,                        # scaling factor of legend
-    legendAlpha=1,                        # transparency of legend background
-    legendMissing=TRUE,                   # show 'missing' as category in legend?
-    legend='auto',                        # legend? (auto, left, right, or none)
-    hiStart=0,                            # start of hilite region
-    hiEnd=0,                              # end of hilite region
-    hiColor="blue",                       # hilite color
-    hiAlpha=0.1,                          # hilite alpha
-    clobber=TRUE,                         # overwrite files?
-    reload=NULL,                          # .Rdata file to reload data from
-    prelude=NULL,                         # code to execute after data is read but before plot is made (allows data modification)
-postlude=NULL,                        # code to execute after plot is made (allows annotation)
-    prefix=NULL,                          # prefix for output files
-    dryRun=FALSE                          # show a list of the arguments and then halt
+	xat=NULL,                             # values for x-axis ticks
+	xnsmall=NULL,                         # number of digits after decimal point on x-axis labels
+	chr = NULL,                           # chromosome
+	start = NULL,                         # start of region (string, may include Mb, kb, etc.)
+	end = NULL,                           # end of region (string, may include Mb, kb, etc.)
+	flank = "300kb",                      # surround refsnp by this much
+	xlabPos = -3.0,                       # position of xaxis label (in lines relative to bottom panel)
+	ylabPos = -3.5,                       # position of yaxis label (in lines relative to left edge of panel)
+	ylab = NULL,                            # override default label for y-axis
+	recombPos = 3.0,                      # position of recomb label (in lines relative to right edge of panel)
+	axisSize = 0.8,                         # sclaing factor for axes
+	axisTextSize = 0.8,                     # sclaing factor for axis labels
+	axisTextColor = "gray30",             # color of axis labels
+	requiredGene = NULL,                  # gene name (string)
+	refsnp = NULL,                        # snp name (string)
+	refsnpName = NULL,			  # name given to refsnp on plot (usually same as refsnp)
+	refsnpTextColor = "black",            # color for ref snp label
+	refsnpTextSize = 1,                   # sclaing factor for text size
+	refsnpTextAlpha = 1,                  # alpha for ref snp label
+	refsnpLineColor = "transparent",      # color for ref snp line (invisible by default)
+	refsnpLineAlpha = .5,                 # alpha for ref snp line
+	title = "",                           # title for plot
+	titleColor = "black",                 # color for title 
+	thresh = 1,                           # only get pvalues <= thresh   # this is now ignored.
+	width = 8.5,                           # width of pdf (inches)
+	height = 11,                           # height of pdf (inches)
+	leftMarginLines = 5,                  # margin (in lines) on left
+	rightMarginLines = 5,                 # margin (in lines) on right
+	unit=1000000,                         # bp per unit displayed in plot
+	ldTable = "results.ld_point6",        # LD Table (for SQL)
+	annot=NULL,                           # file for annotation 
+	showAnnot=FALSE,                      # show annotation for each snp?
+	showGenes=TRUE,                       # show genes?
+	annotCol='annotation',                # column to use for annotation, if it exists
+	annotPch='24,24,25,22,22,8,7,21,1',   # plot symbols for annotation
+	annotOrder=NULL,                      # ordering of annotation classes
+	showRefsnpAnnot=TRUE,                 # show annotation for reference snp too?
+	bigDiamond=FALSE,                     # put big diamond around refsnp?
+	ld=NULL,                              # file for LD information
+	ldCuts = "0,.2,.4,.6,.8,1",           # cut points for LD coloring
+	ldColors = "gray50,navy,lightskyblue,green,orange,red,purple3",  # colors for LD
+	ldCol='rsquare',                      # name for LD column
+	LDTitle=NULL,                         # title for LD legend
+	smallDot = .4,                        # smallest p-value cex 
+	largeDot = .8,                        # largest p-value cex 
+	refDot = NULL,                        # largest p-value cex 
+	rfrows = '4',                         # max number of rows for reflat genes
+	warnMissingGenes = FALSE,             # should we warn about missing genese on the plot?
+	showPartialGenes = TRUE,              # should genes that don't fit completely be displayed?
+	shiftGeneNames = TRUE,                # should genes that don't fit completely be displayed?
+	geneFontSize = .8,                    # size for gene names
+	geneColor = "navy",                   # color for genes
+	snpset = "Affy500,Illu318,HapMap",    # SNP sets to show
+	snpsetFile = NULL,                    # use this file for SNPset data
+	rugColor = "gray30",                  # color for snpset rugs
+	rugAlpha = 1,                         # alpha for snpset rugs
+	metalRug = NULL,                      # if not null, use as label for rug of metal positions
+	refFlat = NULL,                       # use this file with refFlat info
+	showIso=FALSE,                        # show each isoform of gene separately
+	showRecomb = TRUE,                    # show recombination rate?
+	recomb=NULL,                          # rcombination rate file
+	recombAxisColor=NULL,                 # color for reccomb rate axis labeing
+	recombAxisAlpha=NULL,                 # color for reccomb rate axis labeing
+	recombColor='blue',                   # color for reccomb rate on plot
+	recombOver = FALSE,                   # overlay recombination rate? (else underlay it)
+	recombFill = FALSE,                   # fill recombination rate? (else line only)
+	recombFillAlpha=0.2,                  # recomb fill alpha
+	recombLineAlpha=0.8,                  # recomb line/text alpha
+	frameColor='gray30',                  # frame color for plots
+	frameAlpha=1,                         # frame alpha for plots
+	legendSize=.8,                        # scaling factor of legend
+	legendAlpha=1,                        # transparency of legend background
+	legendColor='black',                  # color for legend labels
+	legendMissing=TRUE,                   # show 'missing' as category in legend?
+	legend='auto',                        # legend? (auto, left, right, or none)
+	hiStart=0,                            # start of hilite region
+	hiEnd=0,                              # end of hilite region
+	hiColor="blue",                       # hilite color
+	hiAlpha=0.1,                          # hilite alpha
+	clobber=TRUE,                         # overwrite files?
+	reload=NULL,                          # .Rdata file to reload data from
+	prelude=NULL,                         # code to execute after data is read but before plot is made (allows data modification)
+	postlude=NULL,                        # code to execute after plot is made (allows annotation)
+	prefix=NULL,                          # prefix for output files
+	dryRun=FALSE                          # show a list of the arguments and then halt
     )
 
 ### default data
@@ -1781,6 +1987,7 @@ postlude=NULL,                        # code to execute after plot is made (allo
 refSnpPos <- data.frame()
     recrate.default <- data.frame(chr=NA, pos=NA, recomb=NA, chr=NA, pos=NA)[c(),,drop=FALSE]
     generic.default <- data.frame(chr=NA, start=NA, end=NA, score=NA)[c(),,drop=FALSE]
+    category.default <- data.frame(chr=NA,start=NA,end=NA,annotation=NA)[c(),,drop=FALSE]
     rug.default <- data.frame(snp=NA, chr=NA, pos=NA, snp_set=NA)[c(),,drop=FALSE]
     annot.default <- data.frame(snp=NA,annot_rank=NA) # [c(),,drop=FALSE]
     ld.default <- data.frame(snp1='rs0000', snp2='rs0001', build=NA, 
@@ -1803,6 +2010,7 @@ user.args <- ConformList(argv(),names(default.args),message=TRUE)
     userFile <- list(
 	    recomb = !is.null(args[['recomb']]),
 	    generic = !is.null(args[['generic']]),
+	    category = !is.null(args[['category']]),
 	    snpsetFile = !is.null(args[['snpsetFile']]),
 	    refFlat = !is.null(args[['refFlat']]),
 	    ld = !is.null(args[['ld']]),
@@ -2025,10 +2233,11 @@ if ( is.null(args[['reload']]) ) {
     if ( is.null(args[['generic']]) ) { args[['showGeneric']] <- FALSE }
     if (args[['showGeneric']])
     {
+	cat("\nR-DEBUG: Loading GENERIC annotation data...\n");
 	generic_file_list = strsplit(args[['generic']],',')[[1]];
 	generic_file_list = generic_file_list[generic_file_list != "None"];
 	genscore=vector('list',length(generic_file_list));
-	#naming
+#naming
 	for (i in 1:length(generic_file_list))
 	{
 	    genscore[[i]]=generic_file_list[i];
@@ -2037,7 +2246,7 @@ if ( is.null(args[['reload']]) ) {
 	    names(genscore)[i]=generic_file_list[i];
 	}
 
-	#read in data
+#read in data
 	for (i in 1:length(names(genscore)) )
 	{
 	    tryCatch(
@@ -2048,13 +2257,50 @@ if ( is.null(args[['reload']]) ) {
 	    if ( prod(dim(genscore[[i]])) == 0 )
 	    {
 
-	    args[['showGeneric']] <- FALSE;
-	    print (paste("Empty generic table: ",names(genscore)[i],sep=""));
+		args[['showGeneric']] <- FALSE;
+		print (paste("Empty generic table: ",names(genscore)[i],sep=""));
 	    }
 	}
     } else
     {
-    	genscore=NULL;
+	genscore=NULL;
+    }
+
+#category annotation
+    if ( is.null(args[['category']]) ) {args[['showCategory']] <- FALSE }
+    if (args[['showCategory']])
+    {
+	cat("\nR-DEBUG: Loading CATEGORICAL annotation data...\n");
+	category_file_list = strsplit(args[['category']],',')[[1]];
+	category_file_list = category_file_list[category_file_list != "None"];
+	category_anno=vector('list',length(category_file_list));
+#naming
+	for (i in 1:length(category_file_list))
+	{
+	    category_anno[[i]]=category_file_list[i];
+	    category_file_list[i]=sub("[[:digit:]]+_[[:digit:]]+_","",category_file_list[i]);
+	    category_file_list[i]=sub("\\.txt$","",category_file_list[i]);
+	    names(category_anno)[i]=category_file_list[i];
+	}
+
+#read in data
+	for (i in 1:length(names(category_anno)) )
+	{
+	    tryCatch(
+		    category_anno[[i]] <-  GetData( category_anno[[i]], default=category.default, clobber=!userFile[['category']] || args[['clobber']],stringsAsFactors=TRUE ),
+		    error = function(e) { warning(e) }
+		    );
+	    cat("\n\n");
+	    if ( prod(dim(category_anno[[i]])) == 0 )
+	    {
+
+		args[['showCategory']] <- FALSE;
+		print (paste("Empty category annotation table: ",names(category_anno)[i],sep=""));
+	    }
+	}
+    } else
+    {
+	category_anno=NULL;
     }
 
 # snpset positions
@@ -2151,13 +2397,8 @@ if ( is.null(args[['reload']]) ) {
 	    print(levels(rug))
     }
 
-	if (! is.null(genscore))
-	{
-    save(metal,annot,recrate,genscore,ld,args,rug,file='loaded.Rdata');
-	} else
-	{
-    save(metal,annot,recrate,ld,args,rug,file='loaded.Rdata');
-	}
+    save(metal,annot,recrate,genscore,category_anno,ld,args,rug,file='loaded.Rdata');
+#save space
 
     if ( prod(dim(metal) ) < 1) { stop("No data read.\n"); }
 
@@ -2251,11 +2492,21 @@ if ( is.null(args[['reload']]) ) {
     cat("\n\n");
     if (! is.null(genscore))
     {
-    save(metal,annot,recrate,genscore,refFlatRaw,refFlat,rug,file=args[['rdata']]);
-    } else
-    {
-    save(metal,annot,recrate,refFlatRaw,refFlat,rug,file=args[['rdata']]);
+	cat("generic score summary");
+	cat("\n\n");
+	print(summary(genscore));
     }
+    if (! is.null(category_anno))
+    {
+	cat("categorical annotation summary");
+	cat("\n\n");
+	print(summary(category_anno));
+    }
+
+
+    save(metal,annot,recrate,genscore,category_anno,refFlatRaw,refFlat,rug,file=args[['rdata']]);
+#save space
+
 } else {
     load(args[['rdata']]);
 }
@@ -2296,13 +2547,7 @@ if ('pdf' %in% args[['format']]) {
     if ( prod(dim(metal)) == 0 ) { 
 	message ('No data to plot.'); 
     } else {
-    	if (! is.null (genscore))
-	{
-	zplot(metal,ld,recrate,genscore,refidx,nrugs=nrugs,args=args,postlude=args[['postlude']]);
-	} else
-	{
-	zplot(metal,ld,recrate,refidx,nrugs=nrugs,args=args,postlude=args[['postlude']]);
-	}
+	zplot(metal,ld,recrate,genscore,category_anno,refidx,nrugs=nrugs,args=args,postlude=args[['postlude']]);
 	grid.newpage();
     }
     grid.log(args,metal);
@@ -2310,7 +2555,7 @@ if ('pdf' %in% args[['format']]) {
 } 
 
 sink(args[['log']], append=TRUE);
-grid.log(args,metal,ascii=TRUE);
+grid.log(args,metal);
 cat('\n\n\n');
 cat("List of genes in region\n");
 cat("#######################\n");
@@ -2322,15 +2567,7 @@ if (! is.null(geneList)) {
 cat('\n\n\n');
 sink();
 
-if (! is.null(genscore))
-{
-save(metal,refFlat,ld,recrate,genscore,refSnpPos,args,file='end.Rdata')
-CleanUp(args,refSnpPos,recrate,rug,ld,refFlatRaw,genscore);
-} else
-{
-save(metal,refFlat,ld,recrate,refSnpPos,args,file='end.Rdata')
-CleanUp(args,refSnpPos,recrate,rug,ld,refFlatRaw);
-}
-
+save(metal,refFlat,ld,recrate,refSnpPos,args,genscore,category_anno,file='end.Rdata');
+CleanUp(args,refSnpPos,recrate,rug,ld,refFlatRaw,genscore,category_anno);
 
 date();

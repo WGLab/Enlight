@@ -16,6 +16,7 @@ my ($inslst, 	#insert list
     $annodir,
     $listfile,
     $bincol,  	#first column is BIN, used for direct downloading from UCSC
+    $col,	#specify the column to extract (default is score column (5th excluding BIN column)
 );
 
 @ARGV or pod2usage();
@@ -27,6 +28,7 @@ GetOptions(
     "annodir=s"		=>	\$annodir,
     "hg18"		=>	\$hg18,
     "bincol"		=>	\$bincol,
+    "col=i"		=>	\$col,
 ) or pod2usage ();
 
 #insert BED tables from a specific db
@@ -120,7 +122,7 @@ if (@ins)
     {
 	my $name=$ins[$i];
 	my $file=$file[$i];
-	! system("$executedb --db $db --tablefile $file --tablename $name")
+	! system("$executedb --db $db ".($col?"--cattablefile $file":"--tablefile $file")." --tablename $name")
 	    or die "Cannot insert $name ($file) into $db\n";
 	#if ($annodir)
 	#{
@@ -138,6 +140,7 @@ unlink @unlink or die "Failed to clean @unlink: $!\n";
 sub bed2generic
 {
     my @generic_tables;
+    my $target_col=$col || 5;
     for my $table (@_)
     {
 	open IN, "<", $table or die "Cannot open $table\n";
@@ -151,15 +154,15 @@ sub bed2generic
 	    {
 		shift @line; #remove BIN column
 	    }
-	    next unless @line>=5; 
+	    next unless @line>=$target_col; 
 	    $line[0]=lc($line[0]);
 	    next unless $chr2no{$line[0]};
-	    push @output, join("\t",$chr2no{$line[0]},$line[1],$line[2],$line[4]),"\n";
+	    push @output, join("\t",$chr2no{$line[0]},$line[1],$line[2],$line[$target_col-1]),"\n";
 	}
 	close IN;
 	my $outfile="/tmp/annodb_admin.$$.generic.".rand($$);
 	open OUT, ">", $outfile or die "Cannot create $outfile\n";
-	print OUT join("\t",'chr','start','end','score'),"\n";
+	print OUT join("\t",'chr','start','end',($col? 'annotation':'score')),"\n";
 	print OUT @output;
 	close OUT;
 	push @unlink,$outfile;
@@ -216,7 +219,7 @@ sub filecheck
 		    die "Cannot download $file from UCSC\n";
 		}
 	    }
-	    warn "Extracting chr,start,end,score ...\n";
+	    warn "Extracting chr,start,end,annotation ...\n";
 	    my ($convert_file)=&bed2generic($unpack_file);
 	    push @tables,$convert_file;
 	    if (defined $annodir)
@@ -285,6 +288,8 @@ annodb_admin [options] <database>
  -annodir	annovar database folder
  -hg18		use it if build version is hg18
  -bincol	first column in BED is BIN column
+ -col		specify the column to extract. Default is score column (5th excluding BIN column).
+
 
  NOTE: All list must be comma-separated.
  NOTE: Each table file, if supplied, must has a corresponding table name.

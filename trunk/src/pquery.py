@@ -96,6 +96,18 @@ def generic_in_region(db,generic_table,chr,start,stop,build):
 
   return db.execute(query,(chr,start,stop));
 
+def category_in_region(db,category_table,chr,start,stop,build):
+  query = """
+    SELECT chr, start, end, annotation
+    FROM %s
+    WHERE
+      chr = ?
+      and start BETWEEN ? and ?
+    ORDER BY chr, start
+  """ % category_table;
+
+  return db.execute(query,(chr,start,stop));
+
 def snpset_in_region(db,snp_pos_table,snp_set_table,snp_set,chr,start,stop,build):
   snp_set = ",".join(["'" + i.strip() + "'" for i in snp_set.split(",")]);
   query = """

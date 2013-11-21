@@ -102,7 +102,8 @@ def getSettings():
   p.add_option("--snp_pos",help="Flat file for SNP positions.");
   p.add_option("--refflat",help="Flat file for gene information.");
   p.add_option("--tablefile",help="Tab-delimited flat file (4 columns, chr, start, end, score, with header!).");
-  p.add_option("--tablename",help="Table name for generic table");
+  p.add_option("--cattablefile",help="Tab-delimited flat file (4 columns, chr, start, end, annotation, with header!).");
+  p.add_option("--tablename",help="Table name for tablefile or cattablefile");
   p.add_option("--delete",help="Comma-separated table names for deletion");
   p.add_option("--snp_set",help="Flat file for sets of SNPs.")
   p.add_option("--var_annot",help="Flat file for SNP annotation.");
@@ -462,6 +463,30 @@ class SQLiteLoader():
     else:
       getLog().info("Skipping file %s due to errors.." % file);
   
+  def load_cattable(self,file,table):
+    file_ok = check_file(file,['chr','start','end','annotation']);
+    if file_ok:
+      getLog().info("Loading annotation from file %s.." % file);
+      
+      # Drop the original table if one existed.
+      self.dbi.drop_table(table);
+      
+      # Create table.
+      self.dbi.create_table(table,
+                        ['chr','start','end','annotation'],
+                        ['TEXT','INTEGER','INTEGER','TEXT']);
+      
+      # Load table into database. 
+      self.dbi.load_table(table,file);
+      
+      # Get rid of header row.
+      self.dbi.remove_header(table,'chr','chr');
+
+      # Create indices.
+      self.dbi.create_index(table,['chr','start','end']);
+    else:
+      getLog().info("Skipping file %s due to errors.." % file);
+      
   def load_refflat(self,file):
     columns = "geneName,name,chrom,strand,txStart,txEnd,cdsStart,cdsEnd,"\
               "exonCount,exonStarts,exonEnds".split(",");
@@ -585,6 +610,12 @@ def main():
   if opts.tablefile:
     if opts.tablename:
       loader.load_generic(opts.tablefile,opts.tablename);
+    else:
+      getLog().info("Skipping due to lack of name for a generic table..");
+
+  if opts.cattablefile:
+    if opts.tablename:
+      loader.load_cattable(opts.cattablefile,opts.tablename);
     else:
       getLog().info("Skipping due to lack of name for a generic table..");
   if opts.delete:
