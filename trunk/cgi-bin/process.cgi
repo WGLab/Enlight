@@ -208,7 +208,7 @@ if ($anno_toggle)
 	$in=$tmp2;
     }
 
-    !system("cp $in $filename") or die "Failed to copy upload file to output folder: $!\n";
+    push @command,"cp $in $filename";
 
     my %operation;
     for(@generic_table,keys %custom_table)
