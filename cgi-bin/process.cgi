@@ -205,12 +205,21 @@ if ($anno_toggle)
 	} 
 	$in=$filename;
     }
+    my %operation;
+
+    for(@generic_talbe,keys %custom_table)
+    {
+	$operation{$_}='r5';
+    }
+    for (@category_table)
+    {
+	$operation{$_}='r';
+    }
 
     $anno_table_cmd.="$anno_exe $in ";
     $anno_table_cmd.=( %custom_table ? ".":$anno_dir);
-    $anno_table_cmd.=" -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table,keys %custom_table,@category_table);
-    $anno_table_cmd.=" -operation g,f,".join(',',map {'r5'} (@generic_table,keys %custom_table));
-    $anno_table_cmd.=join(',',map {'r'} (@category_table));
+    $anno_table_cmd.=" -protocol ".join(',',"refGene","1000g2012apr_all",map {$_} sort keys %operation);
+    $anno_table_cmd.=" -operation g,f,".join(',',map {$operation{$_}} sort keys %operation);
     $anno_table_cmd.=" -nastring $nastring" if $nastring;
     $anno_table_cmd.=" -buildver $ref" if $ref;
     $anno_table_cmd.=" -remove";
