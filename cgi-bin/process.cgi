@@ -207,7 +207,7 @@ if ($anno_toggle)
     }
     my %operation;
 
-    for(@generic_talbe,keys %custom_table)
+    for(@generic_table,keys %custom_table)
     {
 	$operation{$_}='r5';
     }
