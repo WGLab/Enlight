@@ -1555,6 +1555,13 @@ print(1412);
 		    layout=grid.layout(genericNo,1),
 		    )
 		);
+	    if (length(args[['genericylab']]) > 0) 
+	    {
+		grid.text(x=unit(args[['ylabPos']],'lines'),label=args[['genericylab']], rot=90,gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]));
+	    } else
+	    {
+		grid.text( x=unit(args[['ylabPos']],'lines'), label="Normalized Score",rot=90, gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]));
+	    }
 
 
 	for (genscore_index in 1:length(names(genscore)) )
@@ -1596,13 +1603,6 @@ print(1412);
 		    gp=gpar(cex=args[['axisSize']],col=args[['frameColor']],alpha=args[['frameAlpha']] )
 		    );
 
-	    if (length(args[['genericylab']]) > 0) 
-	    {
-		grid.text(x=unit(args[['ylabPos']],'lines'),label=args[['genericylab']], rot=90,gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]));
-	    } else
-	    {
-		grid.text( x=unit(args[['ylabPos']],'lines'), label="Normalized Score",rot=90, gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]));
-	    }
 
 	    #upViewport(1);
 
