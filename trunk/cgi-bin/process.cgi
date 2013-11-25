@@ -190,23 +190,27 @@ push @unlink,"ld_cache.db"; #locuszoom cache
 if ($anno_toggle)
 {
     my $in=$input;
+    my $tmp1="/tmp/$$.csv2tab";
+    my $tmp2="/tmp/$$.rs2avinput";
 
     #formatter should be able to read and write to the same file
-    push @command, "$RealBin/../bin/formatter csv2tab $in $filename" and $in=$filename if $file_format eq 'comma';
+    push @command, "$RealBin/../bin/formatter csv2tab $in $tmp1" and $in=$tmp1 if $file_format eq 'comma';
 
     unless (defined $q->param('avinput') && $q->param('avinput') eq 'on')
     {
 	if ($ref eq 'hg18')
 	{
-	    push @command, "$RealBin/../bin/formatter rs2avinput $in $filename $markercol $RealBin/../data/database/hg18_snp135_rs.txt";
+	    push @command, "$RealBin/../bin/formatter rs2avinput $in $tmp2 $markercol $RealBin/../data/database/hg18_snp135_rs.txt";
 	} elsif ($ref eq 'hg19')
 	{
-	    push @command, "$RealBin/../bin/formatter rs2avinput $in $filename $markercol $RealBin/../data/database/hg19_snp135_rs.txt";
+	    push @command, "$RealBin/../bin/formatter rs2avinput $in $tmp2 $markercol $RealBin/../data/database/hg19_snp135_rs.txt";
 	} 
-	$in=$filename;
+	$in=$tmp2;
     }
-    my %operation;
 
+    !system("cp $in $filename") or die "Failed to copy upload file to output folder: $!\n";
+
+    my %operation;
     for(@generic_table,keys %custom_table)
     {
 	$operation{$_}='r5';
@@ -216,7 +220,7 @@ if ($anno_toggle)
 	$operation{$_}='r';
     }
 
-    $anno_table_cmd.="$anno_exe $in ";
+    $anno_table_cmd.="$anno_exe $filename ";
     $anno_table_cmd.=( %custom_table ? ".":$anno_dir);
     $anno_table_cmd.=" -protocol ".join(',',"refGene","1000g2012apr_all",map {$_} sort keys %operation);
     $anno_table_cmd.=" -operation g,f,".join(',',map {$operation{$_}} sort keys %operation);
@@ -225,6 +229,7 @@ if ($anno_toggle)
     $anno_table_cmd.=" -remove";
     $anno_table_cmd.=" -otherinfo";
     $anno_table_cmd.=" -haveheader";
+
     push @command,$anno_table_cmd;
 }
 
