@@ -160,7 +160,7 @@ $param.=" --source $ld_source" if $ld_source;
 if (@category_table=grep { /HMM/ } @generic_table)
 {
     my $legend=File::Spec->catfile($RealBin,"conf/chromHMM_legend.txt");
-    $param.=" category ".join(',',@category_table);
+    $param.=" --category ".join(',',@category_table);
     $param.=" categoryKey=$legend" if -f $legend;
 
     @generic_table=grep { !/HMM/ } @generic_table;#remove category tracks from generic table
@@ -223,7 +223,7 @@ if ($anno_toggle)
     $anno_table_cmd.="$anno_exe $filename ";
     $anno_table_cmd.=( %custom_table ? ".":$anno_dir);
     $anno_table_cmd.=" -protocol ".join(',',"refGene","1000g2012apr_all",map {$_} sort keys %operation);
-    $anno_table_cmd.=" -operation g,f,".join(',',map {$operation{$_}} sort keys %operation);
+    $anno_table_cmd.=" -operation g,f".(%operation? ",":"").join(',',map {$operation{$_}} sort keys %operation);
     $anno_table_cmd.=" -nastring $nastring" if $nastring;
     $anno_table_cmd.=" -buildver $ref" if $ref;
     $anno_table_cmd.=" -remove";
