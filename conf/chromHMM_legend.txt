@@ -1,0 +1,11 @@
+key	color	description
+16711680	#FF0000	Active Promoter
+16738665	#FF6969	Weak Promoter
+13568966	#CF0BC6	Inactive/poised Promoter
+16435712	#FACA00	Strong enhancer
+16776196	#FFFC04	Weak/poised enhancer
+704254	#0ABEFE	Insulator
+45136	#00B050	Transcriptional transition/elongation
+10092390	#99FF66	Weak transcribed
+8355711	#7F7F7F	Polycomb-repressed
+16119285	#F5F5F5	Heterochromatin; low signal; Repetitive/Copy Number Variation

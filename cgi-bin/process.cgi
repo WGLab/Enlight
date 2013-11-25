@@ -74,6 +74,7 @@ my $end=$q->param('end');
 my $pvalcol=$q->param('pvalcol');
 my $ref=$q->param("ref");
 my @generic_table=$q->param('generic_table');
+my @category_table; #process later, since @generic_table determine how many tracks to be plotted
 my $nastring=$q->param('nastring');
 my $db=($ref eq 'hg19'? $hg19db:$hg18db);
 
@@ -156,6 +157,14 @@ if (%custom_table)
 $param.=" --build $ref" if $ref;
 $param.=" --markercol $markercol" if $markercol;
 $param.=" --source $ld_source" if $ld_source;
+if (@category_table=grep { /HMM/ } @generic_table)
+{
+    my $legend=File::Spec->catfile($RealBin,"conf/chromHMM_legend.txt");
+    $param.=" category ".join(',',@category_table);
+    $param.=" categoryKey=$legend" if -f $legend;
+
+    @generic_table=grep { !/HMM/ } @generic_table;#remove category tracks from generic table
+}
 $param.=" --generic ".join (',',@generic_table,keys %custom_table) if ($generic_toggle && (@generic_table||%custom_table));
 $param.=" --pop $ld_pop" if $ld_pop;
 $param.=" --flank ${flank}kb" if $flank;
@@ -200,12 +209,12 @@ if ($anno_toggle)
     $anno_table_cmd.="$anno_exe $in ";
     $anno_table_cmd.=( %custom_table ? ".":$anno_dir);
     $anno_table_cmd.=" -protocol ".join(',',"refGene","1000g2012apr_all",@generic_table,keys %custom_table);
-    $anno_table_cmd.=" -operation g,f,".join(',',map {'r'} (@generic_table,keys %custom_table));
+    $anno_table_cmd.=" -operation g,f,".join(',',map {'r5'} (@generic_table,keys %custom_table));
+    $anno_table_cmd.=join(',',map {'r'} (@category_table_table));
     $anno_table_cmd.=" -nastring $nastring" if $nastring;
     $anno_table_cmd.=" -buildver $ref" if $ref;
     $anno_table_cmd.=" -remove";
     $anno_table_cmd.=" -otherinfo";
-    $anno_table_cmd.=" -colsWanted 5";
     $anno_table_cmd.=" -haveheader";
     push @command,$anno_table_cmd;
 }
