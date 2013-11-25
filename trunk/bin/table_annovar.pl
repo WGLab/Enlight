@@ -47,6 +47,10 @@ for my $i (0 .. @protocol-1) {
 	regionOperation ($protocol[$i], $dbtype1[$i], $argument[$i]||undef);
     } elsif ($operation[$i] eq 'f') {
 	filterOperation ($protocol[$i], $dbtype1[$i], $argument[$i]||undef);
+    } elsif ($operation[$i] =~ /r(\d+)/)
+    {
+	local $colswanted=$1;
+	regionOperation ($protocol[$i], $dbtype1[$i], $argument[$i]||undef);
     }
 }
 
@@ -275,7 +279,7 @@ sub processArgument {
     @protocol == @operation or pod2usage ("Error in argument: different number of elements are specified in --protocol and --operation argument");
     @argument and @protocol == @argument || pod2usage ("Error in argument: different number of elements are specified in --protocol and --argument argument");
     for my $op (@operation) {
-	$op =~ m/^g|r|f|m$/ or pod2usage ("Error in argument: the --operation argument must be comma-separated list of 'g', 'r', 'f' or 'm'");
+	$op =~ m/^(g|r|f|m|r\d+)$/ or pod2usage ("Error in argument: the --operation argument must be comma-separated list of 'g', 'r', 'f' or 'm'");
     }
 
     my %uniq_protocol;
@@ -306,6 +310,7 @@ sub processArgument {
     #prepare PATH environmental variable
     my $path = File::Basename::dirname ($0);
     $path and $ENV{PATH} = "$path:$ENV{PATH}";		#set up the system executable path to include the path where this program is located in
+
 }
 
 
@@ -634,7 +639,7 @@ sub combineFirst2line
 	    --sortout			output is sorted by Chr and Start (default: same order as query)
 	    --nastring <string>		string to display when a score is not available (default: null)
 	    --csvout			generate comma-delimited CSV file (default: tab-delimited txt file)
-	    --colsWanted <int>		columns wanted to output, separated by comma, effective for region annotation
+	    --colsWanted <int>		column wanted to output, effeitive for all region annotation
 	    --haveheader		the input file has header
 
 
@@ -645,6 +650,7 @@ sub combineFirst2line
  Example: #recessive disease
 	  table_annovar.pl infile humandb/ -protocol refGene,phastConsElements44way,genomicSuperDups,esp6500si_all,1000g2012apr_all,snp135,ljb_all -operation g,r,r,f,f,f,f -nastring NA
 	  table_annovar.pl infile humandb/ -buildver hg19 -protocol refGene,phastConsElements46way,genomicSuperDups,esp6500si_all,1000g2012apr_all,snp137,ljb_all -operation g,r,r,f,f,f,f
+	  table_annovar.pl infile humandb/ -buildver hg19 -protocol refGene,phastConsElements46way,genomicSuperDups,esp6500si_all,1000g2012apr_all,snp137,ljb_all -operation g,r5,r5,f,f,f,f
 
  Version: $LastChangedDate: 2013-06-21 08:53:41 -0700 (Fri, 21 Jun 2013) $
 
@@ -672,7 +678,8 @@ represent database names in ANNOVAR.
 =item B<--operation>
 
 comma-delimited string specifying type of operation. These strings can be g 
-(gene), r (region) or f (filter).
+(gene), r (region) or f (filter). r can be followed by number, specifying the
+column to be used in annotation.
 
 =item B<--outfile>
 
