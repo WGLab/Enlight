@@ -159,7 +159,7 @@ $param.=" --markercol $markercol" if $markercol;
 $param.=" --source $ld_source" if $ld_source;
 if (@category_table=grep { /HMM/ } @generic_table)
 {
-    my $legend=File::Spec->catfile($RealBin,"conf/chromHMM_legend.txt");
+    my $legend=File::Spec->catfile($RealBin,"../conf/chromHMM_legend.txt");
     $param.=" --category ".join(',',@category_table);
     $param.=" categoryKey=$legend" if -f $legend;
 
