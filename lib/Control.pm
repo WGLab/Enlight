@@ -109,6 +109,7 @@ sub jobRun()
 	eval {
 	    local $SIG{ALRM}=sub { die "Exceeding maxium time ($max_run_time seconds) allowed.\n" };
 	    alarm $max_run_time;
+	    warn "ENLIGHT RUNNING: $cmd\n";
 	    IPC::System::Simple::system("$cmd 1>&2"); #use this to avoid zombies. It dies upon failures
 	    alarm 0;
 	};
