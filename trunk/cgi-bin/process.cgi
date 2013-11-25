@@ -174,7 +174,7 @@ $lz_cmd="$lz_exe $param";
 
 push @command,$lz_cmd;
 push @unlink,"ld_cache.db"; #locuszoom cache
-#locuszoom --metal rs10318.txt --pval p --refsnp rs10318 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 150kb --build hg19 --generic wgEncodeHaibMethyl450Caco2SitesRep1,wgEncodeRegTfbsClusteredV2 --plotonly
+#locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 100kb --refsnp rs10318 --category wgEncodeBroadHmmGm12878HMM,wgEncodeBroadHmmH1hescHMM --pvalcol p --metal rs10318.txt  --prefix chrhmm categoryKey=~/projects/annoenlight/data/database/chromHMM_legend.txt --generic wgEncodeUwDnaseCaco2HotspotsRep1,wgEncodeRegTfbsClusteredV2
 #-------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------
