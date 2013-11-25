@@ -469,7 +469,7 @@ read.file <- function(file,header=T,na.strings=c('NA','','.','na'),quote="",fill
     }
 
 # default is read.table, force \t delimiter for all files except .csv
-    return(read.table(file,header=header,na.strings=na.strings,quote=quote,fill=fill,sep="\t",...));
+    return(read.table(file,header=header,na.strings=na.strings,quote=quote,fill=fill,sep="",...));
 }
 
 #############################################################
@@ -2229,7 +2229,7 @@ if ( is.null(args[['reload']]) ) {
 	if ( prod(dim(recrate)) == 0 ) { args[['showRecomb']] <- FALSE }
     cat("\n\n");
 #generic score
-
+print(2232);
     if ( is.null(args[['generic']]) ) { args[['showGeneric']] <- FALSE }
     if (args[['showGeneric']])
     {
@@ -2265,7 +2265,7 @@ if ( is.null(args[['reload']]) ) {
     {
 	genscore=NULL;
     }
-
+print(2268);
 #category annotation
     if ( is.null(args[['category']]) ) {args[['showCategory']] <- FALSE }
     if (args[['showCategory']])
@@ -2311,7 +2311,7 @@ if ( is.null(args[['reload']]) ) {
     cat("\n\nsnpset summary:\n");
     print(summary(rug));
     cat("\n\n");
-
+print(2314);
 # annotation
     if ( char2Rname(args[['annotCol']]) %in% names(metal) ) {  
 	if (is.null(args[['annotOrder']])) {
@@ -2533,6 +2533,8 @@ if (args[['experimental']]) {
     recrateRange <- c(0,max(c(100,recrate$recomb),na.rm=T));
 }
 
+print(2535);
+
 recrateRange <- rev(recrateRange);
 print("recrateRange: ");
 print(recrateRange);
@@ -2553,6 +2555,7 @@ if ('pdf' %in% args[['format']]) {
     grid.log(args,metal);
     dev.off();
 } 
+print(2558);
 
 sink(args[['log']], append=TRUE);
 grid.log(args,metal);
