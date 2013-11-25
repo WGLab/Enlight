@@ -295,4 +295,10 @@ annodb_admin [options] <database>
  NOTE: Each table file, if supplied, must has a corresponding table name.
  NOTE: If no table file supplied, it will be downloaded from UCSC server.
 
+ Example:
+ #for score annotation
+ annodb_admin -bincol -annodir ~/Downloads/annovar/humandb/ -inslist ../conf/datatracks.txt ../data/database/enlight_hg19.db
+ #for category annotation (eg chromHMM)
+ annodb_admin -bincol -annodir ~/Downloads/annovar/humandb/ -inslist ../conf/chromhmm.txt ../data/database/enlight_hg19.db -col 9
+
 =cut
