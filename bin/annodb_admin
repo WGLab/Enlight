@@ -8,6 +8,10 @@ use FindBin qw/$RealBin/;
 use lib "$RealBin/../lib";
 use Utils;
 
+
+warn "!!!!!!\n";
+warn "convert 0-start to 1-start!!!!\n";
+
 my ($inslst, 	#insert list
     $dellst, 	#delete list
     $db,   	#db 
@@ -122,14 +126,8 @@ if (@ins)
     {
 	my $name=$ins[$i];
 	my $file=$file[$i];
-	! system("$executedb --db $db ".($col?"--cattablefile $file":"--tablefile $file")." --tablename $name")
+	! system("$executedb --db $db ".(($col && $col != 5)? "--cattablefile $file":"--tablefile $file")." --tablename $name")
 	    or die "Cannot insert $name ($file) into $db\n";
-	#if ($annodir)
-	#{
-	#my $avfile=($hg18? "hg18":"hg19")."_$name.txt";
-	#$avfile=File::Spec->catfile($annodir,$avfile);
-	#! system("cp $file $avfile") or die "Failed to copy $name($file) to $annodir: $!\n";
-	#}
     }
 }
 
@@ -139,6 +137,8 @@ unlink @unlink or die "Failed to clean @unlink: $!\n";
 ##########################SUBROUTINES########################
 sub bed2generic
 {
+    #!!!!!!!!!!
+    #extract some cols, also convert 0start to 1start!!!!
     my @generic_tables;
     my $target_col=$col || 5;
     for my $table (@_)
@@ -157,12 +157,12 @@ sub bed2generic
 	    next unless @line>=$target_col; 
 	    $line[0]=lc($line[0]);
 	    next unless $chr2no{$line[0]};
-	    push @output, join("\t",$chr2no{$line[0]},$line[1],$line[2],$line[$target_col-1]),"\n";
+	    push @output, join("\t",$chr2no{$line[0]},($line[1]+1),$line[2],$line[$target_col-1]),"\n";
 	}
 	close IN;
 	my $outfile="/tmp/annodb_admin.$$.generic.".rand($$);
 	open OUT, ">", $outfile or die "Cannot create $outfile\n";
-	print OUT join("\t",'chr','start','end',($col? 'annotation':'score')),"\n";
+	print OUT join("\t",'chr','start','end',($target_col!=5? 'annotation':'score')),"\n";
 	print OUT @output;
 	close OUT;
 	push @unlink,$outfile;
@@ -197,6 +197,7 @@ sub filecheck
 	    {
 		if ($hg18)
 		{
+		    #download hg19, then lift over
 		    my $tmp="/tmp/$item.hg19.txt.gz"; 
 		    push @unlink,$tmp;
 		    my $tmp_unpack="/tmp/$item.hg19.txt"; 
