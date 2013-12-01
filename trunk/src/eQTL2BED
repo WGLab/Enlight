@@ -7,8 +7,10 @@ use warnings;
 
 {
     my $in="hg18_All.individual.tracks.gff.v3";
-    my $out="hg18_UChicago_eQTL.start1end1.bed";
-    my $hg19out="hg19_UChicago_eQTL.start1end1.bed";
+    my $out="hg18_UChicago_eQTL.start1end1.txt";
+    my $hg19out="hg19_UChicago_eQTL.start1end1.txt";
+    my $out0="hg18_UChicago_eQTL.start0end1.bed";
+    my $hg19out0="hg19_UChicago_eQTL.start0end1.bed";
 
     &convertUChicago2BED($in,$out);
 
@@ -31,43 +33,55 @@ use warnings;
 
     &ucsc2chr($hg19tmp_ucscchr,$hg19out);
 
-    warn "UChicago data writtent to $out and $hg19out\n";
+    &one2zeroStart($out,$out0);
+    &one2zeroStart($hg19out,$hg19out0);
+
+    &addHeader($out,$hg19out);
+
+    warn "UChicago data writtent to $out,$hg19out,$out0,$hg19out0\n";
 }
 
-#{
-#    my $in="hg19_GTEX-131116-0019-17897.tab";
-#    my $out="hg19_GTEX_eQTL131116.start1end1.bed";
-#    my $hg18out="hg18_GTEX_eQTL131116.start1end1.bed";
-#
-#
-#    &convertGTEX2bed($in,$out);
-#
-#    #convert hg19 to hg18
-#    my $liftover="liftOver";
-#    my $hg19to18chain="/home/yunfeiguo/Downloads/liftover/hg19ToHg18.over.chain";
-#    my $hg19tmp_ucscchr="/tmp/$$.withucscchr";
-#    my $hg18tmp_ucscchr="/tmp/$$.zeroStart.tmp";
-#
-#    #chromosomal name, 0-start or 1-start must be converted
-#
-#    &chr2ucsc($out,$hg19tmp_ucscchr);
-#
-#    ! system("$liftover -bedPlus=3 -tab $hg19tmp_ucscchr $hg19to18chain $hg18tmp_ucscchr /tmp/$$.liftover.tmp ") or die "Failed to lift over from hg19 to hg18: $!\n";
-#
-#    &ucsc2chr($hg18tmp_ucscchr,$hg18out);
-#
-#    warn "GTEX output written to $out and $hg18out\n";
-#}
+{
+    my $in="hg19_GTEX-131116-0019-17897.tab";
+    my $out="hg19_GTEX_eQTL131116.start1end1.txt";
+    my $hg18out="hg18_GTEX_eQTL131116.start1end1.txt";
+    my $out0="hg19_GTEX_eQTL131116.start0end1.bed";
+    my $hg18out0="hg18_GTEX_eQTL131116.start0end1.bed";
+
+
+    &convertGTEX2bed($in,$out);
+
+    #convert hg19 to hg18
+    my $liftover="liftOver";
+    my $hg19to18chain="/home/yunfeiguo/Downloads/liftover/hg19ToHg18.over.chain";
+    my $hg19tmp_ucscchr="/tmp/$$.withucscchr";
+    my $hg18tmp_ucscchr="/tmp/$$.zeroStart.tmp";
+
+    #chromosomal name, 0-start or 1-start must be converted
+
+    &chr2ucsc($out,$hg19tmp_ucscchr);
+
+    ! system("$liftover -bedPlus=3 -tab $hg19tmp_ucscchr $hg19to18chain $hg18tmp_ucscchr /tmp/$$.liftover.tmp ") or die "Failed to lift over from hg19 to hg18: $!\n";
+
+    &ucsc2chr($hg18tmp_ucscchr,$hg18out);
+
+    &one2zeroStart($out,$out0);
+    &one2zeroStart($hg18out,$hg18out0);
+
+    &addHeader($out,$hg18out);
+
+    warn "GTEX output written to $out,$hg18out,$out0,$hg18out0\n";
+}
 
 #perl -e 'open IN,"<All.individual.tracks.gff.v3";my %chr;while(<IN>){@f=split /\t/;$chr{$f[0]}=1;} map {print "$_ "} keys %chr'
 
 
 #######################SUBROUTINES###########################
-    sub convertUChicago2BED
-    {
+sub convertUChicago2BED
+{
 #chr1	Degner2012_dsQTL	Degner_dsQTL	801099	801099	3.68973163336755	.	.	DegnerDSQTL "chr1.801099 a dsQTL for 802000 to 802100" ; Note "Acts in cis "; Plot=<a href="http://eqtl.uchicago.edu/dsQTL_data/FIGURES/caQTL_7_FEB_2012/DegnerDSQTL.chr1.801099.html" >See QTL plots and view/leave comments</a>
-	my $in=shift;
-	my $out=shift;
+    my $in=shift;
+    my $out=shift;
     open IN,'<',$in or die "Failed to read from $in: $!\n";
     open OUT,'>',$out or die "Failed to write to $out: $!\n";
 
@@ -93,9 +107,11 @@ use warnings;
 	    next;
 	}
 
-	$note=~s%Plot=.*</a>%%;
-	$note=~s/[;\s]+$//;
-	print OUT "$chr\t$start\t$end\t$note;SCORE:$score\n";
+	my $anno="$note,SCORE:$score";
+	$anno=~s%Plot=.*</a>%%;
+	$anno=~s/[";]//g;
+	$anno=~s/\s+$//;
+	print OUT "$chr\t$start\t$end\t$anno\n";
     }
     close IN;
     close OUT;
@@ -120,7 +136,14 @@ sub convertGTEX2bed
 	next unless $chr && $pos;
 	$chr=23 if $chr eq 'X';
 
-	print OUT "$chr\t$pos\t$pos\tGene:$gene;P:$p;Description:$desc\n";
+	$desc=~s/[";\s]+$//g;
+	$gene=~s/[";\s]+$//g;
+	$p=~s/[";\s]+$//g;
+
+	my $anno="Gene:$gene,P:$p,Description:$desc\n";
+	$anno=~s/[";]//g;
+	$anno=~s/\s+$//;
+	print OUT "$chr\t$pos\t$pos\t$anno\n";
     }
     close IN;
     close OUT;
@@ -185,4 +208,43 @@ sub ucsc2chr
 
     close IN;
     close OUT;
+}
+sub one2zeroStart
+{
+    my $in=shift;
+    my $out=shift;
+
+    open IN,'<',$in or die "Failed to read $in: $!\n";
+    open OUT,'>',$out or die "Failed to write to $out: $!\n";
+
+    while(<IN>)
+    {
+	if (/^[^\t]+\t(\d+)\t\d+/)
+	{
+	    my $start=$1-1;
+	    s/(^[^\t]+\t)\d+(\t\d+)/$1$start$2/;
+	}
+	print OUT;
+    }
+    close IN;
+    close OUT;
+}
+sub addHeader
+{
+    my $tmp="/tmp/$$".rand($$)."noheader";
+
+    for my $i(@_)
+    {
+	!system("cp $i $tmp") or die "Copy failed: $!\n";
+	open IN,'<',$tmp or die "Failed to read $tmp: $!\n";
+	open OUT,'>',$i or die "Failed to write to $i: $!\n";
+
+	print OUT "chr\tstart\tend\tannotation\n";
+	while (<IN>)
+	{
+	    print OUT;
+	}
+	close IN;
+	close OUT;
+    }
 }
