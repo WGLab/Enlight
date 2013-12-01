@@ -1,0 +1,188 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+#convert UChicago, GTEX eQTL data to BED format with name column containing the annotation
+
+{
+    my $in="hg18_All.individual.tracks.gff.v3";
+    my $out="hg18_UChicago_eQTL.start1end1.bed";
+    my $hg19out="hg19_UChicago_eQTL.start1end1.bed";
+
+    &convertUChicago2BED($in,$out);
+
+    my $tmp="/tmp/$$.sorted.eqtl";
+
+    !system("msort -k n1,n2 $out > $tmp") and !system("cp $tmp $out") or die "Failed to sort: $!\n";
+
+
+    #hg18 to hg19
+    my $liftover="liftOver";
+    my $hg18to19chain="/home/yunfeiguo/Downloads/liftover/hg18ToHg19.over.chain";
+    my $hg18tmp_ucscchr="/tmp/$$.withucscchr";
+    my $hg19tmp_ucscchr="/tmp/$$.zeroStart.tmp";
+
+    #chromosomal name, 0-start or 1-start must be converted
+
+    &chr2ucsc($out,$hg18tmp_ucscchr);
+
+    ! system("$liftover -bedPlus=3 -tab $hg18tmp_ucscchr $hg18to19chain $hg19tmp_ucscchr /tmp/$$.liftover.tmp ") or die "Failed to lift over from hg19 to hg18: $!\n";
+
+    &ucsc2chr($hg19tmp_ucscchr,$hg19out);
+
+    warn "UChicago data writtent to $out and $hg19out\n";
+}
+
+#{
+#    my $in="hg19_GTEX-131116-0019-17897.tab";
+#    my $out="hg19_GTEX_eQTL131116.start1end1.bed";
+#    my $hg18out="hg18_GTEX_eQTL131116.start1end1.bed";
+#
+#
+#    &convertGTEX2bed($in,$out);
+#
+#    #convert hg19 to hg18
+#    my $liftover="liftOver";
+#    my $hg19to18chain="/home/yunfeiguo/Downloads/liftover/hg19ToHg18.over.chain";
+#    my $hg19tmp_ucscchr="/tmp/$$.withucscchr";
+#    my $hg18tmp_ucscchr="/tmp/$$.zeroStart.tmp";
+#
+#    #chromosomal name, 0-start or 1-start must be converted
+#
+#    &chr2ucsc($out,$hg19tmp_ucscchr);
+#
+#    ! system("$liftover -bedPlus=3 -tab $hg19tmp_ucscchr $hg19to18chain $hg18tmp_ucscchr /tmp/$$.liftover.tmp ") or die "Failed to lift over from hg19 to hg18: $!\n";
+#
+#    &ucsc2chr($hg18tmp_ucscchr,$hg18out);
+#
+#    warn "GTEX output written to $out and $hg18out\n";
+#}
+
+#perl -e 'open IN,"<All.individual.tracks.gff.v3";my %chr;while(<IN>){@f=split /\t/;$chr{$f[0]}=1;} map {print "$_ "} keys %chr'
+
+
+#######################SUBROUTINES###########################
+    sub convertUChicago2BED
+    {
+#chr1	Degner2012_dsQTL	Degner_dsQTL	801099	801099	3.68973163336755	.	.	DegnerDSQTL "chr1.801099 a dsQTL for 802000 to 802100" ; Note "Acts in cis "; Plot=<a href="http://eqtl.uchicago.edu/dsQTL_data/FIGURES/caQTL_7_FEB_2012/DegnerDSQTL.chr1.801099.html" >See QTL plots and view/leave comments</a>
+	my $in=shift;
+	my $out=shift;
+    open IN,'<',$in or die "Failed to read from $in: $!\n";
+    open OUT,'>',$out or die "Failed to write to $out: $!\n";
+
+    while (<IN>)
+    {
+	next if /^#/;
+	s/[\r\n]+$//;
+
+	my @f=split /\t/;
+	die "At least 9 fields expected: @f at line $. of $in\n" unless @f>=9;
+	my ($chr,$start,$end,$score,$note)=@f[0,3,4,5,8];
+
+	#chr7 chr23 chrNULL chr20 chr26 chr22 chr14 chr19 chr8 chr1 chr11 chr6 chr6_qbl_hap2 chr17 chr21 chr6_cox_hap1 chr16 chr25 chr18 chr3 chr12 chr15 chrX chr4 chr2 chr9 chr13 chr10 chr9_random chr5_h2_hap1 chr5
+	#chr must be converted to numbers!
+	if ($chr=~/^chr(\d+)$/)
+	{
+	    $chr=$1;
+	} elsif ($chr=~/^chrX$/)
+	{
+	    $chr=23;
+	} else
+	{
+	    next;
+	}
+
+	$note=~s%Plot=.*</a>%%;
+	$note=~s/[;\s]+$//;
+	print OUT "$chr\t$start\t$end\t$note;SCORE:$score\n";
+    }
+    close IN;
+    close OUT;
+}
+sub convertGTEX2bed
+{
+    my $in=shift;
+    my $out=shift;
+    open IN,'<',$in or die "Failed to read $in: $!\n";
+    open OUT,'>',$out or die "Failed to write to $out: $!\n";
+
+#1	1	rs17843593	6	32615949	ENSE00000617155	6	32609087	HLA-DQA1	3117	NM_002122.3	0		major histocompatibility complex, class II, DQ alpha 1
+#chromosomes: 11 21 7 17 2 22 1 18 13 16 6 X 3 9 12 20 14 15 8 4 19 10 5 
+    while(<IN>)
+    {
+	next if /^#/;
+	s/[\r\n]+$//;
+	my @f=split /\t/,$_,-1;
+	die "14 fields expected at $. of $in: @f\n" unless @f == 14;
+	my ($chr,$pos,$gene,$p,$desc)=@f[3,4,8,11,13];
+
+	next unless $chr && $pos;
+	$chr=23 if $chr eq 'X';
+
+	print OUT "$chr\t$pos\t$pos\tGene:$gene;P:$p;Description:$desc\n";
+    }
+    close IN;
+    close OUT;
+
+    my $tmp="/tmp/$$.sorted.eqtl";
+    !system("msort -k n1,n2 $out > $tmp") and !system("cp $tmp $out") or die "Failed to sort: $!\n";
+}
+
+sub chr2ucsc
+{
+    my $in=shift;
+    my $out=shift;
+
+    open IN,'<',$in or die "Failed to read $in: $!\n";
+    open OUT,'>', $out or die "Failed to write to $out: $!\n";
+
+    while(<IN>)
+    {
+	if (/^(\d+)\t(\d+)\t(\d+)/)
+	{
+	    my $start=$2-1;
+	    my $chr=$1;
+	    if ($chr == 23)
+	    {
+		s/^\d+\t\d+/chrX\t$start/;
+	    } else
+	    {
+		s/^\d+\t\d+/chr$chr\t$start/;
+	    }
+	}
+	print OUT;
+    }
+
+    close IN;
+    close OUT;
+}
+
+sub ucsc2chr
+{
+    my $in=shift;
+    my $out=shift;
+
+    open IN,'<',$in or die "Failed to read $in: $!\n";
+    open OUT,'>', $out or die "Failed to write to $out: $!\n";
+
+    while(<IN>)
+    {
+	if (/^chr(\d+|X)\t(\d+)\t(\d+)/)
+	{
+	    my $start=$2+1;
+	    my $chr=$1;
+	    if ($chr eq 'X')
+	    {
+		s/^chrX\t\d+/23\t$start/;
+	    } else
+	    {
+		s/^chr\d+\t\d+/$chr\t$start/;
+	    }
+	}
+	print OUT;
+    }
+
+    close IN;
+    close OUT;
+}
