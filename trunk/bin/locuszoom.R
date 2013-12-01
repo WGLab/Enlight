@@ -1443,7 +1443,6 @@ print(1230);
     } # end if show legend on left or right
 
     upViewport(4);   
-print(1374);
 ########## category plot
     if ( categoryNo && args[['showCategory']] ) 
     {
@@ -1502,7 +1501,6 @@ print(1374);
 
 	upViewport(2);
     }
-print(1412);
 ########## annotation (genes)
     if(args[['rfrows']] > 0) 
     {
@@ -1600,7 +1598,7 @@ print(1412);
 	#	    dataViewport(extension=c(0,.05),xRange,genscoreRange,name=paste('genscore',genscore_index,sep=""),clip="off",
 	#	    ));
 	    grid.yaxis(at=args[['yat']],
-		    gp=gpar(cex=args[['axisSize']],col=args[['frameColor']],alpha=args[['frameAlpha']] )
+		    gp=gpar(cex=args[['axisSize']]*0.8,col=args[['frameColor']],alpha=args[['frameAlpha']] )
 		    );
 
 

@@ -8,17 +8,36 @@ my $PROGRAM="rsidtools";
 my $usage=
 "Usage: $PROGRAM 
 	index 		extract chr, start, end, ref, alt rsID from ANNOVAR dbSNP, sort and index by rsID
+	indexvcf	extract chr, start, end, ref, alt rsID from VCF, sort and index by rsID
 	findbin 	return start, end line number for an rsID\n";
 my $subprogram=shift @ARGV or die $usage;
-if ($subprogram =~ /index/i)
+$subprogram=lc $subprogram;
+if ($subprogram eq 'index')
 {
     &index(@ARGV);
-} elsif ($subprogram =~ /findbin/i)
+} elsif ($subprogram eq 'findbin')
 {
     &findbin(@ARGV);
-} else
+} elsif ($subprogram eq 'indexvcf')
+{
+    &indexVCF(@ARGV);
+}else
 {
     die $usage;
+}
+
+sub indexVCF
+{
+    my $usage="$PROGRAM indexvcf <VCF> <out-prefix>\n";
+    die $usage unless @ARGV==2;
+    my $db=shift @ARGV;
+    my $out_prefix=shift @ARGV;
+    my $tmp="/tmp/$$.db.tmp";
+
+    #format:20     14370   rs6054257 G      A       29   PASS   NS=3;DP=14;AF=0.5;DB;H2
+    &extractVCF($db,$tmp);
+    &sort($tmp,"$out_prefix.txt");
+    &genIdx("$out_prefix.txt","$out_prefix.txt.idx"); #use tell, every 10000 rsIDs
 }
 
 sub index
@@ -192,11 +211,47 @@ sub extract
     close OUT;
 }
 
-#----------------------------------------------------------
 sub revcom
 {
     my ($seq) = @_;
     $seq = reverse $seq;
     $seq =~ tr/acgtACGT/tgcaTGCA/;
     return ($seq);
+}
+
+sub extractVCF
+{
+    my $in=shift;
+    my $out=shift;
+
+    warn "Converting VCF to tab-delimited rsID database.\n".
+    "Every line of the output consists of chr, start, end, ref, alt, rsID.\n".
+    "One rsID may have multiple hits in the genome.\n";
+
+    open IN,'<',$in or die "Cannot read $in:$!\n";
+    open OUT,'>',$out or die "Cannot write to $out: $!\n";
+    while (<IN>)
+    {
+	next if /^#/;
+	s/\s+$//;
+
+	my @f=split(/\t/,$_); 
+	die "At least 5 fields expected: @f\n" unless @f>=5;
+
+	my ($chr, $pos, $rsid, $ref,$alt) = @f[0..4];
+	$chr=~s/^chr//;
+	if ($rsid=~/;/)
+	{
+	    my @rsid=split /;/,$rsid;
+	    for my $i(@rsid)
+	    {
+		print OUT join("\t",$chr,$pos,$pos,$ref,$alt,$i),"\n";
+	    }
+	} else
+	{
+	    print OUT join("\t",$chr,$pos,$pos,$ref,$alt,$rsid),"\n";
+	}
+    }
+    close IN;
+    close OUT;
 }
