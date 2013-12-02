@@ -1740,95 +1740,95 @@ grid.log <- function(args,metal,linespacing=1.5,debug=FALSE)
 	upViewport(1);
     }
 
-	#if ( 'annot' %in% names(metal) && args[['showAnnot']] ) {
-	#    annotlabels <- levels(as.factor(metal$annot))
-	#	pch <- rep(args[['annotPch']],length=length(annotlabels));
-	#    key <- simpleKey(text=annotlabels);
-	#    key$points$pch=pch;
-	#    key$points$col="navy";
-	#    key$points$fill="lightskyblue";
-	#    keyGrob <- draw.key(key,draw=FALSE);
-	#    annotationBoxTop <- unit(0.95,'npc');
-	#    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
-	#    pushViewport(viewport(x=.90,y=annotationBoxTop,width=grobWidth(keyGrob),
-	#		height=annotationBoxHeight,just=c('right','top')));
-	#    pushViewport(viewport(y=unit(.75,'lines'),height = grobHeight(keyGrob),just=c('center','bottom')));
-	#    draw.key(key,draw=TRUE);
-	#    grid.rect();
-	#    popViewport();
-	#    grid.text('annotation key',x=.5,y=unit(1,'npc') - unit(1,'lines'),just=c('center','top'))
-	#	popViewport();
-	#} else { if (args[['showAnnot']]) { 
-	#    annotlabels <- c('no annotation','framestop','splice','nonsyn','coding','utr','tfbscons','mcs44placental');
-	#    pch <- args[['annotPch']];
-	#    annotlabels <- c(annotlabels[-1],annotlabels[1])
-	#	pch <- c(pch[-1],pch[1])
-	#	key <- simpleKey(text=annotlabels);
-	#    key$points$pch=pch;
-	#    key$points$col="navy";
-	#    key$points$fill="lightskyblue";
-	#    keyGrob <- draw.key(key,draw=FALSE);
-	#    annotationBoxTop <- unit(0.95,'npc');
-	#    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
-	#    pushViewport(viewport(x=.90,y=annotationBoxTop,width=grobWidth(keyGrob),
-	#		height=annotationBoxHeight,just=c('right','top')));
-	#    popViewport();
-	#} }
+	if ( 'annot' %in% names(metal) && args[['showAnnot']] ) {
+	    annotlabels <- levels(as.factor(metal$annot))
+		pch <- rep(args[['annotPch']],length=length(annotlabels));
+	    key <- simpleKey(text=annotlabels);
+	    key$points$pch=pch;
+	    key$points$col="navy";
+	    key$points$fill="lightskyblue";
+	    keyGrob <- draw.key(key,draw=FALSE);
+	    annotationBoxTop <- unit(0.95,'npc');
+	    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
+	    pushViewport(viewport(x=.90,y=annotationBoxTop,width=grobWidth(keyGrob),
+			height=annotationBoxHeight,just=c('right','top')));
+	    pushViewport(viewport(y=unit(.75,'lines'),height = grobHeight(keyGrob),just=c('center','bottom')));
+	    draw.key(key,draw=TRUE);
+	    grid.rect();
+	    popViewport();
+	    grid.text(args[['annotName']],x=.5,y=unit(1,'npc') - unit(1,'lines'),just=c('center','top'))
+		popViewport();
+	} else { if (args[['showAnnot']]) { 
+	    annotlabels <- c('no annotation','framestop','splice','nonsyn','coding','utr','tfbscons','mcs44placental');
+	    pch <- args[['annotPch']];
+	    annotlabels <- c(annotlabels[-1],annotlabels[1])
+		pch <- c(pch[-1],pch[1])
+		key <- simpleKey(text=annotlabels);
+	    key$points$pch=pch;
+	    key$points$col="navy";
+	    key$points$fill="lightskyblue";
+	    keyGrob <- draw.key(key,draw=FALSE);
+	    annotationBoxTop <- unit(0.95,'npc');
+	    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
+	    pushViewport(viewport(x=.90,y=annotationBoxTop,width=grobWidth(keyGrob),
+			height=annotationBoxHeight,just=c('right','top')));
+	    popViewport();
+	} }
 
-	#breaks <- union(args[['ldCuts']],c(0,1));
-	#breaks <- sort(unique(breaks));
-	#nb <- length(breaks);
-	#cols <- args[['ldColors']]
-	#    cols <- rep(cols, length=nb+2);
-	#rl <- ribbonLegend(
-	#	breaks=breaks,
-	#	cols=cols[2:(1+nb)],
-	#	gp=gpar(cex=args[['legendSize']],col=args[['frameColor']],alpha=args[['frameAlapha']])
-	#	);
+	breaks <- union(args[['ldCuts']],c(0,1));
+	breaks <- sort(unique(breaks));
+	nb <- length(breaks);
+	cols <- args[['ldColors']]
+	    cols <- rep(cols, length=nb+2);
+	rl <- ribbonLegend(
+		breaks=breaks,
+		cols=cols[2:(1+nb)],
+		gp=gpar(cex=args[['legendSize']],col=args[['frameColor']],alpha=args[['frameAlapha']])
+		);
 
-	#if ( args[['legend']] %in% c('left','right') ) {
-	#    annotlabels <- c('no annotation','framestop','splice','nonsyn','coding','utr','tfbscons','mcs44placental');
-	#    pch <- args[['annotPch']];
-	#    annotlabels <- c(annotlabels[-1],annotlabels[1])
-	#	pch <- c(pch[-1],pch[1])
-	#	key <- simpleKey(text=annotlabels);
-	#    key$points$pch=pch;
-	#    key$points$col="navy";
-	#    key$points$fill="lightskyblue";
-	#    keyGrob <- draw.key(key,draw=FALSE);
-	#    annotationBoxTop <- unit(0.95,'npc');
-	#    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
-	#    pushViewport(viewport(name='legendVpPage2',
-	#		x=unit(.9,'npc'),
-	#		y=annotationBoxTop - annotationBoxHeight - unit(2,'lines'),
-	#		just=c('right','top'),
-	#		width=unit(4,'char'),
-	#		height=unit(8,'lines')
-	#		));
-	#    grid.rect(gp=gpar(col='transparent',fill='white',alpha=args[['legendAlpha']]));
-	#    grid.rect(gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
+	if ( args[['legend']] %in% c('left','right') ) {
+	    annotlabels <- c('no annotation','framestop','splice','nonsyn','coding','utr','tfbscons','mcs44placental');
+	    pch <- args[['annotPch']];
+	    annotlabels <- c(annotlabels[-1],annotlabels[1])
+		pch <- c(pch[-1],pch[1])
+		key <- simpleKey(text=annotlabels);
+	    key$points$pch=pch;
+	    key$points$col="navy";
+	    key$points$fill="lightskyblue";
+	    keyGrob <- draw.key(key,draw=FALSE);
+	    annotationBoxTop <- unit(0.95,'npc');
+	    annotationBoxHeight <- unit(3,"lines") + grobHeight(keyGrob);
+	    pushViewport(viewport(name='legendVpPage2',
+			x=unit(.9,'npc'),
+			y=annotationBoxTop - annotationBoxHeight - unit(2,'lines'),
+			just=c('right','top'),
+			width=unit(4,'char'),
+			height=unit(8,'lines')
+			));
+	    grid.rect(gp=gpar(col='transparent',fill='white',alpha=args[['legendAlpha']]));
+	    grid.rect(gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
 
-	#    pushViewport(viewport(name='ribbonLegendPage2',
-	#		y=0,
-	#		just=c('center','bottom'),
-	#		width=unit(4,'char'),
-	#		height=unit(7,'lines')
-	#		))
-	#	grid.draw(rl);
-	#    upViewport(1);
+	    pushViewport(viewport(name='ribbonLegendPage2',
+			y=0,
+			just=c('center','bottom'),
+			width=unit(4,'char'),
+			height=unit(7,'lines')
+			))
+		grid.draw(rl);
+	    upViewport(1);
 
-	#    pushViewport(viewport(name='LDTitlePage2',
-	#		clip="off", 
-	#		width=unit(4,"char"),
-	#		y=unit(1,'npc') - unit(.25,'char'),
-	#		just=c('center','top'),
-	#		height=unit(1,'lines')
-	#		))
-	#	grid.text(args[['LDTitle']], gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
-	#    upViewport(1);
+	    pushViewport(viewport(name='LDTitlePage2',
+			clip="off", 
+			width=unit(4,"char"),
+			y=unit(1,'npc') - unit(.25,'char'),
+			just=c('center','top'),
+			height=unit(1,'lines')
+			))
+		grid.text(args[['LDTitle']], gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
+	    upViewport(1);
 
-	#    upViewport(1);
-	#}
+	    upViewport(1);
+	}
 
         grid.text('Make more plots at http://enlight.usc.edu', y=unit(1,'lines'), just=c('center','bottom'));
 }
@@ -1927,8 +1927,9 @@ default.args <- list(
 	showAnnot=FALSE,                      # show annotation for each snp?
 	showGenes=TRUE,                       # show genes?
 	annotCol='annotation',                # column to use for annotation, if it exists
-	annotPch='24,24,25,22,22,8,7,21,1',   # plot symbols for annotation
+	annotPch='24,25,22,8,7,21,1',   # plot symbols for annotation
 	annotOrder=NULL,                      # ordering of annotation classes
+	annotName='annotation key',	      #title for annotation legend
 	showRefsnpAnnot=TRUE,                 # show annotation for reference snp too?
 	bigDiamond=FALSE,                     # put big diamond around refsnp?
 	ld=NULL,                              # file for LD information
@@ -2322,6 +2323,11 @@ print(2314);
 	    pchVals <- rep(args[['annotPch']], length=length(levels(metal$annot)));
 	metal$pch <- pchVals[ as.numeric(metal$annot) ]
 	    annot <- metal$annot
+	    print(2325);
+	    print(args[['annotPch']]);
+	    print(pchVals);
+	    print(metal$pch);
+	    print(metal$annot);
     } 
 
     cat("\nR-DEBUG: Loading annotation data...\n");

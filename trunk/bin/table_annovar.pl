@@ -85,10 +85,25 @@ sub printSortOutput {
 	}
     }
 
-    if ($csvout) {
-	print OUT join(",", qw/Chr Start End Ref Alt/, @expanded_header), $otherinfo?",Otherinfo":"", "\n";
-    } else {
-	print OUT join("\t", qw/Chr Start End Ref Alt/, @expanded_header), $otherinfo?"\tOtherinfo":"", "\n";
+    if ($haveheader)
+    {
+	my $original_header=`head -n 1 $queryfile`;
+	chomp $original_header;
+	my @f=split /\t/,$original_header,-1;
+	if ($csvout) {
+	    $original_header=join(",",@f[5..$#f]);
+	    print OUT join(",", qw/Chr Start End Ref Alt/, @expanded_header), $otherinfo?",$original_header":"", "\n";
+	} else {
+	    $original_header=join("\t",@f[5..$#f]);
+	    print OUT join("\t", qw/Chr Start End Ref Alt/, @expanded_header), $otherinfo?"\t$original_header":"", "\n";
+	}
+    } else
+    {
+	if ($csvout) {
+	    print OUT join(",", qw/Chr Start End Ref Alt/, @expanded_header), $otherinfo?",Otherinfo":"", "\n";
+	} else {
+	    print OUT join("\t", qw/Chr Start End Ref Alt/, @expanded_header), $otherinfo?"\tOtherinfo":"", "\n";
+	}
     }
 
     for my $var(&chr_sort (keys %varanno)) {
