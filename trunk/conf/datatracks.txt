@@ -78,7 +78,7 @@ track77	cell:HeLa-S3	experiment:ChIP-seq_H3K4me1	table:wgEncodeBroadHistoneHelas
 track78	cell:HeLa-S3	experiment:ChIP-seq_H3K27ac	table:wgEncodeBroadHistoneHelas3H3k27acStdPk			
 track79	cell:HeLa-S3	experiment:ChIP-seq_H3K36me3	table:wgEncodeBroadHistoneHelas3H3k36me3StdPk			
 track80	cell:HeLa-S3	experiment:ChIP-seq_H3K79me2	table:wgEncodeBroadHistoneHelas3H3k79me2StdPk			
-track81	cell:HeLa-S3	experiment:ChIP-seq_H3K27me3	table:wgEncodeBroadHistoneHelas3H3k27me3StdPk.sql 			
+track81	cell:HeLa-S3	experiment:ChIP-seq_H3K27me3	table:wgEncodeBroadHistoneHelas3H3k27me3StdPk 			
 track82	cell:HeLa-S3	experiment:ChIP-seq_H3K9me3	table:wgEncodeBroadHistoneHelas3H3k09me3Pk			
 track83	cell:HeLa-S3	experiment:ChIP-seq_TCF7L2	table:wgEncodeSydhTfbsHelas3Tcf7l2UcdPk			
 track84	cell:HeLa-S3	experiment:ChIP-seq_CTCF	table:wgEncodeAwgTfbsUwHelas3CtcfUniPk			

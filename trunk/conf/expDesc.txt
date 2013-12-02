@@ -1,0 +1,23 @@
+experiment	description
+methyl RRBS	"The track reports the percentage of DNA molecules that exhibit cytosine methylation at specific CpG dinucleotides. The score in this track reports the number of sequencing reads obtained for each CpG, which is often called 'coverage'. The score is capped at 1000, so any CpGs that were covered by more than 1000 sequencing reads have a score of 1000."
+DNase-seq	This track reports DNase Hyper-sensitivity Sites measured by DNase-seq.
+FAIRE-seq	This track reports nucleosome-depleted regions of the genome measured by FAIRE-seq.
+CAGE	This track shows the 5' cap anlaysis gene expression (CAGE) tags and clusters in RNA extracts. A CAGE cluster is a region of overlapping tags with an assinged value that represents the expression level.
+chromHMM	This track displays a chromatin state segmentation for each cell line. The states were computed integrating multiple ChIP-seq data sets using HMM method.
+RNA-seq	This track reports transcriptome quantification based on Poly-A selected RNA from total cellular RNA.
+small RNA-seq	This track reports the enrichment of an epigenetic marker measured by ChIP-seq.
+ChIA-PET	This track reports the locations of protein factor mediated chromatin interactions determined by ChIA-PET.
+5C	This track reports chromatin interaction data as determined by 5C method.
+ChIP-seq_H3K4me3	This track reports the enrichment of an epigenetic marker measured by ChIP-seq.
+ChIP-seq_H3K9ac	This track reports the enrichment of an epigenetic marker measured by ChIP-seq.
+ChIP-seq_H3K4me1	This track reports the enrichment of an epigenetic marker measured by ChIP-seq.
+ChIP-seq_H3K27ac	This track reports the enrichment of an epigenetic marker measured by ChIP-seq.
+ChIP-seq_H3K36me3	This track reports the enrichment of an epigenetic marker measured by ChIP-seq.
+ChIP-seq_H3K79me2	This track reports the enrichment of an epigenetic marker measured by ChIP-seq.
+ChIP-seq_H3K27me3	This track reports the enrichment of an epigenetic marker measured by ChIP-seq.
+ChIP-seq_H3K9me3	This track reports the enrichment of an epigenetic marker measured by ChIP-seq.
+ChIP-seq_TCF7L2	This track reports the enrichment of TCF7L2 binding measured by ChIP-seq. TCF7L2 is a transcription factor in Wnt pathway.
+ChIP-seq_TCF3	This track reports the enrichment of TCF3 binding measured by ChIP-seq. TCF3 is a transcription factor.
+ChIP-seq_CTCF	This track reports the enrichment of CTCF binding measured by ChIP-seq. CTCF is a transcription regulator that could bind to insulator sequence.
+TFBS Conservation	This track contains the location and score of transcription factor binding sites conserved in the human/mouse/rat alignment.
+TFBS Region	"This track shows regions where transcription factors, proteins responsible for modulating gene transcription, bind to DNA as assayed by ChIP-seq."
