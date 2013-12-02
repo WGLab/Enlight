@@ -455,7 +455,7 @@ $page.= $q->table(
 	    $q->table( {-class=>'noborder left_aln'},
 		$q->Tr([
 		    map { 
-			my $label=$q->span({-title=>$cell_desc{$_}},$_);
+			my $label="<span title='$cell_desc{$_}'>$_</span>";
 			$q->td( 
 			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$label,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
 			); 
@@ -467,7 +467,7 @@ $page.= $q->table(
 	    $q->table( {-class=>'noborder left_aln'},
 		$q->Tr([
 		    map { 
-			my $label=$q->span({-title=>$exp_desc{$_}},$_);
+			my $label="<span title='$exp_desc{$_}'>$_</span>";
 			$q->td( 
 			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$label,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
 			);
