@@ -329,7 +329,7 @@ function loadExampleSetting()
     document.getElementById('ChIP-seq_H3K27ac').checked=true;
     changeTracks();
 
-    alert("Example settings loaded.\nPlease upload example input and click 'submit'");
+    alert(\"Example settings loaded.\nPlease upload example input and click 'submit'\");
 }
 ";
 
