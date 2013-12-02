@@ -36,8 +36,13 @@ my $anno_dir=$server_conf{'annovar_dir'} || &Utils::error("No ANNOVAR database d
 my $anno_exedir=$server_conf{'annovar_bin'} || &Utils::error("No ANNOVAR executable directory\n",$log,$admin_email);
 my $python_dir=$server_conf{'python_bin'};
 my $anno_exe=File::Spec->catfile($RealBin,"..","bin","table_annovar.pl"); #customized version of table_annovar.pl
+
+#read database file settings
 my $hg19db=$server_conf{'hg19db'} || &Utils::error("No hg19 database\n",$log,$admin_email);
 my $hg18db=$server_conf{'hg18db'} || &Utils::error("No hg18 database\n",$log,$admin_email);
+my $hg19rs=$server_conf{'hg19rs'} || &Utils::error("No hg19 rsID database\n",$log,$admin_email);
+my $hg18rs=$server_conf{'hg18rs'} || &Utils::error("No hg18 rsID database\n",$log,$admin_email);
+my $hmmLegend=$server_conf{'hmmLegend'} || &Utils::error("No chromHMM legend\n",$log,$admin_email);
 
 $ENV{PATH}="$anno_exedir:$ENV{PATH}";
 $ENV{PATH}="$python_dir:$ENV{PATH}" if $python_dir;
@@ -80,6 +85,7 @@ my $db=($ref eq 'hg19'? $hg19db:$hg18db);
 
 my $generic_toggle=1 if (defined $q->param('generic_toggle') && $q->param('generic_toggle') eq 'on');
 my $anno_toggle=1 if (defined $q->param('anno_toggle') && $q->param('anno_toggle') eq 'on');
+my $varAnno=$q->param('varAnno');
 
 #option check
 die ("Illegal email address\n") if ($user_email && $user_email !~ /[\w\-\.]+\@[\w\-\.]+\.[\w\-\.]+/);
@@ -136,7 +142,7 @@ if (%custom_table)
     if ($anno_toggle)
     {
 	#copy annovar db files
-	my @anno_db_file=map { "${ref}_$_.txt" } (@generic_table,"refGene","ALL.sites.2012_04");
+	my @anno_db_file=map { "${ref}_$_.txt" } (@generic_table,"refGene","ALL.sites.2012_04",$varAnno);
 	push @anno_db_file,"${ref}_ALL.sites.2012_04.txt.idx","${ref}_refGeneMrna.fa";
 	my @target=map { File::Spec->catfile($anno_dir,$_) } @anno_db_file;
 	map {push @command,"cp $_ ." } @target;
@@ -153,15 +159,70 @@ if (%custom_table)
     }
 }
 
+#convert delimiters to tab
+{
+    my $tmp="/tmp/$$.2tab";
+    if ($file_format ne 'tab')
+    {
+	push @command, "$RealBin/../bin/formatter delim2tab $file_format $input $tmp";
+	$input=$tmp;
+    }
+}
+
+#do rsID to pos transition if ANNOVAR or varAnnot is requested
+#results
+if ($anno_toggle || $varAnno ne 'NULL')
+{
+    my $tmp="/tmp/$$.rs2avinput";
+
+    unless (defined $q->param('avinput') && $q->param('avinput') eq 'on')
+    {
+	push @command, "$RealBin/../bin/formatter rs2avinput $input $tmp $markercol ".($ref eq 'hg18'? $hg18rs:$hg19rs);
+	$input=$tmp;
+    }
+} 
+
+push @command,"cp $input $filename";
+
+if ($varAnno ne 'NULL')
+{
+    #/home/yunfeiguo/projects/annoenlight/bin/locuszoom  --build hg18 --markercol dbSNP135 --source 1000G_Aug2009 --category wgEncodeBroadHmmHepg2HMM categoryKey=/home/yunfeiguo/projects/annoenlight/conf/chromHMM_legend.txt --generic wgEncodeAwgTfbsUwHelas3CtcfUniPk,wgEncodeOpenChromChipHepg2CtcfPk --pop YRI --flank 100kb --refsnp rs10318 --pvalcol p --metal tmp --delim whitespace --prefix hg18 --db /home/yunfeiguo/projects/annoenlight/data/database/enlight_hg18_20131130.db showAnnot=TRUE annotCol=eQTL annotPch='24,1' annotOrder='y,n' annotName='eQTL'
+
+    my $col="${varAnno}_existence"; #this database is solely used for marking variants (exist or not)
+    my $anno_table_cmd;
+    my $tmp="/tmp/$$".rand($$).".varAnno.tmp";
+
+    $param.=" showAnnot=TRUE";
+    $param.=" annotPch='24,1'";
+    $param.=" annotOrder='y,n'"; #make sure 'varAnno' has 'y' in name field (4th column)
+    $param.=" annotName='$varAnno'";
+    $param.=" annotCol='$col'";
+    $param.=" --metal $tmp";
+
+    $anno_table_cmd.="$anno_exe $filename $anno_dir";
+    $anno_table_cmd.=" -protocol $col";
+    $anno_table_cmd.=" -operation r";
+    $anno_table_cmd.=" -nastring n";
+    $anno_table_cmd.=" -buildver $ref" if $ref;
+    $anno_table_cmd.=" -remove";
+    $anno_table_cmd.=" -otherinfo";
+    $anno_table_cmd.=" -haveheader";
+
+    push @command,$anno_table_cmd;
+    push @command,"mv -f $filename.${ref}_multianno.txt $tmp";
+} else
+{
+    $param.=" --metal $filename";
+}
+
 #generate locuszoom command
 $param.=" --build $ref" if $ref;
 $param.=" --markercol $markercol" if $markercol;
 $param.=" --source $ld_source" if $ld_source;
 if (@category_table=grep { /HMM/ } @generic_table)
 {
-    my $legend=File::Spec->catfile($RealBin,"../conf/chromHMM_legend.txt");
     $param.=" --category ".join(',',@category_table);
-    $param.=" categoryKey=$legend" if -f $legend;
+    $param.=" categoryKey=$hmmLegend" if -f $hmmLegend;
 
     @generic_table=grep { !/HMM/ } @generic_table;#remove category tracks from generic table
 }
@@ -174,8 +235,7 @@ $param.=" --chr $chr" if $chr;
 $param.=" --start ".$start*1000000 if $start; #unit is MB
 $param.=" --end ".$end*1000000 if $end;
 $param.=" --pvalcol $pvalcol" if $pvalcol;
-$param.=" --metal $input" if $input;
-$param.=" --delim $file_format" if $file_format;
+$param.=" --delim tab"; #all delimiters have been converted to TAB
 $param.=" --plotonly";
 $param.=" --db $db";
 
@@ -187,35 +247,15 @@ push @unlink,"ld_cache.db"; #locuszoom cache
 #-------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------
+
 if ($anno_toggle)
 {
-    my $in=$input;
-    my $tmp1="/tmp/$$.csv2tab";
-    my $tmp2="/tmp/$$.rs2avinput";
-
-    #formatter should be able to read and write to the same file
-    push @command, "$RealBin/../bin/formatter csv2tab $in $tmp1" and $in=$tmp1 if $file_format eq 'comma';
-
-    unless (defined $q->param('avinput') && $q->param('avinput') eq 'on')
-    {
-	if ($ref eq 'hg18')
-	{
-	    push @command, "$RealBin/../bin/formatter rs2avinput $in $tmp2 $markercol $RealBin/../data/database/hg18_snp135_rs.txt";
-	} elsif ($ref eq 'hg19')
-	{
-	    push @command, "$RealBin/../bin/formatter rs2avinput $in $tmp2 $markercol $RealBin/../data/database/hg19_snp135_rs.txt";
-	} 
-	$in=$tmp2;
-    }
-
-    push @command,"cp $in $filename";
-
     my %operation;
     for(@generic_table,keys %custom_table)
     {
 	$operation{$_}='r5';
     }
-    for (@category_table)
+    for (@category_table,$varAnno)
     {
 	$operation{$_}='r';
     }

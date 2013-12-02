@@ -517,6 +517,7 @@ def runM2Z(metal,metal2zoom_path,ld_file,refsnp,chr,start,end,verbose,args=""):
 
   if _DEBUG:
     print "DEBUG: locuszoom.R command: %s" % com;
+    #time.sleep(999);
 
   #if verbose:
   if 1:

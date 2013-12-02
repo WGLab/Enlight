@@ -10,15 +10,15 @@ my $usage=
 "Usage: $PROGRAM 
 	index 		extract chr, start, end, ref, alt rsID from ANNOVAR dbSNP, sort and index by rsID
 	findbin 	return start, end line number for an rsID
-	csv2tab		replace all commas by tab
+	delim2tab		replace all commas by tab
 	rs2avinput 	remove header and convert rsID to AVINPUT format
 	addbin		add BIN column as 1st column, delimiter is TAB\n";
 die $usage if @ARGV<1;
 my $op=shift @ARGV;
 
-if ($op =~ /csv2tab/i)
+if ($op =~ /delim2tab/i)
 {
-    &csv2tab(@ARGV);
+    &delim2tab(@ARGV);
 } elsif ($op =~ /rs2avinput/i)
 {
     &rs2avinput(@ARGV);
@@ -53,26 +53,46 @@ sub addbin
     close OUT;
     warn "BIN column added to $out\n";
 }
-sub csv2tab
+sub delim2tab
 {
-#Usage: &csv2tab($infile,$outfile)
-#replace all commas with tabs
+#Usage: &delim2tab($infile,$outfile)
+#replace all delimiters with tabs
 
-    my $usage="$PROGRAM csv2tab <infile> <outfile>\n";
+    my $usage="$PROGRAM delim2tab <delim> <infile> <outfile>\ndelimiters accepted: whitespace,space,comma";
     die $usage unless @ARGV==2;
+    my $delim=shift;
     my $file=shift;
     my $outfile=shift;
-    my $out;
 
-    open IN,'<',$file or die "Cannot open $file\n";
-    while (<IN>)
+    open IN,'<',$file or die "Cannot open $file: $!\n";
+    open OUT,'>',$outfile or die "Failed to write to $outfile: $!\n";
+    if ($delim eq 'whitespace')
     {
-	s/,/\t/g;
-	$out.=$_;
+	while (<IN>)
+	{
+	    s/\s+/\t/g;
+	    print OUT;
+	}
+    } elsif ($delim eq 'space')
+    {
+	while (<IN>)
+	{
+	    s/ /\t/g;
+	    print OUT;
+	}
+    } elsif ($delim eq 'comma')
+    {
+	while (<IN>)
+	{
+	    s/,/\t/g;
+	    print OUT;
+	}
+    } else
+    {
+	die "Uncrecognized delimiter.\n$usage";
     }
     close IN;
-    open OUT,'>',$outfile or die "Cannot write to $outfile\n";
-    print OUT $out;
+    close OUT;
 }
 
 sub rs2avinput
@@ -95,9 +115,9 @@ sub rs2avinput
     while(<IN>)
     {
 	chomp;
-	push @out,"chr\tstart\tend\tref\talt\t$_\n" and next if $. == 1; #do nothing for header
+	push @out,"NewChr\tNewStart\tNewEnd\tNewREF\tNewALT\t$_\n" and next if $. == 1; #do nothing for header
 	#make sure it's tab delimited
-	my @fields=split;
+	my @fields=split /\t/,$_,-1;
 	my $rs=$fields[$snpcol_idx];
 	push @out,"NA\tNA\tNA\tNA\tNA\t$_\n" and next if $rs !~ /rs\d+/;
 	my $pos=`$0 findbin $rs $db`;

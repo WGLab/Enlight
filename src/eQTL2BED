@@ -4,20 +4,19 @@ use strict;
 use warnings;
 
 #convert UChicago, GTEX eQTL data to BED format with name column containing the annotation
+warn "NOTICE: run '$0 addbin' will output BED file with 1 column as BIN column\n";
+warn "NOTICE: ANNOVAR will consider 1st column to be BIN by default\n";
+sleep 1;
 
+my $addbin=shift @ARGV;
 {
     my $in="hg18_All.individual.tracks.gff.v3";
-    my $out="hg18_UChicago_eQTL.start1end1.txt";
-    my $hg19out="hg19_UChicago_eQTL.start1end1.txt";
-    my $out0="hg18_UChicago_eQTL.start0end1.bed";
-    my $hg19out0="hg19_UChicago_eQTL.start0end1.bed";
+    my $hg18out="hg18_UChicago_eQTL.txt";
+    my $hg19out="hg19_UChicago_eQTL.txt";
+    my $hg18out_exist="hg18_UChicago_eQTL_existence.txt";
+    my $hg19out_exist="hg19_UChicago_eQTL_existence.txt";
 
-    &convertUChicago2BED($in,$out);
-
-    my $tmp="/tmp/$$.sorted.eqtl";
-
-    !system("msort -k n1,n2 $out > $tmp") and !system("cp $tmp $out") or die "Failed to sort: $!\n";
-
+    &convertUChicago2BED($in,$hg18out);
 
     #hg18 to hg19
     my $liftover="liftOver";
@@ -27,29 +26,30 @@ use warnings;
 
     #chromosomal name, 0-start or 1-start must be converted
 
-    &chr2ucsc($out,$hg18tmp_ucscchr);
+    &chr2ucsc($hg18out,$hg18tmp_ucscchr);
+    !system("mv -f $hg18tmp_ucscchr $hg18out") or die "Failed to rename: $!\n";
 
-    ! system("$liftover -bedPlus=3 -tab $hg18tmp_ucscchr $hg18to19chain $hg19tmp_ucscchr /tmp/$$.liftover.tmp ") or die "Failed to lift over from hg19 to hg18: $!\n";
+    ! system("$liftover -bedPlus=3 -tab $hg18out $hg18to19chain $hg19out /tmp/$$.liftover.tmp ") or die "Failed to lift over from hg19 to hg18: $!\n";
 
-    &ucsc2chr($hg19tmp_ucscchr,$hg19out);
+    &convertAnno2Exist({$hg18out=>$hg18out_exist,$hg19out=>$hg19out_exist});
 
-    &one2zeroStart($out,$out0);
-    &one2zeroStart($hg19out,$hg19out0);
+    if (defined $addbin && $addbin eq 'addbin')
+    {
+	&addBIN($hg18out,$hg19out,$hg18out_exist,$hg19out_exist);
+    }
 
-    &addHeader($out,$hg19out);
-
-    warn "UChicago data writtent to $out,$hg19out,$out0,$hg19out0\n";
+    warn "UChicago data writtent to $hg18out,$hg19out,$hg18out_exist,$hg19out_exist\n";
 }
 
 {
     my $in="hg19_GTEX-131116-0019-17897.tab";
-    my $out="hg19_GTEX_eQTL131116.start1end1.txt";
-    my $hg18out="hg18_GTEX_eQTL131116.start1end1.txt";
-    my $out0="hg19_GTEX_eQTL131116.start0end1.bed";
-    my $hg18out0="hg18_GTEX_eQTL131116.start0end1.bed";
+    my $hg18out="hg18_GTEX_eQTL.txt";
+    my $hg19out="hg19_GTEX_eQTL.txt";
+    my $hg18out_exist="hg18_GTEX_eQTL_existence.txt";
+    my $hg19out_exist="hg19_GTEX_eQTL_existence.txt";
 
 
-    &convertGTEX2bed($in,$out);
+    &convertGTEX2bed($in,$hg19out);
 
     #convert hg19 to hg18
     my $liftover="liftOver";
@@ -58,19 +58,18 @@ use warnings;
     my $hg18tmp_ucscchr="/tmp/$$.zeroStart.tmp";
 
     #chromosomal name, 0-start or 1-start must be converted
+    &chr2ucsc($hg19out,$hg19tmp_ucscchr);
+    !system("mv -f $hg19tmp_ucscchr $hg19out") or die "Failed to rename: $!\n";
 
-    &chr2ucsc($out,$hg19tmp_ucscchr);
+    ! system("$liftover -bedPlus=3 -tab $hg19out $hg19to18chain $hg18out /tmp/$$.liftover.tmp ") or die "Failed to lift over from hg19 to hg18: $!\n";
 
-    ! system("$liftover -bedPlus=3 -tab $hg19tmp_ucscchr $hg19to18chain $hg18tmp_ucscchr /tmp/$$.liftover.tmp ") or die "Failed to lift over from hg19 to hg18: $!\n";
+    &convertAnno2Exist({$hg18out=>$hg18out_exist,$hg19out=>$hg19out_exist});
 
-    &ucsc2chr($hg18tmp_ucscchr,$hg18out);
-
-    &one2zeroStart($out,$out0);
-    &one2zeroStart($hg18out,$hg18out0);
-
-    &addHeader($out,$hg18out);
-
-    warn "GTEX output written to $out,$hg18out,$out0,$hg18out0\n";
+    if (defined $addbin && $addbin eq 'addbin')
+    {
+	&addBIN($hg18out,$hg19out,$hg18out_exist,$hg19out_exist);
+    }
+    warn "GTEX data writtent to $hg18out,$hg19out,$hg18out_exist,$hg19out_exist\n";
 }
 
 #perl -e 'open IN,"<All.individual.tracks.gff.v3";my %chr;while(<IN>){@f=split /\t/;$chr{$f[0]}=1;} map {print "$_ "} keys %chr'
@@ -109,12 +108,17 @@ sub convertUChicago2BED
 
 	my $anno="$note,SCORE:$score";
 	$anno=~s%Plot=.*</a>%%;
+	$anno=~s/\s+/ /g;
 	$anno=~s/[";]//g;
 	$anno=~s/\s+$//;
+	$start--; #0-start
 	print OUT "$chr\t$start\t$end\t$anno\n";
     }
     close IN;
     close OUT;
+
+    my $tmp="/tmp/$$.sorted.eqtl";
+    !system("msort -k n1,n2 $out > $tmp") and !system("mv -f $tmp $out") or die "Failed to sort: $!\n";
 }
 sub convertGTEX2bed
 {
@@ -136,20 +140,21 @@ sub convertGTEX2bed
 	next unless $chr && $pos;
 	$chr=23 if $chr eq 'X';
 
-	$desc=~s/[";\s]+$//g;
-	$gene=~s/[";\s]+$//g;
-	$p=~s/[";\s]+$//g;
+	$desc=~s/[";\s]+$/ /g;
+	$gene=~s/[";\s]+$/ /g;
+	$p=~s/[";\s]+$/ /g;
 
 	my $anno="Gene:$gene,P:$p,Description:$desc\n";
 	$anno=~s/[";]//g;
-	$anno=~s/\s+$//;
-	print OUT "$chr\t$pos\t$pos\t$anno\n";
+	$anno=~s/\s+$/ /;
+	my $start=$pos-1; #0-start
+	print OUT "$chr\t$start\t$pos\t$anno\n";
     }
     close IN;
     close OUT;
 
     my $tmp="/tmp/$$.sorted.eqtl";
-    !system("msort -k n1,n2 $out > $tmp") and !system("cp $tmp $out") or die "Failed to sort: $!\n";
+    !system("msort -k n1,n2 $out > $tmp") and !system("mv -f $tmp $out") or die "Failed to sort: $!\n";
 }
 
 sub chr2ucsc
@@ -164,14 +169,13 @@ sub chr2ucsc
     {
 	if (/^(\d+)\t(\d+)\t(\d+)/)
 	{
-	    my $start=$2-1;
 	    my $chr=$1;
 	    if ($chr == 23)
 	    {
-		s/^\d+\t\d+/chrX\t$start/;
+		s/^\d+/chrX/;
 	    } else
 	    {
-		s/^\d+\t\d+/chr$chr\t$start/;
+		s/^\d+/chr$chr/;
 	    }
 	}
 	print OUT;
@@ -181,70 +185,70 @@ sub chr2ucsc
     close OUT;
 }
 
-sub ucsc2chr
+sub convertAnno2Exist
 {
-    my $in=shift;
-    my $out=shift;
+    my %hash=%{shift @_};
 
-    open IN,'<',$in or die "Failed to read $in: $!\n";
-    open OUT,'>', $out or die "Failed to write to $out: $!\n";
-
-    while(<IN>)
+    while (my ($in,$out)=each %hash)
     {
-	if (/^chr(\d+|X)\t(\d+)\t(\d+)/)
+	open IN,'<',$in or die "Failed to read $in: $!\n";
+	open OUT,'>',$out or die "Failed to write to $out: $!\n";
+
+	while(<IN>)
 	{
-	    my $start=$2+1;
-	    my $chr=$1;
-	    if ($chr eq 'X')
-	    {
-		s/^chrX\t\d+/23\t$start/;
-	    } else
-	    {
-		s/^chr\d+\t\d+/$chr\t$start/;
-	    }
-	}
-	print OUT;
-    }
-
-    close IN;
-    close OUT;
-}
-sub one2zeroStart
-{
-    my $in=shift;
-    my $out=shift;
-
-    open IN,'<',$in or die "Failed to read $in: $!\n";
-    open OUT,'>',$out or die "Failed to write to $out: $!\n";
-
-    while(<IN>)
-    {
-	if (/^[^\t]+\t(\d+)\t\d+/)
-	{
-	    my $start=$1-1;
-	    s/(^[^\t]+\t)\d+(\t\d+)/$1$start$2/;
-	}
-	print OUT;
-    }
-    close IN;
-    close OUT;
-}
-sub addHeader
-{
-    my $tmp="/tmp/$$".rand($$)."noheader";
-
-    for my $i(@_)
-    {
-	!system("cp $i $tmp") or die "Copy failed: $!\n";
-	open IN,'<',$tmp or die "Failed to read $tmp: $!\n";
-	open OUT,'>',$i or die "Failed to write to $i: $!\n";
-
-	print OUT "chr\tstart\tend\tannotation\n";
-	while (<IN>)
-	{
+	    chomp;
+	    next unless /^[^\t]+\t[^\t]+\t[^\t]+\t[^\t]+/;
+	    s/^([^\t]+\t[^\t]+\t[^\t]+\t)[^\t]+/$1y/;
+	    s/$/\n/;
 	    print OUT;
 	}
 	close IN;
 	close OUT;
     }
 }
+
+    sub addBIN
+    {
+	for my $file(@_)
+	{
+	    my $tmp="/tmp/$$".rand($$)."bin.tmp";
+	    open IN,'<',$file or die "Failed to read $_: $!\n";
+	    open OUT,'>',$tmp or die "failed to write to $tmp: $!\n";
+	    while(<IN>)
+	    {
+		s/^/1\t/;
+		print OUT;
+	    }
+	    close IN;
+	    close OUT;
+	    !system("mv -f $tmp $file") or die "Failed to rename: $!\n";
+	}
+    }
+#sub ucsc2chr
+#{
+#    my $in=shift;
+#    my $out=shift;
+#
+#    open IN,'<',$in or die "Failed to read $in: $!\n";
+#    open OUT,'>', $out or die "Failed to write to $out: $!\n";
+#
+#    while(<IN>)
+#    {
+#	if (/^chr(\d+|X)\t(\d+)\t(\d+)/)
+#	{
+#	    my $start=$2+1;
+#	    my $chr=$1;
+#	    if ($chr eq 'X')
+#	    {
+#		s/^chrX\t\d+/23\t$start/;
+#	    } else
+#	    {
+#		s/^chr\d+\t\d+/$chr\t$start/;
+#	    }
+#	}
+#	print OUT;
+#    }
+#
+#    close IN;
+#    close OUT;
+#}

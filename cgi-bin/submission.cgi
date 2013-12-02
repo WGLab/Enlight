@@ -20,6 +20,10 @@ my %server_conf=&Utils::readServConf(File::Spec->catfile($RealBin,"../conf/enlig
 my $flank_default=$server_conf{"flank_default"} || "200";
 my $generic_table_max=$server_conf{"generic_table_max"} || 10;
 my $admin_email=$server_conf{'admin'};
+my $trackList=$server_conf{'trackList'} or die "Failed to read datatrack list setting\n";
+my $varAnnoList=$server_conf{'varAnnoList'} or die "Failed to read variant annotation list settings\n";
+my $cellDesc=$server_conf{'cellDesc'} or die "Failed to read cell description\n";
+my $expDesc=$server_conf{'expDesc'} or die "Failed to read experiment description\n";
 #my $public_key=$server_conf{'public_key'} or die "No public key for reCAPTCHA\n";
 
 my @ref=('hg18','hg19');
@@ -30,11 +34,17 @@ my @source_ref_pop= sort (map {$server_conf{$_}} grep { /^\d+$/ } (keys %server_
 my %source_ref_pop_label=map {($_,$_)} @source_ref_pop; 
 my ($default_source_ref_pop)=grep {/$ref_default/ and /EUR/i} @source_ref_pop;
 
-my %tracks=&Utils::readObj("$RealBin/../conf/datatracks.txt");
+my %tracks=&Utils::readObj($trackList);
 my %cell= map { ($tracks{$_}{cell},$tracks{$_}{table}) } keys %tracks;
 my %experiment= map { ($tracks{$_}{experiment},$tracks{$_}{table}) } keys %tracks;
+my %cell_desc= &tab2hash($cellDesc);
+my %exp_desc= &tab2hash($expDesc);
 
-my @qformat=("whitespace","space","comma");
+my @varAnno=sort (split /,/,$varAnnoList);
+push @varAnno,'NULL';
+my %varAnno_label=map {($_,$_)} @varAnno;
+
+my @qformat=("whitespace","tab","space","comma");
 my %qformat_label=map {($_,$_)} @qformat;
 my $qformat_default="whitespace";
 my @chr=(1..22,'X');
@@ -318,6 +328,8 @@ function loadExampleSetting()
     document.getElementById('ChIP-seq_CTCF').checked=true;
     document.getElementById('ChIP-seq_H3K27ac').checked=true;
     changeTracks();
+
+    alert("Example settings loaded.\nPlease upload example input and click 'submit'");
 }
 ";
 
@@ -373,6 +385,12 @@ $page.= $q->table(
 	$q->td('Genome Build/LD source/Population'),
 	$q->td(
 	    $q->popup_menu(-name=>'source_ref_pop',-id=>'source_ref_pop_id',-values=> \@source_ref_pop,-labels=>\%source_ref_pop_label,-default=>[$default_source_ref_pop])
+	),
+    ),
+    $q->Tr(
+	$q->td('Mark variants in database: '),
+	$q->td(
+	    $q->popup_menu(-name=>'varAnno',-id=>'varAnno_id',-values=> \@varAnno,-labels=>\%varAnno_label,-default=>['NULL'])
 	),
     ),
 );
@@ -436,18 +454,24 @@ $page.= $q->table(
 	$q->td( {-class=>'table_align'},
 	    $q->table( {-class=>'noborder left_aln'},
 		$q->Tr([
-		    map { $q->td( 
-			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
-			) } sort keys %cell
+		    map { 
+			my $label=$q->span({-title=>$cell_desc{$_}},$_);
+			$q->td( 
+			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$label,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
+			); 
+		        } sort keys %cell
 		    ]),
 	    )
 	),
 	$q->td( {-class=>'table_align'},
 	    $q->table( {-class=>'noborder left_aln'},
 		$q->Tr([
-		    map { $q->td( 
-			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
-			) } sort keys %experiment
+		    map { 
+			my $label=$q->span({-title=>$exp_desc{$_}},$_);
+			$q->td( 
+			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$label,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
+			);
+		        } sort keys %experiment
 		    ]),
 	    )
 	),
@@ -530,4 +554,19 @@ sub template2real
     }
     close OUT;
     warn "Index page generated in $real_dir\n";
+}
+sub tab2hash
+{
+    my $in=shift;
+    my %hash;
+
+    open IN,'<',$in or die "Failed to read $in: $!\n";
+    while(<IN>)
+    {
+	my @f=split /\t/,$_,-1;
+	die "At least 2 fields expected at line $. of $in: @f\n" unless @f>=2;
+	$hash{$f[0]}=$f[1];
+    }
+    close IN;
+    return %hash;
 }
