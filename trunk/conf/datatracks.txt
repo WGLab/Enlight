@@ -100,7 +100,7 @@ track99	cell:HepG2	experiment:ChIP-seq_H3K79me2	table:wgEncodeBroadHistoneHepg2H
 track100	cell:HepG2	experiment:ChIP-seq_H3K27me3	table:wgEncodeBroadHistoneHepg2H3k27me3StdPk			
 track101	cell:HepG2	experiment:ChIP-seq_H3K9me3	table:wgEncodeBroadHistoneHepg2H3k09me3Pk			
 track102	cell:HepG2	experiment:ChIP-seq_CTCF	table:wgEncodeOpenChromChipHepg2CtcfPk			
-track103	cell:HepG3	experiment:ChIP-seq_TCF7L2	table:wgEncodeSydhTfbsHepg2Tcf7l2UcdPk			
+track103	cell:HepG2	experiment:ChIP-seq_TCF7L2	table:wgEncodeSydhTfbsHepg2Tcf7l2UcdPk			
 track104	cell:HUVEC	experiment:DNase-seq	table:wgEncodeOpenChromDnaseHuvecPk			
 track105	cell:HUVEC	experiment:FAIRE-seq	table:wgEncodeOpenChromFaireHuvecPk			
 track106	cell:HUVEC	experiment:ChIP-seq_H3K4me3	table:wgEncodeBroadHistoneHuvecH3k4me3StdPk			
