@@ -9,3 +9,4 @@ A549	Human lung carcinoma
 HeLa-S3	Human cervical cancer cell line
 HepG2	Human hepatoma cell line
 HUVEC	Human umbilical vein endothelial cell
+None	Not a specific cell line
