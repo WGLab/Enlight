@@ -85,7 +85,7 @@ my $db=($ref eq 'hg19'? $hg19db:$hg18db);
 
 my $generic_toggle=1 if (defined $q->param('generic_toggle') && $q->param('generic_toggle') eq 'on');
 my $anno_toggle=1 if (defined $q->param('anno_toggle') && $q->param('anno_toggle') eq 'on');
-my $varAnno=$q->param('varAnno');
+my $varAnno=$q->param('varAnno') eq 'NULL'? undef:$q->param('varAnno');
 
 #option check
 die ("Illegal email address\n") if ($user_email && $user_email !~ /[\w\-\.]+\@[\w\-\.]+\.[\w\-\.]+/);
@@ -171,7 +171,7 @@ if (%custom_table)
 
 #do rsID to pos transition if ANNOVAR or varAnnot is requested
 #results
-if ($anno_toggle || $varAnno ne 'NULL')
+if ($anno_toggle || $varAnno)
 {
     my $tmp="/tmp/$$.rs2avinput";
 
@@ -184,7 +184,7 @@ if ($anno_toggle || $varAnno ne 'NULL')
 
 push @command,"cp $input $filename";
 
-if ($varAnno ne 'NULL')
+if ($varAnno)
 {
     #/home/yunfeiguo/projects/annoenlight/bin/locuszoom  --build hg18 --markercol dbSNP135 --source 1000G_Aug2009 --category wgEncodeBroadHmmHepg2HMM categoryKey=/home/yunfeiguo/projects/annoenlight/conf/chromHMM_legend.txt --generic wgEncodeAwgTfbsUwHelas3CtcfUniPk,wgEncodeOpenChromChipHepg2CtcfPk --pop YRI --flank 100kb --refsnp rs10318 --pvalcol p --metal tmp --delim whitespace --prefix hg18 --db /home/yunfeiguo/projects/annoenlight/data/database/enlight_hg18_20131130.db showAnnot=TRUE annotCol=eQTL annotPch='24,1' annotOrder='y,n' annotName='eQTL'
 
