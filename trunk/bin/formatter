@@ -59,7 +59,7 @@ sub delim2tab
 #replace all delimiters with tabs
 
     my $usage="$PROGRAM delim2tab <delim> <infile> <outfile>\ndelimiters accepted: whitespace,space,comma";
-    die $usage unless @ARGV==2;
+    die $usage unless @ARGV==3;
     my $delim=shift;
     my $file=shift;
     my $outfile=shift;
