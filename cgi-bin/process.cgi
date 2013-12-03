@@ -142,7 +142,9 @@ if (%custom_table)
     if ($anno_toggle)
     {
 	#copy annovar db files
-	my @anno_db_file=map { "${ref}_$_.txt" } (@generic_table,"refGene","ALL.sites.2012_04",$varAnno);
+	my @db_name=(@generic_table,"refGene","All.sites.2012_04");
+	push @db_name,$varAnno if $varAnno;
+	my @anno_db_file=map { "${ref}_$_.txt" } @db_name;
 	push @anno_db_file,"${ref}_ALL.sites.2012_04.txt.idx","${ref}_refGeneMrna.fa";
 	my @target=map { File::Spec->catfile($anno_dir,$_) } @anno_db_file;
 	map {push @command,"cp $_ ." } @target;
@@ -255,10 +257,11 @@ if ($anno_toggle)
     {
 	$operation{$_}='r5';
     }
-    for (@category_table,$varAnno)
+    for (@category_table)
     {
 	$operation{$_}='r';
     }
+    $operation{$varAnno}='r' if $varAnno;
 
     $anno_table_cmd.="$anno_exe $filename ";
     $anno_table_cmd.=( %custom_table ? ".":$anno_dir);
