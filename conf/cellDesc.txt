@@ -5,7 +5,7 @@ H1-hESC	H1 human embryonic stem cells
 MCF-7	Human breast cancer cell line
 K562	Human chronic myelogenous leukemia cell line
 GM12878	Human lymphoblastoid cell line
-A549	Human lung carcinoma
+A549	Human lung carcinoma cell line
 HeLa-S3	Human cervical cancer cell line
 HepG2	Human hepatoma cell line
 HUVEC	Human umbilical vein endothelial cell

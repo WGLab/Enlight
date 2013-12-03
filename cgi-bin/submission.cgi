@@ -329,7 +329,7 @@ function loadExampleSetting()
     document.getElementById('ChIP-seq_H3K27ac').checked=true;
     changeTracks();
 
-    alert(\"Example settings loaded.\nPlease upload example input and click 'submit'\");
+    alert(\"Example settings loaded.\\nPlease upload example input and click 'submit'\");
 }
 ";
 
@@ -455,9 +455,9 @@ $page.= $q->table(
 	    $q->table( {-class=>'noborder left_aln'},
 		$q->Tr([
 		    map { 
-			my $label="<span title='$cell_desc{$_}'>$_</span>";
-			$q->td( 
-			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$label,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
+			
+			$q->td("<span title='$cell_desc{$_}'>". 
+			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$label,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
 			); 
 		        } sort keys %cell
 		    ]),
@@ -467,9 +467,9 @@ $page.= $q->table(
 	    $q->table( {-class=>'noborder left_aln'},
 		$q->Tr([
 		    map { 
-			my $label="<span title='$exp_desc{$_}'>$_</span>";
-			$q->td( 
-			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$label,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )
+			
+			$q->td("<span title='$exp_desc{$_}'>".
+			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$label,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
 			);
 		        } sort keys %experiment
 		    ]),
