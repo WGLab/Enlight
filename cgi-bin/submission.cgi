@@ -363,7 +363,7 @@ $page.= $q->table(
 	$q->td("<button type='button' onclick='loadExampleSetting()'>Load settings for example input</button>"),
     ),
     $q->Tr(
-	$q->td("Email (optional)"),
+	$q->td("<span title='receive result link'>Email (optional)</span>"),
 	$q->td($q->textfield(-name=>'email',-onclick=>"this.value=''")),
     ),
     $q->Tr(
@@ -375,7 +375,7 @@ $page.= $q->table(
 	$q->td($q->radio_group(-name=>"qformat",-id=>"qformat_whitespace",-values=>\@qformat,-labels=>\%qformat_label,-default=>$qformat_default)),
     ),
     $q->Tr(
-	$q->td("Marker Column (case sensitive)"),
+	$q->td("<span title='this columns contains rsID'>Marker Column (case sensitive)</span>"),
 	$q->td($q->textfield(-name=>'markercol',-id=>'markercol_id',-default=>'', -onclick=>"this.value=''")),
     ),
     $q->Tr(
@@ -383,13 +383,13 @@ $page.= $q->table(
 	$q->td($q->textfield(-name=>"pvalcol",-id=>'pvalcol_id',-default=>'', -onclick=>"this.value=''")),
     ),
     $q->Tr(
-	$q->td('Genome Build/LD source/Population'),
+	$q->td("<span title='choose data set for computing Linkage Disequilibrium'>Genome Build/LD source/Population</span>"),
 	$q->td(
 	    $q->popup_menu(-name=>'source_ref_pop',-id=>'source_ref_pop_id',-values=> \@source_ref_pop,-labels=>\%source_ref_pop_label,-default=>[$default_source_ref_pop])
 	),
     ),
     $q->Tr(
-	$q->td('Mark variants in database: '),
+	$q->td("<span title='show if a variant appears in a particular database'>Mark variants in database: </span>"),
 	$q->td(
 	    $q->popup_menu(-name=>'varAnno',-id=>'varAnno_id',-values=> \@varAnno,-labels=>\%varAnno_label,-default=>['NULL'])
 	),
@@ -397,7 +397,7 @@ $page.= $q->table(
 );
 
 $page.="<br /> <br />\n";
-$page.= $q->h2("Specify a region");
+$page.= $q->h2("<span title='plot region'>Specify a region</span>");
 $page.= $q->table(
     {-border=>1},
     $q->Tr(
@@ -416,19 +416,25 @@ $page.= $q->table(
 );
 
 $page.="<br /> <br />\n";
-$page.= $q->h2("Generic plot (using UCSC BED tables)");
+$page.= $q->h2("<span title='show signal strengths in regions'>Generic plot (using UCSC BED tables)</span>");
 $page.= $q->table( {-class=>'noborder'},
     $q->Tr(
-	$q->td($q->checkbox(-name=>'generic_toggle',-id=>'generic_toggle_id',-checked=>1,-label=>'Generic plot?')), #return 'on' if checked
+	$q->td(
+	    "<span title='Do you want a generic (annotation) plot?'>".
+	    $q->checkbox(-name=>'generic_toggle',-id=>'generic_toggle_id',-checked=>1,-label=>'Generic plot?').
+	    "</span>"
+	), #return 'on' if checked
     ),
     $q->Tr(
-	$q->td(
-	    $q->checkbox(-name=>'anno_toggle',-id=>'anno_toggle_id',-checked=>0,-label=>'Output ANNOVAR annotation?'),
+	$q->td("<span title='Do you want text annotation?'>".
+	    $q->checkbox(-name=>'anno_toggle',-id=>'anno_toggle_id',-checked=>0,-label=>'Output ANNOVAR annotation?').
+	    "</span>"
 	),
     ),
     $q->Tr(
-	$q->td(
-	    $q->checkbox(-name=>'avinput',-id=>'avinput_id',-checked=>0,-label=>'Input file in ANNOVAR format?'),
+	$q->td("<span title='First 5 columns correspond to chromosome,start,end,alternative allele,reference allele'>".
+	    $q->checkbox(-name=>'avinput',-id=>'avinput_id',-checked=>0,-label=>'Input file in ANNOVAR format?').
+	    "</span>"
 	),
     ),
     $q->Tr(
