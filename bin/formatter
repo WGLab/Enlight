@@ -70,7 +70,7 @@ sub delim2tab
     {
 	while (<IN>)
 	{
-	    s/\s+/\t/g;
+	    s/[\t ]+/\t/g;
 	    print OUT;
 	}
     } elsif ($delim eq 'space')
