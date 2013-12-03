@@ -24,16 +24,16 @@ sub new
 	'time'		=>$arg{'time'} || croak ("No time\n"),
 	'ip'		=>$arg{'ip'}		|| croak ("No IP\n"),
 	'query'		=>$arg{'query'}		|| croak ("No query file\n"),
-	'access'		=>$arg{'access'} || croak("No access code\n"), 
+	'access'	=>$arg{'access'} || croak("No access code\n"), 
 	'maxjobnum'	=>$arg{'maxjobnum'} || croak("Specify maximum number of jobs\n"),
-	'maxjobhist'      =>$arg{'maxjobhist'} || croak ("Specify maximum number of jobs in history"),
-	'wait_time'       =>$arg{'wait_time'} || croak ("Specify waiting time before retry"),
-	'max_per_ip'      =>$arg{'max_per_ip'} || croak("Specify maximum running jobs per IP"),
-	'outdir'          =>$arg{'outdir'} || croak ("No output directory"),
-	'maxtime'        =>$arg{'maxtime'} || croak("Specify maximum time for a job to remain in 'running' status"),
-	'max_run_time'    =>$arg{'max_run_time'} || croak ("Specify maximum running time for a job"),
-	'command'         =>$arg{'command'} || croak("No command for execution"),
-	'param'           =>$arg{'param'} || croak("No parameter"),
+	'maxjobhist'    =>$arg{'maxjobhist'} || croak ("Specify maximum number of jobs in history"),
+	'wait_time'     =>$arg{'wait_time'} || croak ("Specify waiting time before retry"),
+	'max_per_ip'    =>$arg{'max_per_ip'} || croak("Specify maximum running jobs per IP"),
+	'outdir'        =>$arg{'outdir'} || croak ("No output directory"),
+	'maxtime'       =>$arg{'maxtime'} || croak("Specify maximum time for a job to remain in 'running' status"),
+	'max_run_time'  =>$arg{'max_run_time'} || croak ("Specify maximum running time for a job"),
+	'command'       =>$arg{'command'} || croak("No command for execution"),
+	'param'         =>$arg{'param'} || croak("No parameter"),
 	'id'		=>undef, #jobID
     }, $class;
 }
@@ -240,7 +240,14 @@ sub jobRegister
     my $time=$self->{'time'};
     my $ip=$self->{'ip'};
     my $query=$self->{'query'};
-    my $filesize=-s $query;
+    my $filesize=-s $query || 0;
+
+    $time=~s/'/"/g;
+    $date=~s/'/"/g;
+    $ip=~s/'/"/g;
+    $query=~s/'/"/g;
+    $access=~s/'/"/g;
+    $param=~s/'/"/g;
 
     my $newsub="INSERT INTO $tablename (date, time, ip, query, filesize,status, access, param) VALUES ('$date','$time','$ip','$query',$filesize,'q','$access','$param')";
     $dbh->do($newsub);
