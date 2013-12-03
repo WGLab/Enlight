@@ -457,7 +457,7 @@ $page.= $q->table(
 		    map { 
 			
 			$q->td("<span title='$cell_desc{$_}'>". 
-			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$label,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
+			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
 			); 
 		        } sort keys %cell
 		    ]),
@@ -469,7 +469,7 @@ $page.= $q->table(
 		    map { 
 			
 			$q->td("<span title='$exp_desc{$_}'>".
-			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$label,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
+			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
 			);
 		        } sort keys %experiment
 		    ]),
