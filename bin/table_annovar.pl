@@ -33,8 +33,11 @@ my %varanno;					#varstring as key of 1st hash, anno_db as key of 2nd hash, anno
 my (@protocol, @operation, @dbtype1, @argument);		#@dbtype1 is the translated file name for @protocol
 my (@genericdbfile, @gff3dbfile, @vcfdbfile, @bedfile);
 my (@genericdbfile1, @gff3dbfile1, @vcfdbfile1, @bedfile1);
+my $headerfile;
 
 processArgument ();
+$headerfile=&saveHeader($queryfile) and $queryfile=&rmHeader($queryfile) if $haveheader;
+
 @dbtype1 = proxyDBType(@protocol);
 $checkfile and checkFileExistence (@dbtype1);
 
@@ -63,10 +66,6 @@ if ($sortout) {
 
 if ($remove)
 {
-    if ($haveheader)
-    {
-	push @unlink,&isOneLine("$outfile.invalid_input","$outfile.refGene.invalid_input"); 	
-    }
     unlink(@unlink);
 }
 
@@ -94,22 +93,22 @@ sub printSortOutput {
 
     if ($haveheader)
     {
-	my $original_header=`head -n 1 $queryfile`;
+	my $original_header=`head -n 1 $headerfile`;
 	chomp $original_header;
 	my @f=split /\t/,$original_header,-1;
 	if ($csvout) {
 	    $original_header=join(",",@f[5..$#f]);
-	    print OUT join(",", qw/Chr Start End Ref Alt/, @expanded_header), $otherinfo?",$original_header":"", "\n";
+	    print OUT join(",", qw/Chr Start End Ref Alt/, @expanded_header).( $otherinfo?",$original_header":""). "\n";
 	} else {
 	    $original_header=join("\t",@f[5..$#f]);
-	    print OUT join("\t", qw/Chr Start End Ref Alt/, @expanded_header), $otherinfo?"\t$original_header":"", "\n";
+	    print OUT join("\t", qw/Chr Start End Ref Alt/, @expanded_header).( $otherinfo?"\t$original_header":""). "\n";
 	}
     } else
     {
 	if ($csvout) {
-	    print OUT join(",", qw/Chr Start End Ref Alt/, @expanded_header), $otherinfo?",Otherinfo":"", "\n";
+	    print OUT join(",", qw/Chr Start End Ref Alt/, @expanded_header). ($otherinfo?",Otherinfo":""). "\n";
 	} else {
-	    print OUT join("\t", qw/Chr Start End Ref Alt/, @expanded_header), $otherinfo?"\tOtherinfo":"", "\n";
+	    print OUT join("\t", qw/Chr Start End Ref Alt/, @expanded_header).( $otherinfo?"\tOtherinfo":""). "\n";
 	}
     }
 
@@ -163,11 +162,6 @@ sub printSortOutput {
 	}
     }
     close (OUT);
-
-    #if ($otherinfo)
-    #{
-    #    &combineFirst2line($queryfile,$final_out);
-    #}
 }
 
 sub printOrigOutput {
@@ -191,10 +185,25 @@ sub printOrigOutput {
 	}
     }
 
-    if ($csvout) {
-	print OUT join(",", qw/Chr Start End Ref Alt/, @expanded_header), $otherinfo?",Otherinfo":"", "\n";
-    } else {
-	print OUT join("\t", qw/Chr Start End Ref Alt/, @expanded_header), $otherinfo?"\tOtherinfo":"", "\n";
+    if ($haveheader)
+    {
+	my $original_header=`head -n 1 $headerfile`;
+	chomp $original_header;
+	my @f=split /\t/,$original_header,-1;
+	if ($csvout) {
+	    $original_header=join(",",@f[5..$#f]);
+	    print OUT join(",", qw/Chr Start End Ref Alt/, @expanded_header). ($otherinfo?",$original_header":""). "\n";
+	} else {
+	    $original_header=join("\t",@f[5..$#f]);
+	    print OUT join("\t", qw/Chr Start End Ref Alt/, @expanded_header). ($otherinfo?"\t$original_header":""). "\n";
+	}
+    } else
+    {
+	if ($csvout) {
+	    print OUT join(",", qw/Chr Start End Ref Alt/, @expanded_header). ($otherinfo?",Otherinfo":""). "\n";
+	} else {
+	    print OUT join("\t", qw/Chr Start End Ref Alt/, @expanded_header). ($otherinfo?"\tOtherinfo":""). "\n";
+	}
     }
 
     open (FH, $queryfile) or die "Error: cannot read from inputfile $queryfile: $!\n";
@@ -239,10 +248,6 @@ sub printOrigOutput {
     }
 
     close OUT;
-    #if ($otherinfo)
-    #{
-    #    &combineFirst2line($queryfile,$final_out);
-    #}
 }
 
 
@@ -615,41 +620,41 @@ sub checkFileExistence {
     @bedfile1 = @bedfile;
     @gff3dbfile1 = @gff3dbfile;
 }
-sub combineFirst2line
+sub rmHeader
 {
-    my $original=shift;
-    my $out=shift;
+    my $in=shift;
     my $tmp="/tmp/$$.anno.tmp";
-    my $header=`head -n 1 $original`;
-    chomp $header;
 
-    my @f=split (/\t/,$header);
-    splice (@f,0,5);
-    my $newheader;
-    if ($csvout)
+    open IN,'<',$in or die "Failed to read $in: $!\n";
+    open OUT,'>',$tmp or die "Failed to write to $tmp: $!\n";
+
+    while(<IN>)
     {
-	$newheader=join(',',@f);
-    } else
-    {
-	$newheader=join("\t",@f);
+	next if $.==1;
+	print OUT;
     }
-    #substitute Otherinfo with new header, skip 2nd line which is the original header
-    !system("perl -ne 's/Otherinfo\$/$newheader/ if \$.==1;next if \$.==2;print' $out > $tmp") and
-    !system("mv $tmp $out") or die "Failed to substitute header: $!\n";
+    close IN;
+    close OUT;
+
+    return $tmp;
 }
-sub isOneLine
+sub saveHeader
 {
-    my @return;
-    for my $i(@_)
+    my $in=shift;
+    my $out="/tmp/$$".rand($$)."header.tmp";
+
+    open IN,'<',$in or die "Failed to read $in: $!\n";
+    open OUT,'>',$out or die "Failed to write to $out: $!\n";
+
+    while(<IN>)
     {
-	my $ln=`wc -l $i`;
-	$ln=~s/^(\d+).*/$1/ if defined $ln;
-	if (defined $ln && $ln <=1)
-	{
-	    push @return,$i;
-	}
+	last if $.>1;
+	print OUT;
     }
-    return @return;
+    close IN;
+    close OUT;
+    
+    return $out;
 }
 
 =head1 SYNOPSIS
