@@ -61,7 +61,14 @@ if ($sortout) {
     printOrigOutput ();
 }
 
-$remove and unlink(@unlink);
+if ($remove)
+{
+    if ($haveheader)
+    {
+	push @unlink,&isOneLine("$outfile.invalid_input","$outfile.refGene.invalid_input"); 	
+    }
+    unlink(@unlink);
+}
 
 
 sub printSortOutput {
@@ -157,10 +164,10 @@ sub printSortOutput {
     }
     close (OUT);
 
-    if ($otherinfo)
-    {
-	&combineFirst2line($queryfile,$final_out);
-    }
+    #if ($otherinfo)
+    #{
+    #    &combineFirst2line($queryfile,$final_out);
+    #}
 }
 
 sub printOrigOutput {
@@ -232,10 +239,10 @@ sub printOrigOutput {
     }
 
     close OUT;
-    if ($otherinfo)
-    {
-	&combineFirst2line($queryfile,$final_out);
-    }
+    #if ($otherinfo)
+    #{
+    #    &combineFirst2line($queryfile,$final_out);
+    #}
 }
 
 
@@ -616,7 +623,7 @@ sub combineFirst2line
     my $header=`head -n 1 $original`;
     chomp $header;
 
-    my @f=split (/\s+/,$header);
+    my @f=split (/\t/,$header);
     splice (@f,0,5);
     my $newheader;
     if ($csvout)
@@ -629,6 +636,20 @@ sub combineFirst2line
     #substitute Otherinfo with new header, skip 2nd line which is the original header
     !system("perl -ne 's/Otherinfo\$/$newheader/ if \$.==1;next if \$.==2;print' $out > $tmp") and
     !system("mv $tmp $out") or die "Failed to substitute header: $!\n";
+}
+sub isOneLine
+{
+    my @return;
+    for my $i(@_)
+    {
+	my $ln=`wc -l $i`;
+	$ln=~s/^(\d+).*/$1/ if defined $ln;
+	if (defined $ln && $ln <=1)
+	{
+	    push @return,$i;
+	}
+    }
+    return @return;
 }
 
 =head1 SYNOPSIS
