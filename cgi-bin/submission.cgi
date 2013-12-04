@@ -491,7 +491,7 @@ $page.= $q->table(
 $page.= $q->table( {-class=>'noborder'},
     $q->Tr(
 	$q->td(
-	    $q->p($q->submit("submit"),$q->reset())
+	    $q->p($q->submit("Submit"),$q->reset())
 	),
     ),
 );
