@@ -10,6 +10,7 @@ use Utils;
 
 
 my ($inslst, 	#insert list
+    $bedinput,	#BED format toggle
     $dellst, 	#delete list
     $db,   	#db 
     $filelst,	#filelist
@@ -23,6 +24,7 @@ my ($inslst, 	#insert list
 @ARGV or pod2usage();
 GetOptions(
     "inslist=s"		=>	\$listfile,
+    "bedinput"		=>	\$bedinput,
     "insert|i=s"	=>	\$inslst,
     "delete|d=s"	=>	\$dellst,
     "file|f=s"		=>	\$filelst,
@@ -65,6 +67,32 @@ my %chr2no=(
     'chry' => '24',
     'chrmito' => '25',
     'chrxy' => '26',
+    '1' => '1',
+    '2' => '2',
+    '3' => '3',
+    '4' => '4',
+    '5' => '5',
+    '6' => '6',
+    '7' => '7',
+    '8' => '8',
+    '9' => '9',
+    '10' => '10',
+    '11' => '11',
+    '12' => '12',
+    '13' => '13',
+    '14' => '14',
+    '15' => '15',
+    '16' => '16',
+    '17' => '17',
+    '18' => '18',
+    '19' => '19',
+    '20' => '20',
+    '21' => '21',
+    '22' => '22',
+    'x' => '23',
+    'y' => '24',
+    'mito' => '25',
+    'xy' => '26',
 );
 
 $db=shift @ARGV;
@@ -145,7 +173,7 @@ sub bed2generic
 	{
 	    s/[\r\n]+$//;
 	    next if /^(track|#|browser|\s)/i; #skip header
-	    my @line=split (/\t/,$_);
+	    my @line=split (/\t/,$_,-1);
 	    if ($bincol)
 	    {
 		shift @line; #remove BIN column
@@ -153,7 +181,7 @@ sub bed2generic
 	    next unless @line>=$target_col; 
 	    $line[0]=lc($line[0]);
 	    next unless $chr2no{$line[0]};
-	    push @output, join("\t",$chr2no{$line[0]},($line[1]+1),$line[2],$line[$target_col-1]),"\n";
+	    push @output, join("\t",$chr2no{$line[0]},($line[1]+1),$line[2],$line[$target_col-1]),"\n"; #+1 for 1-start
 	}
 	close IN;
 	my $outfile="/tmp/annodb_admin.$$.generic.".rand($$);
@@ -174,6 +202,10 @@ sub filecheck
     my @tables=@{shift @_};
     if (@names == @tables)
     {
+	if ($bedinput)
+	{
+	    @tables=&bed2generic(@tables);
+	}
 	return @tables;
     } elsif (@tables == 0)
     {
@@ -279,14 +311,15 @@ annodb_admin
 
 annodb_admin [options] <database>
 
- -inslist	a file storing tables and associated properties
- -insert,-i	list of table names to be inserted
- -delete,-d	list of table names to be deleted
- -file,-f	list of table files to be inserted
- -annodir	annovar database folder
- -hg18		use it if build version is hg18
- -bincol	first column in BED is BIN column
- -col		specify the column to extract. Default is score column (5th excluding BIN column).
+ -inslist <FILE>	a file storing tables and associated properties
+ -bedinput	        insert table file is BED format
+ -insert,-i <STR>	list of table names to be inserted
+ -delete,-d <STR>	list of table names to be deleted
+ -file,-f <STR>		list of table files to be inserted
+ -annodir <DIR>		annovar database folder
+ -hg18			use it if build version is hg18
+ -bincol		first column in BED is BIN column
+ -col			specify the column to extract. Default is score column (5th excluding BIN column).
 
 
  NOTE: All list must be comma-separated.
