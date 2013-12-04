@@ -427,16 +427,16 @@ sub checkHeader
 	s/^[\t ]+|[\t ]+$//;
 	if ($file_format eq 'space')
 	{
-	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/(^| )$_( |$)/;
+	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/ $_|$_ /;
 	} elsif ($file_format eq 'comma')
 	{
-	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/(^|,)$_(,|$)/;
+	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/,$_|$_,/;
 	} elsif ($file_format eq 'whitespace')
 	{
-	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/(^|\s)$_(\s|$)/;
+	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/\s$_|$_\s/;
 	} elsif ($file_format eq 'tab')
 	{
-	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/(^|\t)$_(\t|$)/;
+	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/\t$_|$_\t/;
 	}else
 	{
 	    die "Unkown delimiter: $file_format\n";
