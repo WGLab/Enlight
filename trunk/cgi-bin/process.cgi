@@ -136,6 +136,7 @@ if (%custom_table)
     $insert_cmd.=" -i ".join(',',keys %custom_table);
     $insert_cmd.=" -f ".join(',',values %custom_table);
     $insert_cmd.=" -hg18" if $ref eq 'hg18';
+    $insert_cmd.=" -bedinput";
     $insert_cmd.=" $tmpdb";
     push @command,$insert_cmd;
 
@@ -387,7 +388,7 @@ sub checkBED
 	{
 	    s/[\r\n]+$//;
 	    next if /^(track|#|browser|\s)/i; #skip header
-	    my @f=split /\t/,$_;
+	    my @f=split (/\t/,$_,-1);
 	    die "Expect at least 5 columns in BED\n" if @f<5;
 	    die "Expect 2nd and 3rd columns are numerical in BED\n" unless $f[1]=~/^\d+$/ && $f[2]=~/^\d+$/;
 	    die "Expect 5th column is score in BED\n" unless $f[4]=~/^\d+$/;
