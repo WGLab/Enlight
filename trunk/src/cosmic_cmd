@@ -1,0 +1,9 @@
+#rm bin
+perl -ne 's/^\d+\t//;print;' hg19_COSMIC_09012013.txt >hg19_COSMIC_09012013.nobin.txt
+#liftover
+liftOver hg19_COSMIC_09012013.nobin.txt ~/Downloads/liftover/hg19ToHg18.over.chain hg18_COSMIC_09012013.nobin.txt /tmp/11
+#add bin
+perl -ne 's/^/1\t/;print;' hg18_COSMIC_09012013.nobin.txt >hg18_COSMIC_09012013.txt
+#create existence db
+perl -ne 's/[^\t]+$/y\n/;print;' hg18_COSMIC_09012013.txt > hg18_COSMIC_09012013_existence.txt
+perl -ne 's/[^\t]+$/y\n/;print;' hg19_COSMIC_09012013.txt > hg19_COSMIC_09012013_existence.txt
