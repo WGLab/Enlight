@@ -1655,7 +1655,7 @@ grid.log <- function(args,metal,linespacing=1.5,debug=FALSE)
     labels=c(labels,"build");
     values=c(values,args[['build']]);
     labels=c(labels,"display range");
-    values=c(values,paste( 'chr',args[['chr']],":",args[['start']], "-", args[['end']], " [",args[['startBP']],"-",args[['endBP']], "]",sep=""));
+    values=c(values,paste( 'chr',args[['chr']],":",args[['start']], "-", args[['end']],sep=""));
     if (args[['hiStart']] && args[['hiEnd']] && args[['hiStartBP']] && args[['hiEndBP']])
     {
     labels=c(labels,"hilite range");
@@ -1724,8 +1724,8 @@ grid.log <- function(args,metal,linespacing=1.5,debug=FALSE)
     labels=paste(labels, ":  ",sep='');
 
     #print out
-    grid.text(labels,x=.3,y=unit(1,'npc') - unit(linespacing *(1:length(labels)),'lines'), just='right');
-    grid.text(values,x=.3,y=unit(1,'npc') - unit(linespacing *(1:length(values)),'lines'), just='left');
+    grid.text(labels,x=.3,y=unit(1,'npc') - unit(linespacing *(1:length(labels)),'lines'), just='right',gp=gpar(cex=0.7));
+    grid.text(values,x=.3,y=unit(1,'npc') - unit(linespacing *(1:length(values)),'lines'), just='left',gp=gpar(cex=0.7));
 
     if (! is.null(args[['categoryKey']]))
     {
