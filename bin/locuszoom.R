@@ -1691,6 +1691,19 @@ grid.log <- function(args,metal,linespacing=1.5,debug=FALSE)
     minPSci <- log2sci(-minNegLogP)
 	values=c(values,paste(minPSci," [", minName ,"]",sep=""));
 
+    if (length(metal$annot)>0)
+    {
+	labels=c(labels,paste(args[['annotName']]," summary",sep=''));
+	annotSummary=table(metal$annot);
+	local.value='';
+	for (i in 1:length(annotSummary))
+	{
+	    local.label=paste("'",names(annotSummary)[i],"'",sep='');
+	    local.value=paste(local.value,annotSummary[[i]],local.label,sep=' ');
+	}
+	values=c(values,local.value);
+    }
+
     if (TRUE) { 
 	oG <- omittedGenes;
 	while (length(oG) > 0) {
@@ -1929,7 +1942,7 @@ default.args <- list(
 	annotCol='annotation',                # column to use for annotation, if it exists
 	annotPch='24,25,22,8,7,21,1',   # plot symbols for annotation
 	annotOrder=NULL,                      # ordering of annotation classes
-	annotName='annotation key',	      #title for annotation legend
+	annotName='annotationTitle',	      #title for annotation legend
 	showRefsnpAnnot=TRUE,                 # show annotation for reference snp too?
 	bigDiamond=FALSE,                     # put big diamond around refsnp?
 	ld=NULL,                              # file for LD information
@@ -2323,11 +2336,6 @@ print(2314);
 	    pchVals <- rep(args[['annotPch']], length=length(levels(metal$annot)));
 	metal$pch <- pchVals[ as.numeric(metal$annot) ]
 	    annot <- metal$annot
-	    print(2325);
-	    print(args[['annotPch']]);
-	    print(pchVals);
-	    print(metal$pch);
-	    print(metal$annot);
     } 
 
     cat("\nR-DEBUG: Loading annotation data...\n");
