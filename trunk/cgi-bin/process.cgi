@@ -175,10 +175,9 @@ if (%custom_table)
 #results
 if ($anno_toggle || $varAnno)
 {
-    my $tmp="/tmp/$$.rs2avinput";
-
     unless (defined $q->param('avinput') && $q->param('avinput') eq 'on')
     {
+    my $tmp="/tmp/$$.rs2avinput";
 	push @command, "$RealBin/../bin/formatter rs2avinput $input $tmp $markercol ".($ref eq 'hg18'? $hg18rs:$hg19rs);
 	$input=$tmp;
     }
@@ -435,7 +434,10 @@ sub checkHeader
 	} elsif ($file_format eq 'whitespace')
 	{
 	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/(^|\s)$_(\s|$)/;
-	} else
+	} elsif ($file_format eq 'tab')
+	{
+	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/(^|\t)$_(\t|$)/;
+	}else
 	{
 	    die "Unkown delimiter: $file_format\n";
 	}
