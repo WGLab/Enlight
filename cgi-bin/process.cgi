@@ -142,7 +142,7 @@ if (%custom_table)
     if ($anno_toggle)
     {
 	#copy annovar db files
-	my @db_name=(@generic_table,"refGene","All.sites.2012_04");
+	my @db_name=(@generic_table,"refGene","ALL.sites.2012_04");
 	push @db_name,$varAnno if $varAnno;
 	my @anno_db_file=map { "${ref}_$_.txt" } @db_name;
 	push @anno_db_file,"${ref}_ALL.sites.2012_04.txt.idx","${ref}_refGeneMrna.fa";

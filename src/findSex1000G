@@ -1,0 +1,59 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+die "Usage: $0 1.fam 2.fam ..." unless @ARGV>=1;
+
+my @fam=@ARGV;
+my $ped="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/working/20130606_sample_info/20130606_g1k.ped";
+
+my $local_ped="/tmp/$$".rand($$)."ped.tmp";
+
+#download pedigree infor from 1000G
+!system("curl $ped > $local_ped") or die "Failed to download $ped: $!\n";
+
+#load gender info
+my %gender=&readPED($local_ped);
+
+#substitute sex in FAM files
+for my $fam(@fam)
+{
+    my $tmp="/tmp/$$".rand($$).".fam.tmp";
+    open IN,'<',$fam or die "Failed to read $fam: $!\n";
+    open OUT,'>',$tmp or die "Failed to write to $tmp: $!\n";
+
+    while(<IN>)
+    {
+	chomp;
+	my @f=split /\t/;
+	die "At least 5 fields expected at line $. of $fam\n" unless @f>=5;
+	my $id=$f[1];
+	
+	die "No gender found for $id\n" unless defined $gender{$id};
+	$f[4]=$gender{$id};
+	print OUT join("\t",@f),"\n";
+    }
+    close IN;
+    close OUT;
+    !system("mv -f $tmp $fam") or die "Failed to rename $tmp: $!\n";
+    warn "$fam done\n";
+}
+
+
+
+sub readPED
+{
+    my $in=shift;
+    my %hash;
+
+    open IN,'<',$in or die "Failed to read $in: $!\n";
+    while(<IN>)
+    {
+	my @f=split /\t/;
+	die "At least 5 fields are expected at line $. of $in: @f\n" unless @f>=5;
+	die "Duplicate Individual ID: $f[1] at line $. of $in\n" if defined $hash{$f[1]};
+	$hash{$f[1]}=$f[4];
+    }
+    return %hash;
+}
