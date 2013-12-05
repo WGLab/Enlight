@@ -339,6 +339,7 @@ function loadExampleSetting()
     document.getElementById('qformat_whitespace').checked=true;
     document.getElementById('markercol_id').value='dbSNP135';
     document.getElementById('pvalcol_id').value='p';
+    document.getElementById('varAnno_id').value='COSMIC_09012013';
     document.getElementById('source_ref_pop_id').value='1000G_Nov2010,hg19,EUR';	
     document.getElementById('varAnno_id').value='NULL';
     document.getElementById('region_method_snp').checked=true;
