@@ -189,6 +189,7 @@ function response_to_select_region(input_value)
 	var col2_2=document.createElement('td');
 	var input2=document.createElement('input');
 	col2_1.innerHTML='Flanking region (Kb)';
+	input2.id='snp_flank_region';
 	input2.type='text';
 	input2.name='snpflank';
 	input2.value='$flank_default';
@@ -317,9 +318,10 @@ function loadExampleSetting()
     response_to_select_region();
 
     document.getElementById('refsnp_id').value='rs10318';
+    document.getElementById('snp_flank_region').value='50';
     document.getElementById('generic_toggle_id').checked=true;
     document.getElementById('anno_toggle_id').checked=true;
-    document.getElementById('avinput_id').checked=true;
+    document.getElementById('avinput_id').checked=false;
     document.getElementById('ref_hg19').checked=true;
 
     //clear data track selection
