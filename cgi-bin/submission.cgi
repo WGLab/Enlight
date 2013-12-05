@@ -63,6 +63,7 @@ function changeTracks()
 
     var selectedCell=[];
     var selectedExperiment=[];
+    var customTable=[];
     var tracks=[];
 
     //get selected cell
@@ -95,16 +96,26 @@ function changeTracks()
 	}
     }
 
-    //remove all child nodes
+    //remove all child nodes while saving custom uploads info
     while(insertPos.firstChild)
     {
+        var currentElement=insertPos.firstChild;
+    	if ( currentElement.type == 'file')
+	{
+	//this is file upload field
+	if (currentElement.firstChild.value != '')
+	{
+	  customTable.push(currentElement.value);
+	}
+	}
+
 	insertPos.removeChild(insertPos.firstChild);
     }
 
     //add selected tracks
     for (var i=0;i<tracks.length;i++)
     {
-	if (i>".($generic_table_max-1).")
+	if (i>".($generic_table_max-1)."-customTable.length)
 	{
 	    alert('At most $generic_table_max tracks can be selected.');
 	    break;
@@ -126,8 +137,25 @@ function changeTracks()
 
     }
 
+    //add custom tracks that already have values
+    for (var i=0;i<customTable.length;i++)
+    {
+	var newrow=document.createElement('tr');
+	var col=document.createElement('td');
+	var label=document.createElement('label');
+	var upload=document.createElement('input');
+	label.innerHTML='Custom track (BED format)';
+	upload.type='file';
+	upload.name='custom_table';
+	upload.value=customTable[i];
+
+	label.appendChild(upload);
+	col.appendChild(label);
+	newrow.appendChild(col);
+	insertPos.appendChild(newrow);
+    }
     //add custom tracks upload fields
-    for (var i=0;i<$generic_table_max-tracks.length;i++)
+    for (var i=0;i<$generic_table_max-tracks.length-customTable.length;i++)
     {
 	var newrow=document.createElement('tr');
 	var col=document.createElement('td');
@@ -326,11 +354,13 @@ function loadExampleSetting()
     clear_datatrack_selection();
     document.getElementById('Caco-2').checked=true;	
     document.getElementById('HCT116').checked=true;	
+    document.getElementById('HepG2').checked=true;	
     document.getElementById('ChIP-seq_CTCF').checked=true;
     document.getElementById('ChIP-seq_H3K27ac').checked=true;
+    document.getElementById('chromHMM').checked=true;
     changeTracks();
 
-    alert(\"Example settings loaded.\\nPlease upload example input and click 'submit'\");
+    alert(\"Example settings loaded.\\nRemember to specify upload file.\");
 }
 ";
 
