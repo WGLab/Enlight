@@ -55,8 +55,7 @@ my $page;
 my $jscode="
 function changeTracks()
 {
-    var tbody=document.getElementById('dataTrackHere');
-    var insertPos=tbody.firstChild;
+    var insertPos=document.getElementById('dataTrackHere');
     var all=[ ".join(",\n",&genJsHash(%tracks))." ];
 
     var cell=document.getElementsByClassName('cell');
@@ -454,7 +453,7 @@ $page.= $q->table( {-class=>'noborder'},
 	),
     ),
 );
-$page.= $q->p("<b>Please upload your own files AFTER selecting data tracks.</b><br />");
+$page.= $q->p({-class=>'center'},"<b>Please upload your own files AFTER selecting data tracks.</b><br />");
 $page.= $q->table(
     $q->Tr(
 	$q->th(["Cell Line",
