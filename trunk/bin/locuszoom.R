@@ -2570,7 +2570,6 @@ if ('pdf' %in% args[['format']]) {
 print(2558);
 
 sink(args[['log']], append=TRUE);
-grid.log(args,metal);
 cat('\n\n\n');
 cat("List of genes in region\n");
 cat("#######################\n");

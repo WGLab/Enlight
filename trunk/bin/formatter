@@ -115,7 +115,7 @@ sub rs2avinput
     while(<IN>)
     {
 	chomp;
-	push @out,"NewChr\tNewStart\tNewEnd\tNewREF\tNewALT\t$_\n" and next if $. == 1; #do nothing for header
+	push @out,"Chr\tStart\tEnd\tREF\tALT\t$_\n" and next if $. == 1; #do nothing for header
 	#make sure it's tab delimited
 	my @fields=split /\t/,$_,-1;
 	my $rs=$fields[$snpcol_idx];
