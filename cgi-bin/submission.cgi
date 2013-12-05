@@ -329,8 +329,6 @@ function loadExampleSetting()
     document.getElementById('Caco-2').checked=true;	
     document.getElementById('HCT116').checked=true;	
     document.getElementById('HepG2').checked=true;	
-    document.getElementById('ChIP-seq_CTCF').checked=true;
-    document.getElementById('ChIP-seq_H3K27ac').checked=true;
     document.getElementById('DNase-seq').checked=true;
     document.getElementById('chromHMM').checked=true;
     changeTracks();
