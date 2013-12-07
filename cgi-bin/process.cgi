@@ -62,6 +62,7 @@ my $q=new CGI;
 
 #never trust any data from user input
 my $filename=$q->param('query');
+my $original_uploaded_input;
 my $input; #file location of uploaded file
 my %custom_table;
 
@@ -306,7 +307,7 @@ my $c=Control->new(
     'ip'			=>$ENV{'REMOTE_ADDR'},
     'date'			=>$date,
     'time'			=>$time,
-    'query'			=>$input,
+    'query'			=>$original_uploaded_input,
     'param'			=>$param,
 );
 
@@ -352,6 +353,7 @@ sub handleUpload
     die ($q->cgi_error) if ($q->cgi_error);
     die ("ERROR: No input file\n") unless $fh;
     $input=$q->tmpFileName($filename);
+    $original_uploaded_input=$input;
 
     #remove empty elements
     @custom_table_name=grep { $_ } @custom_table_name;
