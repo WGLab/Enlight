@@ -104,6 +104,7 @@ die ("No P value column\n") unless $pvalcol;
 die ("No genome build or illegal genome build: $ref\n") unless $ref=~/^hg1[89]$/;
 die ("User must specify one of the following items: refsnp, refgene or chr, start, end together\n")
 	unless ($refsnp || $refgene || ($chr && $start && $end));
+die ("$refgene not FOUND in refFlat database (NOTE: gene name is case-sensitive)\n") if ($refgene and ! &geneINDB($refgene,$db));
 
 #check upload
 &handleUpload;
@@ -445,4 +446,18 @@ sub checkHeader
 	    die "Unkown delimiter: $file_format\n";
 	}
     }
+}
+sub geneINDB
+{
+    my $gene=shift;
+    my $db=shift;
+
+    open IN,'<',"sqlite3 $db 'select geneName from refFlat' | head -n 3 |" or 
+    die "Failed to read refFlat: $!\n";
+
+    while (<IN>)
+    {
+	return 1 if /^$gene\s/;
+    }
+    return undef;
 }
