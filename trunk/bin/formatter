@@ -9,26 +9,26 @@ my $PROGRAM="formatter";
 my $usage=
 "Usage: $PROGRAM 
 	index 		extract chr, start, end, ref, alt rsID from ANNOVAR dbSNP, sort and index by rsID
-	findbin 	return start, end line number for an rsID
-	delim2tab		replace all commas by tab
+	indexvcf        extract chr, start, end, ref, alt rsID from VCF, sort and index by rsID
+	delim2tab	replace all commas by tab
 	rs2avinput 	remove header and convert rsID to AVINPUT format
 	addbin		add BIN column as 1st column, delimiter is TAB\n";
 die $usage if @ARGV<1;
 my $op=shift @ARGV;
 
-if ($op =~ /delim2tab/i)
+if ($op eq 'delim2tab')
 {
     &delim2tab(@ARGV);
-} elsif ($op =~ /rs2avinput/i)
+} elsif ($op eq 'rs2avinput')
 {
     &rs2avinput(@ARGV);
-}elsif ($op =~ /index/i)
+}elsif ($op eq 'index')
 {
     &index(@ARGV);
-} elsif ($op =~ /findbin/i)
+} elsif ($op eq 'indexvcf')
 {
-    &findbin(@ARGV);
-} elsif ($op =~ /addbin/i)
+    &indexVCF(@ARGV);
+} elsif ($op eq 'addbin')
 {
     &addbin(@ARGV);
 }else
@@ -106,52 +106,103 @@ sub rs2avinput
     my $out=shift;
     my $snpcol=shift;
     my $db=shift;
-    my %snp; #hash of array, key is rsid,value is array of every entry
-    my @out;
+    my %bucket_bin;
+    my %varidx_bucket;
+    my %varidx_pos;
+    my @var;
 
     my $snpcol_idx=&findSNPColIdx($in,$snpcol);
-    open IN,'<',$in or die "Cannot open $in: $!\n";
-    open DB,'<',$db or die "Cannot open $db: $!\n";
-    while(<IN>)
+
     {
-	chomp;
-	push @out,"Chr\tStart\tEnd\tREF\tALT\t$_\n" and next if $. == 1; #do nothing for header
-	#make sure it's tab delimited
-	my @fields=split /\t/,$_,-1;
-	my $rs=$fields[$snpcol_idx];
-	push @out,"NA\tNA\tNA\tNA\tNA\t$_\n" and next if $rs !~ /rs\d+/;
-	my $pos=`$0 findbin $rs $db`;
-	chomp $pos;
-	if ($pos ne "")
+	#get bin for each variant
+	open IN,'<',$in or die "Cannot open $in: $!\n";
+	while(<IN>)
 	{
-	    my $exist=0;
-	    seek DB,$pos,0;
-	    while (my $dbln=<DB>)
+	    chomp;
+	    next if $. == 1; #do nothing for header
+	    #make sure it's tab delimited
+	    my @fields=split /\t/,$_,-1;
+	    my $rs=$fields[$snpcol_idx] || 'NA';
+	    push @var,$rs;
+	}
+	close IN;
+
+	my ($bucket_ref,$var_ref)=&findbin($db,@var);
+	%bucket_bin=%{$bucket_ref};
+	%varidx_bucket=%{$var_ref};
+    }
+
+    {
+	#get chr\tstart\tend\tref\talt for each variant
+
+	open DB,'<',$db or die "Cannot open $db: $!\n";
+	for my $bucket(keys %bucket_bin)
+	{
+	    if ($bucket ne "NA")
 	    {
-		my @dbf=split(/\t/,$dbln,-1);
-		my ($id)= $dbf[5]=~/rs(\d+)/;
-		my ($in_id)= $rs=~/rs(\d+)/;
-		if ($id > $in_id)
+		my @varidx_group=grep { $varidx_bucket{$_} eq $bucket } keys %varidx_bucket;
+
+		@varidx_group=sort 
 		{
-		    push @out,"NA\tNA\tNA\tNA\tNA\t$_\n" unless $exist;
-		    last;
-		} elsif ($id == $in_id)
+		    my ($no1)=$var[$a]=~/rs(\d+)/;
+		    my ($no2)=$var[$b]=~/rs(\d+)/;
+		    return 0 unless (defined $no1 && defined $no2); 
+
+		    return $no1 <=> $no2;
+		}  @varidx_group;
+
+		my $start_pos=$bucket_bin{$bucket};
+		for my $i(@varidx_group)
 		{
-		    push @out, join("\t",@dbf[0..4],@fields),"\n";
-		    $exist=1;
+		    my ($in_id)= $var[$i]=~/rs(\d+)/ or next;
+		    my $last_pos=$start_pos;
+		    seek DB,$start_pos,0;
+		    while (my $dbln=<DB>)
+		    {
+			$last_pos=tell;
+			my @dbf=split(/\t/,$dbln,-1);
+			my ($id)= $dbf[5]=~/rs(\d+)/; #no check for number of fields  or matching
+			if ($id == $in_id)
+			{
+			    $varidx_pos{$i}=join("\t",@dbf[0..4]);
+			    $start_pos=$last_pos;
+			    last;
+			} elsif ($id > $in_id)
+			{
+			    $varidx_pos{$i}="NA\tNA\tNA\tNA\tNA";
+			    $start_pos=$last_pos;
+			    last;
+			}
+		    }
 		}
 	    }
-	} else
-	{
-	    push @out,"NA\tNA\tNA\tNA\tNA\t$_\n";
 	}
-    }
-    close IN;
-    close DB;
+	close DB;
 
-    open OUT,'>',$out or die "Cannot write to $out: $!\n";
-    print OUT @out;
-    close OUT;
+    }
+
+    {
+	open IN,'<',$in or die "Cannot open $in: $!\n";
+	open OUT,'>',$out or die "Cannot write to $out: $!\n";
+	my $i=0;
+	while(<IN>)
+	{
+	    chomp;
+	    print OUT "Chr\tStart\tEnd\tREF\tALT\t$_\n" and next if $. == 1; #do nothing for header
+	    #make sure it's tab delimited
+
+	    if (defined $varidx_pos{$i})
+	    {
+		print OUT "$varidx_pos{$i}\t$_\n";
+	    } else
+	    {
+		print OUT "NA\tNA\tNA\tNA\tNA\t$_\n";
+	    }
+	    $i++;
+	}
+	close IN;
+	close OUT;
+    }
 }
 sub findSNPColIdx
 {
@@ -192,52 +243,87 @@ sub index
 
 sub findbin
 {
-    my $usage="$PROGRAM findbin <rsID> <processed-dbfile>\n";
-    die $usage unless @ARGV==2;
-    my ($rs,$db)=@ARGV;
+    #usage:&findbin(<processed-dbfile>,<rs1 rs2 ...>);
+    #return two hash ref: one contain all buckets and BINs, the other index and buckets/NA
+    my $db=shift;
+    my @rs=@_;
     my $idx="$db.idx";
+    my @idx_lines;
+    my ($minrs,$maxrs);
+    my %return; #record rs_hash for each rsID
+    my %bucket; #record rs_hash and corresponding bin
 
-    die "rsXXXX expected: $rs\n" unless $rs=~/rs(\d+)/;
-    my $id=$1;
-    my $rs_hash=$id - $id % $BUCKET_NUM;
+
     &genIdx($db,$idx) unless -f $idx;
+    {
+	#read index into memory
+	open IN,'<',$idx or die "Cannot open $idx:$!\n";
+	while(<IN>)
+	{
+	    #format:position_in_file\trsID
+	    chomp;
+	    my @f=split;
+	    die "2 fields expected: $_ at line $.\n" unless @f==2;
+	    push @idx_lines,\@f;
+	}
+	close IN;
+    }
+    $minrs= $idx_lines[0][1];
+    $maxrs= $idx_lines[$#idx_lines][1];
+
+    for my $i(0..$#rs)
+    {
+	my $rs=$rs[$i];
+	warn "rsXXXX expected: $rs\n" and $return{$i}="NA" and next unless $rs=~/rs(\d+)/;
+	my $id=$1;
+
+	warn "Out of bound: $rs\n" and $return{$i}="NA" and next unless ($id>=$minrs && $id<=$maxrs);
+
+	my $rs_hash;
+	if ($id<$BUCKET_NUM)
+	{
+	    $rs_hash=$minrs;
+
+	} else
+	{
+	    $rs_hash=$id - $id % $BUCKET_NUM;
+	}
+
+	$bucket{$rs_hash}=0 unless defined $bucket{$rs_hash};
+	$return{$i}=$rs_hash;
+    }
 
     {
-	#check lower bound
-	my $first=`head -n 1 $idx` or die "$!\n";
-	chomp $first;
-	my @f=split " ",$first;
-	die "2 fields expected: $_ at line $.\n" unless @f==2;
-	if ($f[1] > $id)
+	#find bin for each rs_hash
+	my $start_pos=0;
+	for my $rs_hash(sort {$a <=> $b} keys %bucket) #ascending
 	{
-	    die "$rs smaller than the smallest rsID in $db\n";
-	}
-	#check upper bound
-	my $last=`tail -n 1 $idx` or die "$!\n";
-	chomp $last;
-	@f=split " ",$last;
-	die "2 fields expected: $_ at line $.\n" unless @f==2;
-	if ($f[1] < $id)
-	{
-	    die "$rs larger than the largest rsID in $db\n";
+	    #warn "rs_hash: $rs_hash\n";
+	    #warn "start_pos:$start_pos\n";
+	    my $prev_pos=0;
+	    for my $i($start_pos..$#idx_lines)
+	    {
+		#format:position_in_file\trsID
+		my @f=@{$idx_lines[$i]};
+		if ($f[1] > $rs_hash) 
+		{
+		    #warn "$f[1] > $rs_hash: $prev_pos\n";
+		    $bucket{$rs_hash}=$prev_pos;
+		    $start_pos=$i-1 if $i>0; #make sure prev_pos is not empty
+		    last;
+		} elsif ($f[1] == $rs_hash)
+		{
+		    #warn "$f[1] = $rs_hash: $f[0]\n";
+		    $bucket{$rs_hash}=$f[0];
+		    $start_pos=$i;
+		    last;
+		}
+		$prev_pos=$f[0];
+	    }
 	}
     }
-    my $prev_pos=0;
-    open IN,'<',$idx or die "Cannot open $idx:$!\n";
-    while(<IN>)
-    {
-	#format:position_in_file\trsID
-	chomp;
-	my @f=split;
-	die "2 fields expected: $_ at line $.\n" unless @f==2;
-	if ($f[1] >= $rs_hash) 
-	{
-	    $f[1]>$rs_hash? print $prev_pos,"\n" : print $f[0],"\n";
-	    exit;
-        }
-	$prev_pos=$f[0];
-    }
-    close IN;
+
+    return \%bucket,\%return;
 }
 
 sub genIdx
@@ -353,4 +439,54 @@ sub revcom
     $seq = reverse $seq;
     $seq =~ tr/acgtACGT/tgcaTGCA/;
     return ($seq);
+}
+
+sub indexVCF
+{
+    my $usage="$PROGRAM indexvcf <VCF> <out-prefix>\n";
+    die $usage unless @ARGV==2;
+    my $db=shift @ARGV;
+    my $out_prefix=shift @ARGV;
+    my $tmp="/tmp/$$.db.tmp";
+
+    #format:20     14370   rs6054257 G      A       29   PASS   NS=3;DP=14;AF=0.5;DB;H2
+    &extractVCF($db,$tmp);
+    &sort($tmp,"$out_prefix.txt");
+    &genIdx("$out_prefix.txt","$out_prefix.txt.idx"); #use tell, every 10000 rsIDs
+}
+sub extractVCF
+{
+    my $in=shift;
+    my $out=shift;
+
+    warn "Converting VCF to tab-delimited rsID database.\n".
+    "Every line of the output consists of chr, start, end, ref, alt, rsID.\n".
+    "One rsID may have multiple hits in the genome.\n";
+
+    open IN,'<',$in or die "Cannot read $in:$!\n";
+    open OUT,'>',$out or die "Cannot write to $out: $!\n";
+    while (<IN>)
+    {
+	next if /^#/;
+	s/\s+$//;
+
+	my @f=split(/\t/,$_);
+	die "At least 5 fields expected: @f\n" unless @f>=5;
+
+	my ($chr, $pos, $rsid, $ref,$alt) = @f[0..4];
+	$chr=~s/^chr//;
+	if ($rsid=~/;/)
+	{
+	    my @rsid=split /;/,$rsid;
+	    for my $i(@rsid)
+	    {
+		print OUT join("\t",$chr,$pos,$pos,$ref,$alt,$i),"\n";
+	    }
+	} else
+	{
+	    print OUT join("\t",$chr,$pos,$pos,$ref,$alt,$rsid),"\n";
+	}
+    }
+    close IN;
+    close OUT;
 }
