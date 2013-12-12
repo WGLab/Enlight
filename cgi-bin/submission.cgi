@@ -353,7 +353,7 @@ function loadExampleInput()
 
 	query_cell.appendChild(label);
 	query_cell.appendChild(hiddenInput);
-
+    alert(\"Example input loaded.\\n\");
 }
 ";
 
