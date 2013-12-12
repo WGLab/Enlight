@@ -313,7 +313,7 @@ function loadExampleSetting()
     document.getElementById('markercol_id').value='dbSNP135';
     document.getElementById('pvalcol_id').value='p';
     document.getElementById('varAnno_id').value='GTEx_eQTL_11162013';
-    document.getElementById('source_ref_pop_id').value='1000G_Nov2010,hg19,EUR';	
+    document.getElementById('source_ref_pop_id').value='1000G_March2012,hg19,EUR';	
     document.getElementById('region_method_snp').checked=true;
     response_to_select_region();
 
@@ -334,6 +334,21 @@ function loadExampleSetting()
     changeTracks();
 
     alert(\"Example settings loaded.\\nRemember to specify upload file.\");
+}
+function loadExampleInput()
+{
+	var query_cell=document.getElementById('query_cell_id');
+	var label=document.createElement('label');
+
+	while(query_cell.firstChild)
+	{
+		query_cell.removeChild(query_cell.firstChild);
+	}
+
+	label.innerHTML='Example Input loaded';
+	label.name='example_upload';
+
+	query_cell.appendChild(label);
 }
 ";
 
@@ -362,8 +377,10 @@ $page.= $q->h2("Input");
 $page.= $q->table(
     {-border=>0},
     $q->Tr(
-	$q->td("<a class='button' href=\"/example/rs10318.txt\"><strong>Download example input</strong></a><br />(right click and save as)"),
-	$q->td("<button type='button' onclick='loadExampleSetting()'>Load settings for example input</button>"),
+	$q->td("DEMO<br /><a href='/example/rs10318.txt'>(example file)</a>"),
+	$q->td("<button type='button' onclick='loadExampleSetting()'>Load settings for example input</button>
+	        <br />
+		<button type='button' onclick='loadExampleInput()'>Load example input</button>"),
     ),
     $q->Tr(
 	$q->td("<span title='receive result link'>Email (optional)</span>"),
@@ -371,7 +388,7 @@ $page.= $q->table(
     ),
     $q->Tr(
 	$q->td("Input file (first line must be header)"),
-	$q->td($q->filefield(-name=>"query")),
+	$q->td({-id=>'query_cell_id'},$q->filefield(-name=>"query")),
     ),
     $q->Tr(
 	$q->td("Field delimiter"),
