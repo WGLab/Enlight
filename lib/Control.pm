@@ -229,6 +229,7 @@ sub jobRegister
     my $self=shift;
     my $dbh=$self->{'dbh'};
     my $tablename=$self->{'tablename'};
+    my $outdir=$self->{'outdir'};
 
     my $access=$self->{'access'};
     my $param=$self->{'param'};
