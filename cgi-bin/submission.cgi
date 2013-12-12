@@ -333,7 +333,7 @@ function loadExampleSetting()
     document.getElementById('chromHMM').checked=true;
     changeTracks();
 
-    alert(\"Example settings loaded.\\nRemember to specify upload file.\");
+    alert(\"Example settings loaded.\\n\");
 }
 function loadExampleInput()
 {

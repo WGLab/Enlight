@@ -1,7 +1,7 @@
 MySQL is required
 By default, serverlog file in installation root directory records all warnings and errors.
 When setting up the server, the /output URL must be mapped to the location of output folder in the filesystem, or simply just use 'output' as the output folder name. Same case for example, cgi-bin.
-use the html output of cgi-bin/submission.cgi as your index.html
+after everything is set, run 'cgi-bin/submission.cgi' and copy all files out of html, then you will get the index.html
 chmod 733 output
 chmod 733 log/error.log
 SQLite3 must be installed and put in system PATH because LocusZoom utilizes this database engine.
