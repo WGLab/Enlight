@@ -21,6 +21,8 @@ chdir File::Spec->catdir($RealBin,"..") or die ("Cannot enter installation direc
 my %server_conf=&Utils::readServConf(File::Spec->catfile($RealBin,"../conf/enlight_server.conf"))
     or &Utils::error ("Reading server configuration file failed!\n");
 
+my $EXAMPLE_LOC="example/rs10318.txt";
+my $EXAMPLE_NAME="rs10318.txt";
 $CGI::POST_MAX = 1024 * 1024 * ($server_conf{'maxupload'}||200);
 #all paths should be FULL path
 my $log=$server_conf{'serverlog'} || File::Spec->catfile($RealBin,"..","serverlog");
@@ -61,6 +63,7 @@ my $q=new CGI;
 #	);
 
 #never trust any data from user input
+my $inputIsExample=1 if $q->param('example_upload');
 my $filename=$q->param('query');
 my $original_uploaded_input;
 my $input; #file location of uploaded file
@@ -347,13 +350,24 @@ my $error=$@ if $@;
 ################SUBROUTINES############################
 sub handleUpload
 {
-    my $fh=$q->upload('query');
+    my $fh=$q->upload('query') unless $inputIsExample;
     my @custom_table_fh=$q->upload('custom_table');
     my @custom_table_name=$q->param('custom_table');
 
     die ($q->cgi_error) if ($q->cgi_error);
-    die ("ERROR: No input file\n") unless $fh;
-    $input=$q->tmpFileName($filename);
+    die ("ERROR: No input file\n") unless ($fh or $inputIsExample);
+
+    if ($inputIsExample)
+    {
+	#copy example to temp and continue
+	my $tmp="/tmp/$$".rand($$).".tmp";
+	!system("cp $EXAMPLE_LOC $tmp") or die "Failed to copy example to temp: $!\n";
+	$input=$tmp;
+	$filename=$EXAMPLE_NAME;
+    } else
+    {
+	$input=$q->tmpFileName($filename);
+    }
     $original_uploaded_input=$input;
 
     #remove empty elements
@@ -452,7 +466,7 @@ sub geneINDB
     my $gene=shift;
     my $db=shift;
 
-    open IN,'<',"sqlite3 $db 'select geneName from refFlat' | head -n 3 |" or 
+    open IN,'-|',"sqlite3 $db 'select geneName from refFlat' " or
     die "Failed to read refFlat: $!\n";
 
     while (<IN>)
