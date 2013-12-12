@@ -339,16 +339,21 @@ function loadExampleInput()
 {
 	var query_cell=document.getElementById('query_cell_id');
 	var label=document.createElement('label');
+	var hiddenInput=document.createElement('input');
 
 	while(query_cell.firstChild)
 	{
-		query_cell.removeChild(query_cell.firstChild);
+	query_cell.removeChild(query_cell.firstChild);
 	}
 
 	label.innerHTML='Example Input loaded';
-	label.name='example_upload';
+	hiddenInput.type='hidden';
+	hiddenInput.name='example_upload';
+	hiddenInput.value='1';
 
 	query_cell.appendChild(label);
+	query_cell.appendChild(hiddenInput);
+
 }
 ";
 
