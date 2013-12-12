@@ -69,6 +69,16 @@ sub jobControl
 		sleep $wait_time and next; #wait a moment and check again
 	    }
 
+	    #make sure job runs on a first-come first-serve basis
+	    $sth=$dbh->prepare("SELECT * FROM $tablename WHERE id < $id AND status = 'q' AND ip='$ip' ");
+	    $sth->execute();
+	    my $earlyJobs=$sth->rows;
+	    if ($earlyJobs>0)
+	    {
+		sleep $wait_time and next; #wait a moment and check again
+	    }
+
+	    #execute
 	    $self->jobRun();
 	    last;
 	}
@@ -267,7 +277,7 @@ sub jobMonitor
 
     my $content;
     my $ref=$dbh->selectall_arrayref(
-    "SELECT id,status,query,filesize,time,date FROM $tablename WHERE (status = 'r' OR status = 'q') ORDER BY status");
+    "SELECT id,status,query,filesize,time,date FROM $tablename WHERE (status = 'r' OR status = 'q' AND filesize>0) ORDER BY status,id");
 
     $content=th(['jobID','status','filesize','submission time','submission date']);
 
@@ -277,7 +287,7 @@ sub jobMonitor
 	$filesize= scalar ($self->_formatsize($filesize));
 	$content.= Tr(
 	              td([$id,$status,$filesize,$time,$date]),
-	             ).",";
+	             );
     }
 
     print header(),
