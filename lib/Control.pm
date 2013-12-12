@@ -92,13 +92,9 @@ sub jobRun()
     my $begin_time=time; #seconds from epoch
     my $error;
 
-    mkdir $outdir or die "$outdir doesn't exist and cannot be created\n" unless -d $outdir;
-    chmod 0733,$outdir;
-    chdir $outdir or die "Cannot enter $outdir\n";
-    mkdir $access or die "$access doesn't exist and cannot be created\n" unless -d $access;
-    chmod 0777,$access;
-    chdir $access or die "Cannot enter $access";
 
+    chdir $outdir or die "Cannot enter $outdir\n";
+    chdir $access or die "Cannot enter $access";
 
     $dbh->do("UPDATE $tablename SET status = 'r', begin = $begin_time WHERE id = $id");
     #record beginning time, kill long-running process later
@@ -253,6 +249,12 @@ sub jobRegister
     $dbh->do($newsub);
     my $id=$dbh->last_insert_id("","",$tablename,"") or die("Cannot find ID of last submitted job\n");
     $self->_setID($id);
+
+    mkdir $outdir or die "$outdir doesn't exist and cannot be created\n" unless -d $outdir;
+    chmod 0733,$outdir;
+    chdir $outdir or die "Cannot enter $outdir\n";
+    mkdir $access or die "$access doesn't exist and cannot be created\n" unless -d $access;
+    chmod 0777,$access;
 }
 
 
