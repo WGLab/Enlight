@@ -104,7 +104,7 @@ if ( $generic_toggle || $anno_toggle )
 die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_ref) eq lc($ref));
 die ("No marker column\n") unless $markercol;
 die ("No P value column\n") unless $pvalcol;
-die "No only letters, numbers, dashes, underscores are allowed in column name\n" if $markercol=~/[\W\-]/ or $pvalcol=~/[\W\-]/;
+die "Only letters, numbers, dashes, underscores are allowed in column name\n" if $markercol=~/[\W\-]/ or $pvalcol=~/[\W\-]/;
 die ("No genome build or illegal genome build: $ref\n") unless $ref=~/^hg1[89]$/;
 die ("User must specify one of the following items: refsnp, refgene or chr, start, end together\n")
 	unless ($refsnp || $refgene || ($chr && $start && $end));
@@ -485,7 +485,7 @@ sub snpINDB
     my $snp=shift;
     my $db=shift;
 
-    open IN,'-|',"sqlite3 $db 'select snp from snp_pos' " or
+    open IN,'-|',"sqlite3 $db 'select snp from snp_pos where snp=\"$snp\"' " or
     die "Failed to read snp_pos: $!\n";
 
     while (<IN>)
