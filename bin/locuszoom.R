@@ -1131,6 +1131,12 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
 	categoryNo=0;
     }
 
+    if (xRange[1]<0)
+    {
+	xRange[1]=0;
+    }
+
+
 
     refSnp <- metal$MarkerName[refidx];
 
@@ -1617,7 +1623,6 @@ print(1230);
 	}
 	upViewport(2);
     }
-    print(1521);
 #add xaxis 
     pushViewport(
 	    viewport(xscale=pvalVp$xscale,
@@ -1626,15 +1631,28 @@ print(1230);
 		name="xaxis",
 		)
 	    );
-    if ( !is.null(args[['xnsmall']]) && !is.null(args[['xat']]) ) 
+
+    if ( !is.null(args[['xnsmall']]) && !is.null(args[['xat']]) )
     {
 	grid.xaxis(
 		at=args[['xat']], label=format(args[['xat']], main=FALSE,nsmall=args[['xnsmall']]),gp=gpar(cex=args[['axisSize']],col=args[['frameColor']],alpha=args[['frameAlpha']])
 		);
-    } else 
+    } else if (!is.null(args[['xat']]))
     {
 	grid.xaxis(
 		at=args[['xat']],gp=gpar(cex=args[['axisSize']],main=FALSE,col=args[['frameColor']],alpha=args[['frameAlpha']])
+		);
+    } else
+    {
+	local.xmin=pvalVp$xscale[1];
+	local.xmax=pvalVp$xscale[2];
+	local.range=local.xmax-local.xmin;
+	local.digit=floor(-log10(local.range)+2);
+	local.xmin=round(local.xmin+local.range*0.1,local.digit);
+	local.xmax=round(local.xmax-local.range*0.1,local.digit);
+	local.xat=seq(local.xmin,local.xmax,length.out=5);
+	grid.xaxis(
+		at=local.xat,gp=gpar(cex=args[['axisSize']],main=FALSE,col=args[['frameColor']],alpha=args[['frameAlpha']])
 		);
     }
 
@@ -1642,7 +1660,6 @@ print(1230);
 	    paste('Position on',chr2chrom(args[['chr']]),unit2char(args[['unit']])), y=unit(args[['xlabPos']],'lines'),just=c('center',"bottom"),	gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']])
 	    );
     upViewport(1);
-print(1546);
     if (is.character(postlude) && file.exists(postlude)) {
 	source(postlude);
     }
@@ -1904,7 +1921,7 @@ default.args <- list(
 	markerCol="MarkerName",               # name for MarkerName column in metal file
 	weightCol="Weight",                   # name for weights column in metal file
 	ymin=0,                               # min for p-value range (expanded to fit all p-vals if needed)
-	ymax=10,                              # max for p-value range (expanded to fit all p-vals if needed)
+	ymax=100,                              # max for p-value range (expanded to fit all p-vals if needed)
 	yat=NULL,                             # values for y-axis ticks
 	xat=NULL,                             # values for x-axis ticks
 	xnsmall=NULL,                         # number of digits after decimal point on x-axis labels

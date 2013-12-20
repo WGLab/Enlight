@@ -66,6 +66,7 @@ sub delim2tab
 
     open IN,'<',$file or die "Cannot open $file: $!\n";
     open OUT,'>',$outfile or die "Failed to write to $outfile: $!\n";
+
     if ($delim eq 'whitespace')
     {
 	while (<IN>)
@@ -79,19 +80,17 @@ sub delim2tab
 	while (<IN>)
 	{
 	    s/[\n\r]+/\n/g;
-	    s/\t/!!TAB!!/g;
+	    s/[\t ]/_/g;
 	    s/ /\t/g;
-	    s/!!TAB!!/,/g;
 	    print OUT;
 	}
     } elsif ($delim eq 'comma')
     {
 	while (<IN>)
 	{
-	    s/\t/!!TAB!!/g;
 	    s/[\n\r]+/\n/g;
+	    s/[\t ]/_/g;
 	    s/,/\t/g;
-	    s/!!TAB!!/,/g;
 	    print OUT;
 	}
     } else
