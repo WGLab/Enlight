@@ -108,7 +108,8 @@ die "No only letters, numbers, dashes, underscores are allowed in column name\n"
 die ("No genome build or illegal genome build: $ref\n") unless $ref=~/^hg1[89]$/;
 die ("User must specify one of the following items: refsnp, refgene or chr, start, end together\n")
 	unless ($refsnp || $refgene || ($chr && $start && $end));
-die ("$refgene not FOUND in refFlat database (NOTE: gene name is case-sensitive)\n") if ($refgene and ! &geneINDB($refgene,$db));
+die ("$refgene not FOUND in database (NOTE: gene name is case-sensitive)\n") if ($refgene and ! &geneINDB($refgene,$db));
+die ("$refsnp not FOUND in database (NOTE: snp name is case-sensitive)\n") if ($refsnp and ! &snpINDB($refsnp,$db));
 
 #check upload
 &handleUpload;
@@ -476,6 +477,20 @@ sub geneINDB
     while (<IN>)
     {
 	return 1 if /^$gene\s/;
+    }
+    return undef;
+}
+sub snpINDB
+{
+    my $snp=shift;
+    my $db=shift;
+
+    open IN,'-|',"sqlite3 $db 'select snp from snp_pos' " or
+    die "Failed to read snp_pos: $!\n";
+
+    while (<IN>)
+    {
+	return 1 if /^$snp\s/;
     }
     return undef;
 }
