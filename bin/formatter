@@ -80,7 +80,7 @@ sub delim2tab
 	while (<IN>)
 	{
 	    s/[\n\r]+/\n/g;
-	    s/[\t ]/_/g;
+	    s/\t/_/g;
 	    s/ /\t/g;
 	    print OUT;
 	}

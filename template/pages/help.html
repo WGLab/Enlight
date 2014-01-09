@@ -73,7 +73,7 @@ ddsmoothmenu.init({
 	<br />
 	<img width=900 height=1311 src="../images/enlight_example_output.png" class='center'>
 	<h2>Example Text Annotation</h2>
-	<p><b>If you opt to output ANNOVAR annotation, you will get a '*.hg19_multianno.txt' on result page. This is the text annotation for each variant in the input file. ANNOVAR will output gene annotation, minor allele frequency (MAF) from 1000 Genomes project as well as selected UCSC datatracks and other annotation info (eg custome BED file, eQTL etc). If your input file does not have the 5 columns required by ANNOVAR (chr,start,end,alt,ref), Enlight will first convert rsIDs to chromosomal positions according to dbSNP137, and then run annotation. </b></p>
+	<p><b>If you opt to output ANNOVAR annotation, you will get a '*.hg19_multianno.txt' on result page. This is the text annotation for each variant in the input file. ANNOVAR will output gene annotation, minor allele frequency (MAF) from 1000 Genomes project as well as selected UCSC datatracks and other annotation info (eg custome BED file, eQTL etc). If your input file does not have the 5 columns required by ANNOVAR (chr,start,end,alt,ref), Enlight will first convert rsIDs to chromosomal positions according to dbSNP137, and then run annotation.  Sometimes, you will see *.invalid_input files on result page, they contain lines that can't by recognized by ANNOVAR, e.g. lines that don't have chr/start/end.</b></p>
 	<br />
 	<img width=900 height=300 src="../images/enlight_example_text_output.png" class='center'>
 	<p>NOTE: The above output has been adjusted for display purposes. Actual results will differ.</p>
