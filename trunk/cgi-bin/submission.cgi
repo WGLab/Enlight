@@ -160,140 +160,28 @@ function getCheckedRadio(radio_group)
 function response_to_select_region(input_value)
 {
 
-    var insert=document.getElementById('insertRegionHere');
     var radio_group=document.getElementsByName('region_method');
     var input_value=getCheckedRadio(radio_group).value;
 
-    //remove all child nodes
-    while(insert.firstChild)
-    {
-	insert.removeChild(insert.firstChild);
-    }
-
     if (input_value=='snp')
     {
-	var row1=document.createElement('tr');
-	var col1_1=document.createElement('td');
-	var col1_2=document.createElement('td');
-	var input1=document.createElement('input');
-	col1_1.innerHTML='Index SNP';
-	input1.type='text';
-	input1.name='refsnp';
-	input1.id='refsnp_id';
-	input1.onclick=function (){ this.value=''};
-	row1.appendChild(col1_1);
-	row1.appendChild(col1_2.appendChild(input1));
-
-	var row2=document.createElement('tr');
-	var col2_1=document.createElement('td');
-	var col2_2=document.createElement('td');
-	var input2=document.createElement('input');
-	col2_1.innerHTML='Flanking region (Kb)';
-	input2.id='snp_flank_region';
-	input2.type='text';
-	input2.name='snpflank';
-	input2.value='$flank_default';
-	input2.onclick=function (){ this.value=''};
-	row2.appendChild(col2_1);
-	row2.appendChild(col2_2.appendChild(input2));
-
-	insert.appendChild(row1);
-	insert.appendChild(row2);
+	document.getElementById('snp_region_specify').style.display='block';
+	document.getElementById('gene_region_specify').style.display='none';
+	document.getElementById('chr_region_specify').style.display='none';
     } else if (input_value=='gene')
     {
-	var row1=document.createElement('tr');
-	var col1_1=document.createElement('td');
-	var col1_2=document.createElement('td');
-	var input1=document.createElement('input');
-	col1_1.innerHTML='Reference Gene';
-	input1.type='text';
-	input1.name='refgene';
-	input1.onclick=function (){ this.value=''};
-	row1.appendChild(col1_1);
-	row1.appendChild(col1_2.appendChild(input1));
-
-	var row2=document.createElement('tr');
-	var col2_1=document.createElement('td');
-	var col2_2=document.createElement('td');
-	var input2=document.createElement('input');
-	col2_1.innerHTML='Flanking region (kb)';
-	input2.type='text';
-	input2.name='geneflank';
-	input2.value='$flank_default';
-	input2.onclick=function (){ this.value=''};
-	row2.appendChild(col2_1);
-	row2.appendChild(col2_2.appendChild(input2));
-
-	var row3=document.createElement('tr');
-	var col3_1=document.createElement('td');
-	var col3_2=document.createElement('td');
-	var input3=document.createElement('input');
-	col3_1.innerHTML=('Optional Index SNP (default is SNP with lowest P value)');
-	input3.type='text';
-	input3.name='refsnp';
-	input3.onclick=function (){ this.value=''};
-	row3.appendChild(col3_1);
-	row3.appendChild(col3_2.appendChild(input3));
-
-	insert.appendChild(row1);
-	insert.appendChild(row2);
-	insert.appendChild(row3);
+	document.getElementById('gene_region_specify').style.display='block';
+	document.getElementById('chr_region_specify').style.display='none';
+	document.getElementById('snp_region_specify').style.display='none';
     } else if (input_value=='chr')
     {
-	var row1=document.createElement('tr');
-	var col1=document.createElement('td');
-	var input1=document.createElement('select');
-	input1.name='chr';
-	var list=[".join(',',map { "'$_'" } @chr)."];
-
-	for (var i=0;i<list.length;i++)
-	{
-	    var option=document.createElement('option');
-	    option.value=list[i];
-	    option.innerHTML=list[i];
-	    input1.appendChild(option);
-	}
-	row1.appendChild(col1.appendChild(input1));
-
-	var row2=document.createElement('tr');
-	var col2_1=document.createElement('td');
-	var col2_2=document.createElement('td');
-	var input2=document.createElement('input');
-	col2_1.innerHTML='Start (Mb)';
-	input2.type='text';
-	input2.name='start';
-	input2.onclick=function (){ this.value=''};
-	row2.appendChild(col2_1);
-	row2.appendChild(col2_2.appendChild(input2));
-
-	var row3=document.createElement('tr');
-	var col3_1=document.createElement('td');
-	var col3_2=document.createElement('td');
-	var input3=document.createElement('input');
-	col3_1.innerHTML='End (Mb)';
-	input3.type='text';
-	input3.name='end';
-	input3.onclick=function (){ this.value=''};
-	row3.appendChild(col3_1);
-	row3.appendChild(col3_2.appendChild(input3));
-
-	var row4=document.createElement('tr');
-	var col4_1=document.createElement('td');
-	var col4_2=document.createElement('td');
-	var input4=document.createElement('input');
-	col4_1.innerHTML=('Optional Index SNP (default is SNP with lowest P value)');
-	input4.type='text';
-	input4.name='refsnp';
-	input4.onclick=function (){ this.value=''};
-	row4.appendChild(col4_1);
-	row4.appendChild(col4_2.appendChild(input4));
-
-	insert.appendChild(row1);
-	insert.appendChild(row2);
-	insert.appendChild(row3);
-	insert.appendChild(row4);
+	document.getElementById('gene_region_specify').style.display='none';
+	document.getElementById('chr_region_specify').style.display='block';
+	document.getElementById('snp_region_specify').style.display='none';
     }
+
 }
+
 function clear_datatrack_selection()
 {
     var cell=document.getElementsByClassName( 'cell');
@@ -428,14 +316,77 @@ $page.= $q->table(
     $q->Tr(
 	$q->td ( 
 	    "<input type='radio' name='region_method' id='region_method_snp' value='snp'  onclick='response_to_select_region()' checked >Reference SNP<br>
-	      <input type='radio' name='region_method' onclick='response_to_select_region()' value='gene'>Reference Gene<br>
-	        <input type='radio' name='region_method' onclick='response_to_select_region()' value='chr'>Chromosomal Region<br>
-		"
+	    <input type='radio' name='region_method' onclick='response_to_select_region()' value='gene'>Reference Gene<br>
+	    <input type='radio' name='region_method' onclick='response_to_select_region()' value='chr'>Chromosomal Region<br>
+	    "
 	),
     ),
     $q->Tr(
 	$q->td(
-	    $q->table({-id=>'insertRegionHere'},$q->p(""))
+	    $q->table( {-id=>'snp_region_specify',-style=>'display:none'},
+		"<tr>
+		<td>Index SNP</td>
+		<td><input type='text' name='refsnp' id='refsnp_id' onclick=\"this.value=''\"/></td>
+		</tr>
+
+		<tr>
+		<td>Flanking region (kb)</td>
+		<td><input type='text' name='snpflank' id='snp_flank_region' onclick=\"this.value=''\" value='$flank_default'/></td>
+		</tr>"
+	    ),
+
+	    $q->table( {-id=>'gene_region_specify',-style=>'display:none;'},
+		"<tr>
+		<td>Reference Gene</td>
+		<td><input type='text' name='refgene' onclick=\"this.value=''\"/></td>
+		</tr>
+		<tr>
+		<td>Flanking region (kb)</td>
+		<td><input type='text' name='geneflank' onclick=\"this.value=''\" value='$flank_default' /></td>
+		<tr>
+		<td>Optional Index SNP (default is SNP with lowest P value)</td>
+		<td><input type='text' name='refsnp' onclick=\"this.value=''\" /></td>
+		</tr>"),
+
+	    $q->table( {-id=>'chr_region_specify',-style=>'display:none;'},
+		"<tr>
+		<td>Chromosome</td>
+		<td><select name='chr'>
+		<option value='1'>1</option>
+		<option value='2'>2</option>
+		<option value='3'>3</option>
+		<option value='4'>4</option>
+		<option value='5'>5</option>
+		<option value='6'>6</option>
+		<option value='7'>7</option>
+		<option value='8'>8</option>
+		<option value='9'>9</option>
+		<option value='10'>10</option>
+		<option value='11'>11</option>
+		<option value='12'>12</option>
+		<option value='13'>13</option>
+		<option value='14'>14</option>
+		<option value='15'>15</option>
+		<option value='16'>16</option>
+		<option value='17'>17</option>
+		<option value='18'>18</option>
+		<option value='19'>19</option>
+		<option value='20'>20</option>
+		<option value='21'>21</option>
+		<option value='22'>22</option>
+		<option value='X'>X</option>
+		</select></td>
+		</tr>
+		<tr>
+		<td>Start (Mb)</td>
+		<td><input type='text' name='start' onclick=\"this.value=''\"/></td>
+		<tr>
+		<td>End (Mb)</td>
+		<td><input type='text' name='end' onclick=\"this.value=''\"/></td>
+		<tr>
+		<td>Optional Index SNP (default is SNP with lowest P value)</td>
+		<td><input type='text' name='refsnp' onclick=\"this.value=''\"/></td>
+		</tr>"),
 	),
     ),
 );
