@@ -519,4 +519,10 @@ sub process_region_spec
 	$chr=$q->param('chr');
 	$refsnp=$q->param('refsnp_for_chr');
     }
+
+    #remove weird char
+    for ($flank,$refsnp,$refgene,$start,$end,$chr)
+    {
+	s/[ \t\r\n\*\|\?\>\<\'\"\,\;\:\[\]\{\}]//g;
+    }
 }
