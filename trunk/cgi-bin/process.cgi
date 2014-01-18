@@ -82,7 +82,7 @@ my $refgene;
 my $chr;
 my $start;
 my $end;
-my $region_spec_method=$q-param('region_method');
+my $region_spec_method=$q->param('region_method');
 &process_region_spec($region_spec_method);
 
 my $pvalcol=$q->param('pvalcol');
