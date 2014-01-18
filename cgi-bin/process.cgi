@@ -74,12 +74,17 @@ my $file_format=$q->param('qformat');
 my $markercol=$q->param('markercol');
 my $source_ref_pop=$q->param('source_ref_pop');
 my ($ld_source,$ld_ref,$ld_pop)=split(',',$source_ref_pop);
-my $flank=$q->param('snpflank') || $q->param('geneflank');
-my $refsnp=$q->param('refsnp');
-my $refgene=$q->param('refgene');
-my $chr=$q->param('chr');
-my $start=$q->param('start');
-my $end=$q->param('end');
+
+#region specification method
+my $flank;
+my $refsnp;
+my $refgene;
+my $chr;
+my $start;
+my $end;
+my $region_spec_method=$q-param('region_method');
+&process_region_spec($region_spec_method);
+
 my $pvalcol=$q->param('pvalcol');
 my $ref=$q->param("ref");
 my @generic_table=$q->param('generic_table');
@@ -493,4 +498,25 @@ sub snpINDB
 	return 1 if /^$snp\s/;
     }
     return undef;
+}
+sub process_region_spec
+{
+    my $method=shift;
+
+    if ($method eq 'snp')
+    {
+	$flank=$q->param('snpflank');
+	$refsnp=$q->param('refsnp');
+    } elsif ($method eq 'gene')
+    {
+	$flank=$q->param('geneflank');
+	$refsnp=$q->param('refsnp_for_gene');
+	$refgene=$q->param('refgene');
+    } elsif ($method eq 'chr')
+    {
+	$start=$q->param('start');
+	$end=$q->param('end');
+	$chr=$q->param('chr');
+	$refsnp=$q->param('refsnp_for_chr');
+    }
 }
