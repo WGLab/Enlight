@@ -182,6 +182,7 @@ function response_to_select_region(input_value)
 
 }
 
+
 function clear_datatrack_selection()
 {
     var cell=document.getElementsByClassName( 'cell');
@@ -338,20 +339,20 @@ $page.= $q->table(
 	    $q->table( {-id=>'gene_region_specify',-style=>'display:none;'},
 		"<tr>
 		<td>Reference Gene</td>
-		<td><input type='text' name='refgene' onclick=\"this.value=''\"/></td>
+		<td><input type='text' name='refgene' id='refgene_id' onclick=\"this.value=''\"/></td>
 		</tr>
 		<tr>
 		<td>Flanking region (kb)</td>
-		<td><input type='text' name='geneflank' onclick=\"this.value=''\" value='$flank_default' /></td>
+		<td><input type='text' name='geneflank' id='geneflank_id' onclick=\"this.value=''\" value='$flank_default' /></td>
 		<tr>
 		<td>Optional Index SNP (default is SNP with lowest P value)</td>
-		<td><input type='text' name='refsnp' onclick=\"this.value=''\" /></td>
+		<td><input type='text' name='refsnp_for_gene' id='refsnp_for_gene_id' onclick=\"this.value=''\" /></td>
 		</tr>"),
 
 	    $q->table( {-id=>'chr_region_specify',-style=>'display:none;'},
 		"<tr>
 		<td>Chromosome</td>
-		<td><select name='chr'>
+		<td><select name='chr' id='chr_id'>
 		<option value='1'>1</option>
 		<option value='2'>2</option>
 		<option value='3'>3</option>
@@ -379,13 +380,13 @@ $page.= $q->table(
 		</tr>
 		<tr>
 		<td>Start (Mb)</td>
-		<td><input type='text' name='start' onclick=\"this.value=''\"/></td>
+		<td><input type='text' name='start' id='start_id' onclick=\"this.value=''\"/></td>
 		<tr>
 		<td>End (Mb)</td>
-		<td><input type='text' name='end' onclick=\"this.value=''\"/></td>
+		<td><input type='text' name='end' id='end_id' onclick=\"this.value=''\"/></td>
 		<tr>
 		<td>Optional Index SNP (default is SNP with lowest P value)</td>
-		<td><input type='text' name='refsnp' onclick=\"this.value=''\"/></td>
+		<td><input type='text' name='refsnp_for_chr' id='refsnp_for_chr_id' onclick=\"this.value=''\"/></td>
 		</tr>"),
 	),
     ),
