@@ -65,6 +65,7 @@ my $q=new CGI;
 #never trust any data from user input
 my $inputIsExample=1 if $q->param('example_upload');
 my $filename=$q->param('query');
+my $query_url=$q->param('query_URL');
 my $original_uploaded_input;
 my $input; #file location of uploaded file
 my %custom_table;
@@ -115,6 +116,8 @@ die ("User must specify one of the following items: refsnp, refgene or chr, star
 	unless ($refsnp || $refgene || ($chr && $start && $end));
 die ("$refgene not FOUND in database (NOTE: gene name is case-sensitive)\n") if ($refgene and ! &geneINDB($refgene,$db));
 die ("$refsnp not FOUND in database (NOTE: snp name is case-sensitive)\n") if ($refsnp and ! &snpINDB($refsnp,$db));
+die ("Either upload from local, or specify a file via URL. Cannot do both.\n") if ($query_url && $filename);
+die ("Illegal characters found in URL: \\,\' not allowed.\n") if ($query_url && $query_url=~/[\\']/);
 
 #check upload
 &handleUpload;
@@ -150,6 +153,7 @@ if (%custom_table)
     $insert_cmd.=" -hg18" if $ref eq 'hg18';
     $insert_cmd.=" -bedinput";
     $insert_cmd.=" $tmpdb";
+
     push @command,$insert_cmd;
 
     if ($anno_toggle)
@@ -360,25 +364,35 @@ my $error=$@ if $@;
 ################SUBROUTINES############################
 sub handleUpload
 {
-    my $fh=$q->upload('query') unless $inputIsExample;
-    my @custom_table_fh=$q->upload('custom_table');
-    my @custom_table_name=$q->param('custom_table');
+	my $fh;
+	my @custom_table_fh=$q->upload('custom_table');
+	my @custom_table_name=$q->param('custom_table');
 
-    die ($q->cgi_error) if ($q->cgi_error);
-    die ("ERROR: No input file\n") unless ($fh or $inputIsExample);
 
-    if ($inputIsExample)
-    {
-	#copy example to temp and continue
-	my $tmp="/tmp/$$".rand($$).".tmp";
-	!system("cp $EXAMPLE_LOC $tmp") or die "Failed to copy example to temp: $!\n";
-	$input=$tmp;
-	$filename=$EXAMPLE_NAME;
-    } else
-    {
-	$input=$q->tmpFileName($filename);
-    }
+	if ($inputIsExample)
+	{
+#copy example to temp and continue
+		my $tmp="/tmp/$$".rand($$).".tmp";
+		!system("cp $EXAMPLE_LOC $tmp") or die "Failed to copy example to temp: $!\n";
+		$input=$tmp;
+		$filename=$EXAMPLE_NAME;
+	} elsif ($query_url)
+	{
+		my $tmp="/tmp/$$".rand($$).".tmp";
+		!system("wget -nd --retr-symlinks -r -O $tmp --no-check-certificate \'$query_url\'") or die "Failed to get input file via URL: $!\n";
+		open $fh,'<',$tmp or die "Failed to read input file via URL: $!\n";
+		($filename)= $query_url=~m%.+/(.+)$%;
+		$filename=$filename || "input.txt";
+		$input=$tmp;
+	} else
+	{
+		$fh=$q->upload('query');
+		$input=$q->tmpFileName($filename);
+	}
     $original_uploaded_input=$input;
+
+
+
 
     #remove empty elements
     @custom_table_name=grep { $_ } @custom_table_name;
@@ -455,16 +469,16 @@ sub checkHeader
 	s/^[\t ]+|[\t ]+$//;
 	if ($file_format eq 'space')
 	{
-	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/ $_|$_ /;
+	    die "Cannot find <<$_>> in header of $file. Make sure it's identical to SNP column name, and that you've chosen the correct delimiter.\n" unless $header=~/ $_|$_ /;
 	} elsif ($file_format eq 'comma')
 	{
-	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/,$_|$_,/;
+	    die "Cannot find <<$_>> in header of $file. Make sure it's identical to SNP column name, and that you've chosen the correct delimiter.\n" unless $header=~/,$_|$_,/;
 	} elsif ($file_format eq 'whitespace')
 	{
-	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/\s$_|$_\s/;
+	    die "Cannot find <<$_>> in header of $file. Make sure it's identical to SNP column name, and that you've chosen the correct delimiter.\n" unless $header=~/\s$_|$_\s/;
 	} elsif ($file_format eq 'tab')
 	{
-	    die "Cannot find <<$_>> in header of $file\n" unless $header=~/\t$_|$_\t/;
+	    die "Cannot find <<$_>> in header of $file. Make sure it's identical to SNP column name, and that you've chosen the correct delimiter.\n" unless $header=~/\t$_|$_\t/;
 	}else
 	{
 	    die "Unkown delimiter: $file_format\n";
@@ -523,6 +537,6 @@ sub process_region_spec
     #remove weird char
     for ($flank,$refsnp,$refgene,$start,$end,$chr)
     {
-	s/[ \t\r\n\*\|\?\>\<\'\"\,\;\:\[\]\{\}]//g;
+		s/[ \t\r\n\*\|\?\>\<\'\"\,\;\:\[\]\{\}]//g if defined;
     }
 }

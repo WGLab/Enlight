@@ -282,7 +282,7 @@ $page.= $q->table(
     ),
     $q->Tr(
 	$q->td("Input file (first line must be header)"),
-	$q->td({-id=>'query_cell_id'},$q->filefield(-name=>"query")),
+	$q->td({-id=>'query_cell_id'},$q->filefield(-name=>"query"),"</br></br>or paste URL",$q->textfield(-id=>'query_URL_id',-name=>'query_URL')),
     ),
     $q->Tr(
 	$q->td("Field delimiter"),
