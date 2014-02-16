@@ -78,7 +78,17 @@ sub error
     open ERR,'>>',$log or die "Cannot open $log: $!\n";
     print ERR "$timestamp\t$msg\n";
     close ERR;
-    die "ERROR:$msg\nPlease contact $email for help\n";
+    #show this to user
+    $|++;
+    my $q=new CGI;
+    print $q->header ("text/html");
+    print $q->start_html(-title=>'An error occured');
+    print $q->h1 ("Sorry, an error occured...");
+    print $q->p ("ERROR:$msg") if $msg;
+    print $q->p ("Please refer to help page or contanct $email.") if $email;
+    print $q->end_html();
+    $|--;
+
     exit 0;
 }
 
@@ -93,7 +103,9 @@ sub generateFeedback
     print $q->h1 ("Submission received");
     print $q->p ("Your submission has been received by us at <b>$submission_time</b>.");
     print $q->p("You will be redirected to <a href='$result_url'>result page</a> shortly. Please wait ...");
+    print $q->p("If you provided an email address, the result link will be sent to you once analysis is done.");
     print $q->end_html();
+    $|--;
 }
 
 sub sendEmail

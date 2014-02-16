@@ -123,7 +123,6 @@ function changeTracks()
 	col.appendChild(label);
 	newrow.appendChild(col);
 	insertPos.appendChild(newrow);
-
     }
 
     //add custom tracks upload fields
@@ -222,27 +221,174 @@ function loadExampleSetting()
     document.getElementById('chromHMM').checked=true;
     changeTracks();
 
-    alert(\"Example settings loaded.\\n\");
+    alert('Example settings loaded.');
 }
 function loadExampleInput()
 {
-	var query_cell=document.getElementById('query_cell_id');
-	var label=document.createElement('label');
-	var hiddenInput=document.createElement('input');
+    var query_cell=document.getElementById('query_cell_id');
+    var label=document.createElement('label');
+    var hiddenInput=document.createElement('input');
 
-	while(query_cell.firstChild)
-	{
+    while(query_cell.firstChild)
+    {
 	query_cell.removeChild(query_cell.firstChild);
+    }
+
+    label.innerHTML='Example Input loaded';
+    hiddenInput.type='hidden';
+    hiddenInput.name='example_upload';
+    hiddenInput.value='1';
+
+    query_cell.appendChild(label);
+    query_cell.appendChild(hiddenInput);
+    alert('Example input loaded.');
+} 
+function check_before_submission()
+{
+    var query_file=document.getElementById('query_file_id').value;
+    var query_url=document.getElementById('query_URL_id').value;
+
+    if (query_file.length>0 && query_url.length>0)
+    {
+	alert('Input URL cannot be used with input file!');
+	//abort submission
+	return false;
+    }
+
+    if (query_file.length==0 && query_url.length==0)
+    {
+	alert('No input!');
+	return false;
+    }
+
+    //check email
+
+    var email=document.getElementById('email_id').value;
+    var email_pattern=/[\\w\\-\\.]+\\@[\\w\\-\\.]+\\.[\\w\\-\\.]+/;
+
+    if (! email_pattern.test(email))
+    {
+	alert('Illegal email address!');
+	return false;
+    }
+
+    //check genome build
+    var ref=document.getElementById('ref_hg19').checked;
+    var ref_ld=document.getElementById('source_ref_pop_id').value.split(',');
+    ref_ld=ref_ld[1];
+
+    if (ref)
+    {
+	ref='hg19';
+    } else
+    {
+	ref='hg18';
+    }
+
+    if (ref != ref_ld)
+    {
+	alert('Reference genome does not match source population');
+	return false;
+    }
+
+    //check marker column
+    var marker=document.getElementById('markercol_id').value;
+
+    if (marker.length==0)
+    {
+	alert('Marker column name is empty!');
+	return false;
+    }
+
+    //check P value column
+    var p_val=document.getElementById('pvalcol_id').value;
+
+    if (p_val.length==0)
+    {
+	alert('P value column name is empty!');
+	return false;
+    }
+
+    //Only letters, numbers, dashes, underscores are allowed in column name
+    var col_pat=/[\\W\\-]/;
+
+    if (col_pat.test(p_val) || col_pat.test(marker))
+    {
+	alert('Only letters, numbers, dashes, underscores are allowed in column name.');
+	return false;
+    }
+
+    //check datatracks
+    var generic_toggle=document.getElementById('generic_toggle_id').value;
+    var anno_toggle=document.getElementById('anno_toggle_id').value;
+    var datatrack=document.getElementsByName('generic_table');
+    var custom_table=document.getElementsByName('custom_table');
+    //remove empty elements
+    custom_table=Array.prototype.filter.call(custom_table,function(x) {return x.value});
+
+    if ( generic_toggle || anno_toggle )
+    {
+	if (datatrack.length==0 && custom_table.length==0)
+	{
+	    alert (\"No annotation data tracks selected or uploaded \\nwhile generic plot or annotation is enabled.\");
+	    return false;
 	}
+    }
+    if ( datatrack.length+custom_table.length>$generic_table_max)
+    {
+	alert('Too many data tracks (max: $generic_table_max)');
+	return false;
+    }
 
-	label.innerHTML='Example Input loaded';
-	hiddenInput.type='hidden';
-	hiddenInput.name='example_upload';
-	hiddenInput.value='1';
 
-	query_cell.appendChild(label);
-	query_cell.appendChild(hiddenInput);
-    alert(\"Example input loaded.\\n\");
+    //region specification
+    var region_pat=/[ \\\$\\t\\r\\n\\*\\|\\?\\>\\<\\'\\\"\\,\\;\\:\\[\\]\\{\\}]/;
+    var region_method=document.getElementsByName('region_method');
+
+    var refsnp=document.getElementById('refsnp_id').value;
+    var snpflank=document.getElementById('snp_flank_region').value;
+    var refgene=document.getElementById('refgene_id').value;
+    var geneflank=document.getElementById('geneflank_id').value;
+    var generefsnp=document.getElementById('refsnp_for_gene_id').value;
+    var chr=document.getElementById('chr_id').value;
+    var start=document.getElementById('start_id').value;
+    var end=document.getElementById('end_id').value;
+    var chrrefsnp=document.getElementById('refsnp_for_chr_id').value;
+
+    if (region_method[0].value == 'snp')
+    {
+    	if ( refsnp.length==0 || snpflank.length==0)
+    	{
+    		alert('No reference SNP or flanking region');
+    		return false;
+    	} else if (region_pat.test(refsnp) || region_pat.test(snpflank))
+    	{
+    		alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
+    		return false;
+    	}	
+    } else if (region_method[0].value == 'gene')
+    {
+    	if ( refgene.length==0 || geneflank.length==0)
+   	{
+   		alert('No reference gene or flanking region');
+   		return false;
+   	} else if (region_pat.test(refgene) || region_pat.test(geneflank) || region_pat.test(generefsnp))
+   	{
+   		alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
+   		return false;
+   	}	
+    } else if (region_method[0].value == 'chr')
+    {
+    	if ( chr.length==0 || start.length==0 || end.length==0)
+    	{
+    		alert('No chromosome name or start or end');
+    		return false;
+    	} else if (region_pat.test(chr) || region_pat.test(start) || region_pat.test(end) || region_pat.test(chrrefsnp))
+    	{
+    		alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
+    		return false;
+    	}	
+    }
 }
 ";
 
@@ -266,23 +412,23 @@ $jscode
 $page.= $q->noscript($q->h1("Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight."));
 $page.= $q->h2("Introduction");
 $page.= $q->p("$intro<br /><br />");
-$page.= $q->start_form(-name=>'main',-action=>"/cgi-bin/process.cgi",-method=>"post");
+$page.= $q->start_form(-name=>'main',-action=>"/cgi-bin/process.cgi",-method=>"post",-onSubmit=>"return check_before_submission();");
 $page.= $q->h2("Input");
 $page.= $q->table(
     {-border=>0},
     $q->Tr(
 	$q->td("DEMO<br /><a href='/example/rs10318.txt'>(example file)</a>"),
 	$q->td("<button type='button' onclick='loadExampleSetting()'>Load settings for example input</button>
-	        <br />
-		<button type='button' onclick='loadExampleInput()'>Load example input</button>"),
+	    <br />
+	    <button type='button' onclick='loadExampleInput()'>Load example input</button>"),
     ),
     $q->Tr(
 	$q->td("<span title='receive result link'>Email (optional)</span>"),
-	$q->td($q->textfield(-name=>'email',-onclick=>"this.value=''")),
+	$q->td("<input name='email' id='email_id' type='email' onclick=\"this.value=''\" />"),
     ),
     $q->Tr(
 	$q->td("Input file (first line must be header)"),
-	$q->td({-id=>'query_cell_id'},$q->filefield(-name=>"query"),"</br></br>or paste URL",$q->textfield(-id=>'query_URL_id',-name=>'query_URL')),
+	$q->td({-id=>'query_cell_id'},$q->filefield(-id=>"query_file_id",-name=>"query"),"</br></br>or paste URL","<input name='query_URL' type='url' id='query_URL_id' />"),
     ),
     $q->Tr(
 	$q->td("Field delimiter"),
@@ -440,11 +586,11 @@ $page.= $q->table(
 	    $q->table( {-class=>'noborder left_aln'},
 		$q->Tr([
 		    map { 
-			
+
 			$q->td("<span title='$cell_desc{$_}'>". 
 			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
 			); 
-		        } sort keys %cell
+		    } sort keys %cell
 		    ]),
 	    )
 	),
@@ -452,17 +598,17 @@ $page.= $q->table(
 	    $q->table( {-class=>'noborder left_aln'},
 		$q->Tr([
 		    map { 
-			
+
 			$q->td("<span title='$exp_desc{$_}'>".
 			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
 			);
-		        } sort keys %experiment
+		    } sort keys %experiment
 		    ]),
 	    )
 	),
 	$q->td( {-class=>'table_align'},
 	    $q->table( {-class=>'noborder left_aln',-id=>'dataTrackHere'}, $q->p("")),
-	    ),
+	),
     ),
 );
 
