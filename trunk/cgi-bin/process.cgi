@@ -98,26 +98,26 @@ my $anno_toggle=1 if (defined $q->param('anno_toggle') && $q->param('anno_toggle
 my $varAnno=$q->param('varAnno') eq 'NULL'? undef:$q->param('varAnno');
 
 #option check
-die ("Illegal email address\n") if ($user_email && $user_email !~ /[\w\-\.]+\@[\w\-\.]+\.[\w\-\.]+/);
-die ("Too many generic tracks (max: $generic_table_max)\n") if (@generic_table + (grep {$_} $q->param('custom_table')) ) > $generic_table_max;
+&Utils::error("Illegal email address\n",$log,$admin_email) if ($user_email && $user_email !~ /[\w\-\.]+\@[\w\-\.]+\.[\w\-\.]+/);
+&Utils::error("Too many generic tracks (max: $generic_table_max)\n",$log,$admin_email) if (@generic_table + (grep {$_} $q->param('custom_table')) ) > $generic_table_max;
 if ( $generic_toggle || $anno_toggle )
 {
     unless (@generic_table || %custom_table)
     {
-	die ("No annotation data tracks selected or uploaded while generic plot or annotation is enabled\n") 
+	&Utils::error("No annotation data tracks selected or uploaded while generic plot or annotation is enabled\n",$log,$admin_email) 
     }
 }
-die ("Genome builds don't match ($ref vs $source_ref_pop).\n") unless (lc($ld_ref) eq lc($ref));
-die ("No marker column\n") unless $markercol;
-die ("No P value column\n") unless $pvalcol;
-die "Only letters, numbers, dashes, underscores are allowed in column name\n" if $markercol=~/[\W\-]/ or $pvalcol=~/[\W\-]/;
-die ("No genome build or illegal genome build: $ref\n") unless $ref=~/^hg1[89]$/;
-die ("User must specify one of the following items: refsnp, refgene or chr, start, end together\n")
-	unless ($refsnp || $refgene || ($chr && $start && $end));
-die ("$refgene not FOUND in database (NOTE: gene name is case-sensitive)\n") if ($refgene and ! &geneINDB($refgene,$db));
-die ("$refsnp not FOUND in database (NOTE: snp name is case-sensitive)\n") if ($refsnp and ! &snpINDB($refsnp,$db));
-die ("Either upload from local, or specify a file via URL. Cannot do both.\n") if ($query_url && $filename);
-die ("Illegal characters found in URL: \\,\' not allowed.\n") if ($query_url && $query_url=~/[\\']/);
+&Utils::error("Genome builds don't match ($ref vs $source_ref_pop).\n",$log,$admin_email) unless (lc($ld_ref) eq lc($ref));
+&Utils::error("No marker column\n",$log,$admin_email) unless $markercol;
+&Utils::error("No P value column\n",$log,$admin_email) unless $pvalcol;
+&Utils::error("Only letters, numbers, dashes, underscores are allowed in column name\n",$log,$admin_email) if $markercol=~/[\W\-]/ or $pvalcol=~/[\W\-]/;
+&Utils::error ("No genome build or illegal genome build: $ref\n",$log,$admin_email) unless $ref=~/^hg1[89]$/;
+&Utils::error ("User must specify one of the following items: refsnp, refgene or chr, start, end together\n",$log,$admin_email)
+unless ($refsnp || $refgene || ($chr && $start && $end));
+&Utils::error ("$refgene not FOUND in database (NOTE: gene name is case-sensitive)\n",$log,$admin_email) if ($refgene and ! &geneINDB($refgene,$db));
+&Utils::error ("$refsnp not FOUND in database (NOTE: snp name is case-sensitive)\n",$log,$admin_email) if ($refsnp and ! &snpINDB($refsnp,$db));
+&Utils::error ("Either upload from local, or specify a file via URL. Cannot do both.\n",$log,$admin_email) if ($query_url && $filename);
+&Utils::error ("Illegal characters found in URL: \\,\' not allowed.\n",$log,$admin_email) if ($query_url && $query_url=~/[\\']/);
 
 #check upload
 &handleUpload;
@@ -194,7 +194,7 @@ if ($anno_toggle || $varAnno)
 {
     unless (defined $q->param('avinput') && $q->param('avinput') eq 'on')
     {
-    my $tmp="/tmp/$$.rs2avinput";
+	my $tmp="/tmp/$$.rs2avinput";
 	push @command, "$RealBin/../bin/formatter rs2avinput $input $tmp $markercol ".($ref eq 'hg18'? $hg18rs:$hg19rs);
 	$input=$tmp;
     }
@@ -364,41 +364,40 @@ my $error=$@ if $@;
 ################SUBROUTINES############################
 sub handleUpload
 {
-	my $fh;
-	my @custom_table_fh=$q->upload('custom_table');
-	my @custom_table_name=$q->param('custom_table');
+    my $fh;
+    my @custom_table_fh=$q->upload('custom_table');
+    my @custom_table_name=$q->param('custom_table');
 
 
-	if ($inputIsExample)
-	{
+    if ($inputIsExample)
+    {
 #copy example to temp and continue
-		my $tmp="/tmp/$$".rand($$).".tmp";
-		!system("cp $EXAMPLE_LOC $tmp") or die "Failed to copy example to temp: $!\n";
-		$input=$tmp;
-		$filename=$EXAMPLE_NAME;
-	} elsif ($query_url)
-	{
-		my $tmp="/tmp/$$".rand($$).".tmp";
-		!system("wget -nd --retr-symlinks -r -O $tmp --no-check-certificate \'$query_url\'") or die "Failed to get input file via URL: $!\n";
-		open $fh,'<',$tmp or die "Failed to read input file via URL: $!\n";
-		($filename)= $query_url=~m%.+/(.+)$%;
-		$filename=$filename || "input.txt";
-		$input=$tmp;
-	} else
-	{
-		$fh=$q->upload('query');
-		$input=$q->tmpFileName($filename);
-	}
+	my $tmp="/tmp/$$".rand($$).".tmp";
+	!system("cp $EXAMPLE_LOC $tmp") or &Utils::error( "Failed to copy example to temp: $!\n",$log,$admin_email);
+	$input=$tmp;
+	$filename=$EXAMPLE_NAME;
+    } elsif ($query_url)
+    {
+	my $tmp="/tmp/$$".rand($$).".tmp";
+	!system("wget -nd --retr-symlinks -r -O $tmp --no-check-certificate \'$query_url\'") or &Utils::error("Failed to get input file via URL: $!\n",$log,$admin_email);
+	open $fh,'<',$tmp or &Utils::error( "Failed to read input file via URL: $!\n",$log,$admin_email);
+	($filename)= $query_url=~m%.+/(.+)$%;
+	$filename=$filename || "input.txt";
+	$input=$tmp;
+    } else
+    {
+	$fh=$q->upload('query');
+	$input=$q->tmpFileName($filename);
+    }
     $original_uploaded_input=$input;
 
-
-
-
+    &Utils::error($q->cgi_error,$log,$admin_email) if ($q->cgi_error);
+    &Utils::error("ERROR: No input file\n",$log,$admin_email) unless ($fh or $inputIsExample);
     #remove empty elements
     @custom_table_name=grep { $_ } @custom_table_name;
     if (@custom_table_name)
     {
-	die ("ERROR: No custom data track\n") unless @custom_table_fh;
+	&Utils::error("ERROR: No custom data track\n",$log,$admin_email) unless @custom_table_fh;
 
 	for my $i(0..$#custom_table_fh)
 	{
@@ -406,7 +405,7 @@ sub handleUpload
 	    my $name=$custom_table_name[$i];
 	    my $file=File::Spec->catfile($upload_dir,"custom_bed$$".rand($$));
 	    #improve later
-	    open UPLOAD,'>',$file or die "Can't write to $file: $!\n";
+	    open UPLOAD,'>',$file or &Utils::error("Can't write to $file: $!\n",$log,$admin_email);
 	    binmode UPLOAD;
 	    while (<$fh>)
 	    {
@@ -424,15 +423,15 @@ sub checkBED
     for my $i(keys %bed)
     {
 	my $file=$bed{$i};
-	open IN,'<',$file or die "Can't open $file ($i): $!\n";
+	open IN,'<',$file or &Utils::error("Can't open $file ($i): $!\n",$log,$admin_email);
 	while (<IN>)
 	{
 	    s/[\r\n]+$//;
 	    next if /^(track|#|browser|\s)/i; #skip header
 	    my @f=split (/\t/,$_,-1);
-	    die "Expect at least 5 columns in BED\n" if @f<5;
-	    die "Expect 2nd and 3rd columns are numerical in BED\n" unless $f[1]=~/^\d+$/ && $f[2]=~/^\d+$/;
-	    die "Expect 5th column is score in BED\n" unless $f[4]=~/^\d+$/;
+	    &Utils::error("Expect at least 5 columns in BED\n",$log,$admin_email) if @f<5;
+	    &Utils::error("Expect 2nd and 3rd columns are numerical in BED\n",$log,$admin_email) unless $f[1]=~/^\d+$/ && $f[2]=~/^\d+$/;
+	    &Utils::error("Expect 5th column is score in BED\n",$log,$admin_email) unless $f[4]=~/^\d+$/;
 	}
 	close IN;
     }
@@ -469,19 +468,19 @@ sub checkHeader
 	s/^[\t ]+|[\t ]+$//;
 	if ($file_format eq 'space')
 	{
-	    die "Cannot find <<$_>> in header of $file. Make sure it's identical to SNP column name, and that you've chosen the correct delimiter.\n" unless $header=~/ $_|$_ /;
+	    &Utils::error("Cannot find <<$_>> in header of $file\n",$log,$admin_email) unless $header=~/ $_|$_ /;
 	} elsif ($file_format eq 'comma')
 	{
-	    die "Cannot find <<$_>> in header of $file. Make sure it's identical to SNP column name, and that you've chosen the correct delimiter.\n" unless $header=~/,$_|$_,/;
+	    &Utils::error("Cannot find <<$_>> in header of $file\n",$log,$admin_email) unless $header=~/,$_|$_,/;
 	} elsif ($file_format eq 'whitespace')
 	{
-	    die "Cannot find <<$_>> in header of $file. Make sure it's identical to SNP column name, and that you've chosen the correct delimiter.\n" unless $header=~/\s$_|$_\s/;
+	    &Utils::error("Cannot find <<$_>> in header of $file\n",$log,$admin_email) unless $header=~/\s$_|$_\s/;
 	} elsif ($file_format eq 'tab')
 	{
-	    die "Cannot find <<$_>> in header of $file. Make sure it's identical to SNP column name, and that you've chosen the correct delimiter.\n" unless $header=~/\t$_|$_\t/;
+	    &Utils::error("Cannot find <<$_>> in header of $file\n",$log,$admin_email) unless $header=~/\t$_|$_\t/;
 	}else
 	{
-	    die "Unkown delimiter: $file_format\n";
+	    &Utils::error("Unkown delimiter: $file_format\n",$log,$admin_email);
 	}
     }
 }
@@ -491,12 +490,13 @@ sub geneINDB
     my $db=shift;
 
     open IN,'-|',"sqlite3 $db 'select geneName from refFlat' " or
-    die "Failed to read refFlat: $!\n";
+    &Utils::error("Failed to read refFlat: $!\n",$log,$admin_email);
 
     while (<IN>)
     {
-	return 1 if /^$gene\s/;
+	close IN and return 1 if /^$gene\s/;
     }
+    close IN;
     return undef;
 }
 sub snpINDB
@@ -505,7 +505,7 @@ sub snpINDB
     my $db=shift;
 
     open IN,'-|',"sqlite3 $db 'select snp from snp_pos where snp=\"$snp\"' " or
-    die "Failed to read snp_pos: $!\n";
+    &Utils::error("Failed to read snp_pos: $!\n",$log,$admin_email);
 
     while (<IN>)
     {
@@ -537,6 +537,6 @@ sub process_region_spec
     #remove weird char
     for ($flank,$refsnp,$refgene,$start,$end,$chr)
     {
-		s/[ \t\r\n\*\|\?\>\<\'\"\,\;\:\[\]\{\}]//g if defined;
+	s/[ \t\r\n\*\|\?\>\<\'\"\,\;\:\[\]\{\}]//g if defined;
     }
 }
