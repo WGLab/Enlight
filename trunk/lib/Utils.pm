@@ -80,7 +80,6 @@ sub error
     close ERR;
     #show this to user
     $|++;
-    my $q=new CGI;
     print $q->header ("text/html");
     print $q->start_html(-title=>'An error occured');
     print $q->h1 ("Sorry, an error occured...");
@@ -295,6 +294,34 @@ sub extract_archive
     }
 }
 
+
+sub is_gzip
+{
+    #check first 2 bytes of input, if 0x1f and 0x8b, return true
+    my $in=shift;
+    open CHECK,'<',$in or &error("Failed to check whether $in is gzipped: $!");
+    read CHECK,my $first,1;
+    read CHECK,my $second,1;
+    close CHECK;
+    #convert string to hex
+    $first=ord $first;
+    $second=ord $second;
+    if ( $first == 0x1f && $second == 0x8b)
+    {
+	return 1; #gzipped
+    } else
+    {
+	return 0;
+    }
+}
+
+sub gunzip
+{
+    my $in=shift;
+    my $tmp="/tmp/$$".rand($$).".tmp.gunzip";
+    !system("gunzip -c $in > $tmp") or &error("Failed to gunzip $in: $!");
+    return $tmp;
+}
 
 1;
 

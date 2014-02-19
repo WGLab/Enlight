@@ -1245,7 +1245,6 @@ print(categoryNo);
 			    ) );
     pushViewport(globalVp);
 
-print(1171);
 ##
 # layout (top to bottom with generic plot and category plot)
 # ----------------------
@@ -1278,7 +1277,6 @@ print(1171);
     upViewport(1);
 
 ########## rugs for snpsets
-print("1204:");
     pushViewport(viewport(xscale=pvalVp$xscale,layout.pos.row=3,
 		layout.pos.col=2,name="rugs",clip="off"));
     i <- nrugs;
@@ -1305,7 +1303,6 @@ print("1204:");
     }
 
     upViewport(2);
-print(1230);
 ########## pvals
 # this viewport is defined above
 #            pvalVp=dataViewport(
@@ -1542,7 +1539,6 @@ print(1230);
 		);
 	upViewport(1);
     }
-    print(1448);
 ###########	multiple generic plots
     if ( genericNo && args[['showGeneric']] ) 
     {
@@ -2258,7 +2254,6 @@ if ( is.null(args[['reload']]) ) {
 	if ( prod(dim(recrate)) == 0 ) { args[['showRecomb']] <- FALSE }
     cat("\n\n");
 #generic score
-print(2232);
     if ( is.null(args[['generic']]) ) { args[['showGeneric']] <- FALSE }
     if (args[['showGeneric']])
     {
@@ -2294,7 +2289,6 @@ print(2232);
     {
 	genscore=NULL;
     }
-print(2268);
 #category annotation
     if ( is.null(args[['category']]) ) {args[['showCategory']] <- FALSE }
     if (args[['showCategory']])
@@ -2340,7 +2334,6 @@ print(2268);
     cat("\n\nsnpset summary:\n");
     print(summary(rug));
     cat("\n\n");
-print(2314);
 # annotation
     if ( char2Rname(args[['annotCol']]) %in% names(metal) ) {  
 	if (is.null(args[['annotOrder']])) {
@@ -2584,7 +2577,6 @@ if ('pdf' %in% args[['format']]) {
     grid.log(args,metal);
     dev.off();
 } 
-print(2558);
 
 sink(args[['log']], append=TRUE);
 cat('\n\n\n');
