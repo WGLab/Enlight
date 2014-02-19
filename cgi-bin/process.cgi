@@ -95,6 +95,7 @@ my $db=($ref eq 'hg19'? $hg19db:$hg18db);
 
 my $generic_toggle=1 if (defined $q->param('generic_toggle') && $q->param('generic_toggle') eq 'on');
 my $anno_toggle=1 if (defined $q->param('anno_toggle') && $q->param('anno_toggle') eq 'on');
+my $ld_toggle=1 if (defined $q->param('ld_toggle') && $q->param('ld_toggle') eq 'on');
 my $varAnno=$q->param('varAnno') eq 'NULL'? undef:$q->param('varAnno');
 
 #option check
@@ -259,6 +260,7 @@ $param.=" --pvalcol $pvalcol" if $pvalcol;
 $param.=" --delim tab"; #all delimiters have been converted to TAB
 $param.=" --plotonly";
 $param.=" --db $db";
+$param.=" --write-ld-to LD_Rsquare" if $ld_toggle;
 
 $lz_cmd="$lz_exe $param";
 
@@ -378,7 +380,7 @@ sub handleUpload
 	$filename=$EXAMPLE_NAME;
     } elsif ($query_url)
     {
-	my $tmp="/tmp/$$".rand($$).".tmp";
+	my $tmp=File::Spec->catfile($upload_dir,"$$".rand($$).".tmp");
 	!system("wget -nd --retr-symlinks -r -O $tmp --no-check-certificate \'$query_url\'") or &Utils::error("Failed to get input file via URL: $!\n",$log,$admin_email);
 	open $fh,'<',$tmp or &Utils::error( "Failed to read input file via URL: $!\n",$log,$admin_email);
 	($filename)= $query_url=~m%.+/(.+)$%;
@@ -389,10 +391,19 @@ sub handleUpload
 	$fh=$q->upload('query');
 	$input=$q->tmpFileName($filename);
     }
-    $original_uploaded_input=$input;
 
     &Utils::error($q->cgi_error,$log,$admin_email) if ($q->cgi_error);
     &Utils::error("ERROR: No input file\n",$log,$admin_email) unless ($fh or $inputIsExample);
+
+    #make sure all input is gunzipped
+    if (&Utils::is_gzip($input))
+    {
+	$input=&Utils::gunzip($input);
+	$filename=~s/\.gz$//;
+    }
+
+    $original_uploaded_input=$input;
+
     #remove empty elements
     @custom_table_name=grep { $_ } @custom_table_name;
     if (@custom_table_name)
@@ -414,7 +425,18 @@ sub handleUpload
 	    close UPLOAD;
 	    $custom_table{$name}=$file;
 	}
+	for my $i (keys %custom_table)
+	{
+	    my $file=$custom_table{$i};
+	    if (&Utils::is_gzip($file))
+	    {
+		delete $custom_table{$i} if $i=~/\.gz$/;
+		$i=~s/\.gz$//;
+		$custom_table{$i}=&Utils::gunzip($file);
+	    }
+	}
     }
+
 }
 sub checkBED
 {
@@ -537,6 +559,6 @@ sub process_region_spec
     #remove weird char
     for ($flank,$refsnp,$refgene,$start,$end,$chr)
     {
-	s/[ \t\r\n\*\|\?\>\<\'\"\,\;\:\[\]\{\}]//g if defined;
+	s/[\$ \t\r\n\*\|\?\>\<\'\"\,\;\:\[\]\{\}]//g if defined;
     }
 }

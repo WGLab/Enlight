@@ -132,7 +132,7 @@ function changeTracks()
 	var col=document.createElement('td');
 	var label=document.createElement('label');
 	var upload=document.createElement('input');
-	label.innerHTML='Custom track (BED format)';
+	label.innerHTML='Custom track (BED format;.gz okay)';
 	upload.type='file';
 	upload.name='custom_table';
 
@@ -243,6 +243,14 @@ function loadExampleInput()
     query_cell.appendChild(hiddenInput);
     alert('Example input loaded.');
 } 
+function hideDetail()
+{
+    document.getElementById('option_detail_id').style.display='none';
+}
+function showDetail()
+{
+    document.getElementById('option_detail_id').style.display='block';
+}
 function check_before_submission()
 {
     var query_file=document.getElementById('query_file_id').value;
@@ -427,7 +435,7 @@ $page.= $q->table(
 	$q->td("<input name='email' id='email_id' type='email' onclick=\"this.value=''\" />"),
     ),
     $q->Tr(
-	$q->td("Input file (first line must be header)"),
+	$q->td("Input file (1st line is header; .gz okay)"),
 	$q->td({-id=>'query_cell_id'},$q->filefield(-id=>"query_file_id",-name=>"query"),"</br></br>or paste URL","<input name='query_URL' type='url' id='query_URL_id' />"),
     ),
     $q->Tr(
@@ -573,7 +581,39 @@ $page.= $q->table( {-class=>'noborder'},
 	    )
 	),
     ),
+    $q->Tr(
+	$q->td(
+	    $q->p(
+		"Adavanced options",
+		'<label>
+		<input type="radio" value="show" onclick="showDetail()">show
+		</label>
+		<input type="radio" value="hide" onclick="hideDetail()" checked="checked">hide
+		</label>'
+	    )
+	),
+    ),
 );
+$page.= $q->table({-class=>'advanced',-id=>'option_detail_id',-style=>'display:none'}
+    $q->Tr(
+	[$q->td(
+	    $q->checkbox(-name=>'ld_toggle',-id=>'ld_toggle_id',-checked=>1,-label=>'Output linkage disequilibrium information (written in input file)?')
+	),
+	#$q->td(
+	#	"<p>LD breakdown in summary plot (separated by comma, mininum 0, maximum 1)</p>
+	#	<input type='text' name='ld_breakdown' id='ld_breakdown_id' value='/>
+	#	"
+	#),
+	#$q->td(
+
+	#),
+	#$q->td(
+
+	#),
+	]
+    ),
+);
+
 $page.= $q->p({-class=>'center'},"<b>Please upload your own files AFTER selecting data tracks.</b><br />");
 $page.= $q->table(
     $q->Tr(
