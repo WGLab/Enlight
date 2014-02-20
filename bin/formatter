@@ -120,7 +120,9 @@ sub rs2avinput
     my %varidx_bucket;
     my %varidx_pos;
     my @var;
+
     my $snpcol_idx=&findSNPColIdx($in,$snpcol);
+
     {
 	#get bin for each variant
 	open IN,'<',$in or die "Cannot open $in: $!\n";
@@ -134,10 +136,12 @@ sub rs2avinput
 	    push @var,$rs;
 	}
 	close IN;
+
 	my ($bucket_ref,$var_ref)=&findbin($db,@var);
 	%bucket_bin=%{$bucket_ref};
 	%varidx_bucket=%{$var_ref};
     }
+
     {
 	#get chr\tstart\tend\tref\talt for each variant
 
@@ -184,6 +188,7 @@ sub rs2avinput
 	    }
 	}
 	close DB;
+
     }
 
     {
