@@ -212,6 +212,9 @@ function loadExampleSetting()
     document.getElementById('avinput_id').checked=false;
     document.getElementById('ref_hg19').checked=true;
 
+    //set advanced options
+    document.getElementById('ld_toggle_id').checked=true;
+
     //clear data track selection
     clear_datatrack_selection();
     document.getElementById('Caco-2').checked=true;	
@@ -576,7 +579,6 @@ $page.= $q->table( {-class=>'noborder'},
 		<label>
 		<input type="radio" name="ref" id="ref_hg19" value="hg19" checked="checked">hg19
 		</label>']
-	    )
 	),
     ),
     $q->Tr(

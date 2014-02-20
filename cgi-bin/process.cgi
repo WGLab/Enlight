@@ -120,7 +120,7 @@ unless ($refsnp || $refgene || ($chr && $start && $end));
 &Utils::error ("Either upload from local, or specify a file via URL. Cannot do both.\n",$log,$admin_email) if ($query_url && $filename);
 &Utils::error ("Illegal characters found in URL: \\,\' not allowed.\n",$log,$admin_email) if ($query_url && $query_url=~/[\\']/);
 
-#check upload
+##check upload
 &handleUpload;
 
 #again, don't trust user input
@@ -219,7 +219,7 @@ if ($varAnno)
     $param.=" annotOrder='y,n'"; #make sure 'varAnno' has 'y' in name field (4th column)
     $param.=" annotName='$varAnno'";
     $param.=" annotCol='$col'";
-    $param.=" --metal $tmp";
+    $param.=" --metal $filename";
 
     $anno_table_cmd.="$anno_exe $filename $anno_dir";
     $anno_table_cmd.=" -protocol $col";
@@ -231,7 +231,7 @@ if ($varAnno)
     $anno_table_cmd.=" -haveheader";
 
     push @command,$anno_table_cmd;
-    push @command,"mv -f $filename.${ref}_multianno.txt $tmp";
+    push @command,"mv -f $filename.${ref}_multianno.txt $filename";
 } else
 {
     $param.=" --metal $filename";
@@ -267,6 +267,12 @@ $lz_cmd="$lz_exe $param";
 push @command,$lz_cmd;
 push @unlink,"ld_cache.db"; #locuszoom cache
 #locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 100kb --refsnp rs10318 --category wgEncodeBroadHmmGm12878HMM,wgEncodeBroadHmmH1hescHMM --pvalcol p --metal rs10318.txt  --prefix chrhmm categoryKey=~/projects/annoenlight/data/database/chromHMM_legend.txt --generic wgEncodeUwDnaseCaco2HotspotsRep1,wgEncodeRegTfbsClusteredV2
+#remove *_existence column
+if ($varAnno)
+{
+    my $rmcol=File::Spec->catfile($RealBin,"..","bin","formatter")." rmcol";
+    push @command,"$rmcol $filename ${varAnno}_existence";
+}
 #-------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------
@@ -347,7 +353,6 @@ $dbh->disconnect();
 my $error=$@ if $@;
 
 #return results
-
 &Utils::sendEmail({
 	'admin'		=>$admin_email,
 	'email'		=>$user_email,
