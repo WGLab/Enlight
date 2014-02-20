@@ -249,7 +249,7 @@ function hideDetail()
 }
 function showDetail()
 {
-    document.getElementById('option_detail_id').style.display='block';
+    document.getElementById('option_detail_id').style.display='table';
 }
 function check_before_submission()
 {
@@ -550,51 +550,47 @@ $page.="<br /> <br />\n";
 $page.= $q->h2("<span title='show signal strengths in regions'>Generic plot (using UCSC BED tables)</span>");
 $page.= $q->table( {-class=>'noborder'},
     $q->Tr(
-	$q->td(
+	$q->td( {-colspan=>2},
 	    "<span title='Do you want a generic (annotation) plot?'>".
 	    $q->checkbox(-name=>'generic_toggle',-id=>'generic_toggle_id',-checked=>1,-label=>'Generic plot?').
 	    "</span>"
 	), #return 'on' if checked
     ),
     $q->Tr(
-	$q->td("<span title='Do you want text annotation?'>".
+	$q->td({-colspan=>2},"<span title='Do you want text annotation?'>".
 	    $q->checkbox(-name=>'anno_toggle',-id=>'anno_toggle_id',-checked=>0,-label=>'Output ANNOVAR annotation?').
 	    "</span>"
 	),
     ),
     $q->Tr(
-	$q->td("<span title='First 5 columns correspond to chromosome,start,end,alternative allele,reference allele'>".
+	$q->td({-colspan=>2},"<span title='First 5 columns correspond to chromosome,start,end,alternative allele,reference allele'>".
 	    $q->checkbox(-name=>'avinput',-id=>'avinput_id',-checked=>0,-label=>'Input file in ANNOVAR format?').
 	    "</span>"
 	),
     ),
     $q->Tr(
-	$q->td(
-	    $q->p(
-		"Genome Build",
-		'<label>
+	$q->td(	["Genome Build",
+                '<label>
 		<input type="radio" name="ref" value="hg18">hg18
 		</label>
 		<label>
 		<input type="radio" name="ref" id="ref_hg19" value="hg19" checked="checked">hg19
-		</label>'
+		</label>']
 	    )
 	),
     ),
     $q->Tr(
-	$q->td(
-	    $q->p(
-		"Adavanced options",
+	$q->td( ["Adavanced options",
 		'<label>
-		<input type="radio" value="show" onclick="showDetail()">show
+		<input type="radio" name="detail_toggle" value="show" onclick="showDetail()">show
 		</label>
-		<input type="radio" value="hide" onclick="hideDetail()" checked="checked">hide
+		<input type="radio" name="detail_toggle" value="hide" onclick="hideDetail()" checked="checked">hide
 		</label>'
-	    )
+	    ]
 	),
     ),
 );
-$page.= $q->table({-class=>'advanced',-id=>'option_detail_id',-style=>'display:none'}
+$page.= $q->table({-class=>'advanced',-id=>'option_detail_id',-style=>'display:none'},
     $q->Tr(
 	[$q->td(
 	    $q->checkbox(-name=>'ld_toggle',-id=>'ld_toggle_id',-checked=>1,-label=>'Output linkage disequilibrium information (written in input file)?')
@@ -613,7 +609,7 @@ $page.= $q->table({-class=>'advanced',-id=>'option_detail_id',-style=>'display:n
 	]
     ),
 );
-
+$page.= "</br></br>";
 $page.= $q->p({-class=>'center'},"<b>Please upload your own files AFTER selecting data tracks.</b><br />");
 $page.= $q->table(
     $q->Tr(
