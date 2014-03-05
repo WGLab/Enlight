@@ -111,7 +111,7 @@ if ( $generic_toggle || $anno_toggle )
 &Utils::error("Genome builds don't match ($ref vs $source_ref_pop).\n",$log,$admin_email) unless (lc($ld_ref) eq lc($ref));
 &Utils::error("No marker column\n",$log,$admin_email) unless $markercol;
 &Utils::error("No P value column\n",$log,$admin_email) unless $pvalcol;
-&Utils::error("Only letters, numbers, dashes, underscores are allowed in column name\n",$log,$admin_email) if $markercol=~/[\W\-]/ or $pvalcol=~/[\W\-]/;
+&Utils::error("Only letters, numbers, dashes, underscores are allowed in column name\n",$log,$admin_email) if $markercol=~/[^\w\-]/ or $pvalcol=~/[^\w\-]/;
 &Utils::error ("No genome build or illegal genome build: $ref\n",$log,$admin_email) unless $ref=~/^hg1[89]$/;
 &Utils::error ("User must specify one of the following items: refsnp, refgene or chr, start, end together\n",$log,$admin_email)
 unless ($refsnp || $refgene || ($chr && $start && $end));
