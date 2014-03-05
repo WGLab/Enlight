@@ -275,12 +275,15 @@ function check_before_submission()
     //check email
 
     var email=document.getElementById('email_id').value;
-    var email_pattern=/[\\w\\-\\.]+\\@[\\w\\-\\.]+\\.[\\w\\-\\.]+/;
-
-    if (! email_pattern.test(email))
+    if (email)
     {
-	alert('Illegal email address!');
-	return false;
+    	var email_pattern=/[\\w\\-\\.]+\\@[\\w\\-\\.]+\\.[\\w\\-\\.]+/;
+
+    	if (! email_pattern.test(email))
+    	{
+    	    alert('Illegal email address!');
+    	    return false;
+    	}
     }
 
     //check genome build
@@ -321,7 +324,7 @@ function check_before_submission()
     }
 
     //Only letters, numbers, dashes, underscores are allowed in column name
-    var col_pat=/[\\W\\-]/;
+    var col_pat=/[^\\w\\-]/;
 
     if (col_pat.test(p_val) || col_pat.test(marker))
     {
