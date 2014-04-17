@@ -887,7 +887,6 @@ def getSettings():
       die("Error: could not find locuszoom.R - check conf file %s" % M2ZFAST_CONF);
 
   # Are we running in experimental mode?
-  if opts.exper:
     opts.verbose = True;
     globals()['_DEBUG'] = True;
   
@@ -1450,10 +1449,7 @@ def writeLD2metal(ld_col_name,ld_file,metal_file,snp_column,refsnp,chr,start,end
       print >> sys.stderr, "I/O Error({0}): {1}".format(e.errno,e.strerror);
 
   #remove new one
-  try:
-      rmtree(output_file);
-  except:
-      print >> sys.stderr, "Failed to remove %s" % output_file;
+  cleanup([output_file]);
   
   print >> sys.stderr, "LD information written to %s" % metal_file;
 
@@ -1530,12 +1526,12 @@ def runAll(metal_file,refsnp,chr,start,end,opts,args):
       args += " %s=NULL" % m2zarg;
 
 
-  print "Creating plot..";
   ld_file = opts.ld if opts.ld != None else ld_temp;
   #write LD to metal if okay
   if opts.write_ld_to and (not opts.no_ld) and ld_file != None:
     writeLD2metal(opts.write_ld_to,ld_file,metal_file,opts.snpcol,refsnp,chr,start,end,opts.sqlite_db_file,delim);
 
+  print "Creating plot..";
   runM2Z(metal_temp,opts.metal2zoom_path,ld_file,refsnp,chr,start,end,opts.verbose,args);
 
   if not no_clean:

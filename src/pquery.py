@@ -90,7 +90,7 @@ def generic_in_region(db,generic_table,chr,start,stop,build):
     FROM %s
     WHERE
       chr = ?
-      and start BETWEEN ? and ?
+      AND end > ? AND start < ?
     ORDER BY chr, start
   """ % generic_table;
 
@@ -102,7 +102,7 @@ def category_in_region(db,category_table,chr,start,stop,build):
     FROM %s
     WHERE
       chr = ?
-      and start BETWEEN ? and ?
+      AND end > ? AND start < ?
     ORDER BY chr, start
   """ % category_table;
 

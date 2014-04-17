@@ -136,6 +136,7 @@ my @command;
 
 
 #-------------------------------------------------------------------------------------------
+#process annotation tables
 if (%custom_table)
 {
     #insert custom_table into locuszoom database
@@ -179,6 +180,10 @@ if (%custom_table)
     }
 }
 
+@category_table=grep { /HMM/ } @generic_table;
+@generic_table=grep { !/HMM/ } @generic_table;#remove category tracks from generic table
+#----------------------------------------------------------------------------------------------------
+
 #convert delimiters to tab
 {
     my $tmp="/tmp/$$.2tab";
@@ -201,6 +206,8 @@ if ($anno_toggle || $varAnno)
     }
 } 
 
+##!!!!!!!!!IMPORTANT!!!!!!!!!
+#'input' now becomes 'filename'
 {
     $filename=~s/\.csv$/.txt/i;
     push @command,"cp $input $filename";
@@ -219,7 +226,6 @@ if ($varAnno)
     $param.=" annotOrder='y,n'"; #make sure 'varAnno' has 'y' in name field (4th column)
     $param.=" annotName='$varAnno'";
     $param.=" annotCol='$col'";
-    $param.=" --metal $filename";
 
     $anno_table_cmd.="$anno_exe $filename $anno_dir";
     $anno_table_cmd.=" -protocol $col";
@@ -232,50 +238,10 @@ if ($varAnno)
 
     push @command,$anno_table_cmd;
     push @command,"mv -f $filename.${ref}_multianno.txt $filename";
-} else
-{
-    $param.=" --metal $filename";
 }
-
-#generate locuszoom command
-$param.=" --build $ref" if $ref;
-$param.=" --markercol $markercol" if $markercol;
-$param.=" --source $ld_source" if $ld_source;
-if (@category_table=grep { /HMM/ } @generic_table)
-{
-    $param.=" --category ".join(',',@category_table);
-    $param.=" categoryKey=$hmmLegend" if -f $hmmLegend;
-
-    @generic_table=grep { !/HMM/ } @generic_table;#remove category tracks from generic table
-}
-$param.=" --generic ".join (',',@generic_table,keys %custom_table) if ($generic_toggle && (@generic_table||%custom_table));
-$param.=" --pop $ld_pop" if $ld_pop;
-$param.=" --flank ${flank}kb" if $flank;
-$param.=" --refsnp $refsnp" if $refsnp;
-$param.=" --refgene $refgene" if $refgene;
-$param.=" --chr $chr" if $chr;
-$param.=" --start ".$start*1000000 if $start; #unit is MB
-$param.=" --end ".$end*1000000 if $end;
-$param.=" --pvalcol $pvalcol" if $pvalcol;
-$param.=" --delim tab"; #all delimiters have been converted to TAB
-$param.=" --plotonly";
-$param.=" --db $db";
-$param.=" --write-ld-to LD_Rsquare" if $ld_toggle;
-
-$lz_cmd="$lz_exe $param";
-
-push @command,$lz_cmd;
-push @unlink,"ld_cache.db"; #locuszoom cache
-#locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 100kb --refsnp rs10318 --category wgEncodeBroadHmmGm12878HMM,wgEncodeBroadHmmH1hescHMM --pvalcol p --metal rs10318.txt  --prefix chrhmm categoryKey=~/projects/annoenlight/data/database/chromHMM_legend.txt --generic wgEncodeUwDnaseCaco2HotspotsRep1,wgEncodeRegTfbsClusteredV2
-#remove *_existence column
-if ($varAnno)
-{
-    my $rmcol=File::Spec->catfile($RealBin,"..","bin","formatter")." rmcol";
-    push @command,"$rmcol $filename ${varAnno}_existence";
-}
-#-------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------
+#generate text annotation
 
 if ($anno_toggle)
 {
@@ -302,6 +268,46 @@ if ($anno_toggle)
 
     push @command,$anno_table_cmd;
 }
+#all annotations written to .hg1*_multianno file
+#------------------------------------------------------------------------------------------
+
+#generate locuszoom command
+$param.=" --metal $filename".($anno_toggle?".${ref}_multianno.txt":"";
+$param.=" --build $ref" if $ref;
+$param.=" --markercol $markercol" if $markercol;
+$param.=" --source $ld_source" if $ld_source;
+if (@category_table)
+{
+    $param.=" --category ".join(',',@category_table);
+    $param.=" categoryKey=$hmmLegend" if -f $hmmLegend;
+}
+$param.=" --generic ".join (',',@generic_table,keys %custom_table) if ($generic_toggle && (@generic_table||%custom_table));
+$param.=" --pop $ld_pop" if $ld_pop;
+$param.=" --flank ${flank}kb" if $flank;
+$param.=" --refsnp $refsnp" if $refsnp;
+$param.=" --refgene $refgene" if $refgene;
+$param.=" --chr $chr" if $chr;
+$param.=" --start ".$start*1000000 if $start; #unit is MB
+$param.=" --end ".$end*1000000 if $end;
+$param.=" --pvalcol $pvalcol" if $pvalcol;
+$param.=" --delim tab"; #all delimiters have been converted to TAB
+$param.=" --plotonly";
+$param.=" --db $db";
+$param.=" --write-ld-to LD_Rsquare" if $ld_toggle;
+
+$lz_cmd="$lz_exe $param";
+
+push @command,$lz_cmd;
+push @unlink,"ld_cache.db"; #locuszoom cache
+#locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 100kb --refsnp rs10318 --category wgEncodeBroadHmmGm12878HMM,wgEncodeBroadHmmH1hescHMM --pvalcol p --metal rs10318.txt  --prefix chrhmm categoryKey=~/projects/annoenlight/data/database/chromHMM_legend.txt --generic wgEncodeUwDnaseCaco2HotspotsRep1,wgEncodeRegTfbsClusteredV2
+#remove *_existence column
+#-------------------------------------------------------------------------------------------
+if ($varAnno)
+{
+    my $rmcol=File::Spec->catfile($RealBin,"..","bin","formatter")." rmcol";
+    push @command,"$rmcol $filename ${varAnno}_existence";
+}
+
 
 push @command,"rm -f @unlink" if @unlink;
 map {s/>|<|\*|\?|\[|\]|`|\$|\||;|&|\(|\)|\#|'|"//g} @command; #remove insecure char
