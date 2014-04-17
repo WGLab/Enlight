@@ -1,4 +1,0 @@
-track87	cell:GM12878	experiment:chromHMM	table:wgEncodeBroadHmmGm12878HMM			
-track88	cell:H1-hESC	experiment:chromHMM	table:wgEncodeBroadHmmH1hescHMM			
-track89	cell:HepG2	experiment:chromHMM	table:wgEncodeBroadHmmHepg2HMM			
-track90	cell:K562	experiment:chromHMM	table:wgEncodeBroadHmmK562HMM			
