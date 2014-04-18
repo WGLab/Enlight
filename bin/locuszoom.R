@@ -1,5 +1,4 @@
-#!/home/yunfeiguo/Downloads/R-3.0.2_install/bin/Rscript --vanilla
-#/usr/bin/Rscript --vanilla 
+#!/usr/bin/Rscript --vanilla 
 # --default-packages=utils,stats,lattice,grid,getopts
 # need to check if the line above works on the web deployment machine.
 
@@ -21,7 +20,6 @@
 require(stats);
 require(utils);
 require(grid);
-require(gridBase);
 require(lattice);
 require(methods);
 
@@ -1075,7 +1073,7 @@ panel.category <- function (x,unit,key=NULL,alpha=1,...)
 }
 ######################################
 #create barchart for continuous annotation and LD category
-panel.myBarchart=function(count,name,args)
+panel.myBarchart=function(count,name,args,ylab=NULL)
 {
     dimCount=length(dim(count));
     colors=args[['ColorsForBarchart']][1:dimCount];
@@ -1088,7 +1086,7 @@ panel.myBarchart=function(count,name,args)
     newpar$superpose.polygon$col=colors;
     trellis.par.set(newpar);
     #you have to use print method in lattice, otherwise the plot is not limitted to current viewport
-    print(barchart(count,stack=FALSE,auto.key=list(space='right'),xlab='Count',ylab=NULL,col=colors,border='transparent',title=paste(name,"summary"),horizontal=TRUE),newpage=FALSE);
+    print(barchart(count,stack=FALSE,auto.key=list(space='right'),xlab='Count',col=colors,border='transparent',title=paste(name,"summary"),horizontal=TRUE,ylab=ylab),newpage=FALSE);
     trellis.par.set(oldpar);
     upViewport(1);
 
@@ -1926,6 +1924,10 @@ grid.summary=function(args,metal,genscore,category_anno)
 	genericNo=0;
 	genericNames=NA;
     }
+    ldRemain=1; #this is fixed, just for LD categorization plot
+    genericRemain=genericNo;
+    categoryRemain=categoryNo;
+    maxPlotPerPage=3;
     #layout
     #######################################################
     #			LD categorization 		  #
@@ -1933,92 +1935,93 @@ grid.summary=function(args,metal,genscore,category_anno)
     #######################################################
     #bar chart overlap with ENCODE datatracks1		  #
     #bar chart overlap with ENCODE datatracks2		  #
-    #bar chart overlap with ENCODE datatracks3		  #
     #######################################################
-    globalVp=viewport( layout=grid.layout(
-					  5,3, 
-					  widths=unit(
-						      c(args[['axisTextSize']]*args[['leftMarginLines']],1,args[['axisTextSize']]*args[['rightMarginLines']]),c('lines','null','lines')
-						      ),
-					  heights=unit(
-						       c(1, 1+categoryNo,
-							 1, 1.5*genericNo,
-							 1),
-						       c('lines','null','lines','null','lines') )
-					  ) );
-    pushViewport(globalVp);
-
-    if (TRUE)
+    #at most 3 plots each page
+    while(ldRemain+genericRemain+categoryRemain>0)
     {
-	#divide pichart plot region
-	pushViewport(viewport(layout.pos.row=2,layout.pos.col=2,layout=grid.layout(1+categoryNo,1)));
-	#split basic piechart region
-	pushViewport(viewport(layout.pos.row=1,layout=grid.layout(3,1,heights=unit(c(0.5,1,0.5),c('lines','null','lines')))));
-
-	#LD piechart
-	pushViewport(viewport(layout.pos.row=2,clip='on',name='LD categorization piechart'));
-	ld_slice=genLD_Slice(args,metal);
-	ld_slice=table(ld_slice,useNA='no');
-	panel.myBarchart(ld_slice,name='LD',args);
-	upViewport(1);
-
-	upViewport(1); #to entire piechart region
-
-	#draw category piechart
-	if (categoryNo)
+	grid.newpage();
+	if (ldRemain+genericRemain+categoryRemain>maxPlotPerPage)
 	{
-	    for (i in 1:categoryNo)
-	    {
-		pushViewport(viewport(
-				      layout.pos.row=1+i,
-				      layout=grid.layout(3,1,heights=unit(c(0.5,1,0.5),c('lines','null','lines')))
-				      ));
-		pushViewport(viewport(layout.pos.row=2,clip='on'));
-		name=categoryNames[i];
-		cat_slice=as.factor(metal[[name]]);
-		levels(cat_slice)=c(levels(cat_slice),'NA');
-		cat_slice[is.na(cat_slice)]='NA';
-		lvlCount=length(levels(cat_slice));
-		cat_slice=factor(cat_slice,levels(cat_slice)[c(lvlCount,1:(lvlCount-1))]);
-		cat_slice=table(cat_slice,useNA='no');
-		panel.myBarchart(cat_slice,name,args);
-		upViewport(2);
-	    }
+	    totalPlotCurrentPage=maxPlotPerPage;
+	} else
+	{
+	    totalPlotCurrentPage=ldRemain+genericRemain+categoryRemain;
 	}
+	globalVp=viewport( layout=grid.layout(
+					      2+totalPlotCurrentPage,3, 
+					      widths=unit(
+							  c(args[['axisTextSize']]*args[['leftMarginLines']],1,args[['axisTextSize']]*args[['rightMarginLines']]),c('lines','null','lines')
+							  ),
+					      heights=unit(
+							   c(0.25, rep(1,totalPlotCurrentPage), 0.25),
+							   c('lines',rep('null',totalPlotCurrentPage),'lines') )
+					      ) );
+	pushViewport(globalVp);
 
-	upViewport(1); #to globalVp
-    }
+	currentPlotIdx=1;
+	if (ldRemain>0 & currentPlotIdx<=maxPlotPerPage)
+	{
+	    #divide pichart plot region
+	    pushViewport(viewport(layout.pos.row=1+currentPlotIdx,layout.pos.col=2,layout=grid.layout(3,1,heights=unit(c(0.25,1,0.25),c('lines','null','lines')))));
 
-    #generic overlapping barchart
-    if (genericNo)
-    {
-	pushViewport(viewport(layout.pos.row=4,layout.pos.col=2,layout=grid.layout(genericNo,1)));
-	#draw generic annotation overlapping bar chart
-	for (i in 1:genericNo)
+	    #LD categorization
+	    pushViewport(viewport(layout.pos.row=2,clip='on'));
+	    ld_slice=genLD_Slice(args,metal);
+	    ld_slice=table(ld_slice,useNA='no');
+	    panel.myBarchart(ld_slice,name='LD',args);
+	    upViewport(2);
+	    ldRemain=ldRemain-1;
+	    currentPlotIdx=currentPlotIdx+1;
+	}
+	#draw barchart for category annotation
+	while (currentPlotIdx<=maxPlotPerPage & categoryRemain>0)
 	{
 	    pushViewport(viewport(
-				  layout.pos.row=i,layout=grid.layout(3,1,heights=unit(c(0.5,1,0.5),c('lines','null','lines')))
+				  layout.pos.row=1+currentPlotIdx,
+				  layout=grid.layout(3,1,heights=unit(c(0.25,1,0.25),c('lines','null','lines')))
+				  ));
+	    pushViewport(viewport(layout.pos.row=2,clip='on'));
+	    name=categoryNames[1];
+	    cat_slice=as.factor(metal[[name]]);
+	    levels(cat_slice)=c(levels(cat_slice),'NA');
+	    cat_slice[is.na(cat_slice)]='NA';
+	    lvlCount=length(levels(cat_slice));
+	    cat_slice=factor(cat_slice,levels(cat_slice)[c(lvlCount,1:(lvlCount-1))]);
+	    cat_slice=table(cat_slice,useNA='no');
+	    panel.myBarchart(cat_slice,name,args);
+	    upViewport(2);
+
+	    if (length(categoryNames)>1) categoryNames=categoryNames[2:length(categoryNames)];
+	    categoryRemain=categoryRemain-1;
+	    currentPlotIdx=currentPlotIdx+1;
+	}
+
+	#generic overlapping barchart
+	while(currentPlotIdx<=maxPlotPerPage & genericRemain>0)
+	{
+	    pushViewport(viewport(layout.pos.row=1+currentPlotIdx,layout.pos.col=2,layout=grid.layout(3,1,heights=unit(c(0.25,1,0.25),c('lines','null','lines')))
 				  ));
 	    pushViewport(viewport(layout.pos.row=2,clip='on'));
 	    #plot with barchart function from lattice package
-	    name=genericNames[i];
+	    name=genericNames[1];
 	    ldgroup=genLD_Slice(args,metal);
 
 	    annotation=metal[[name]];
 	    #pay attention to the order of the following two assignments
 	    annotation[!is.na(annotation)]='Has annotation';
 	    annotation[is.na(annotation)]='No annotation';
-	    annotation=as.factor(annotation);
+	    annotation=factor(annotation,levels=c('No annotation','Has annotation'));
 
 	    count=table(ldgroup,annotation,useNA='no');
-	    panel.myBarchart(count,name,args);
+	    panel.myBarchart(count,name,args,ylab='LD interval');
 
 	    upViewport(2);
+	    if (length(genericNames)>1) genericNames=genericNames[2:length(genericNames)];
+	    genericRemain=genericRemain-1;
+	    currentPlotIdx=currentPlotIdx+1;
 	}
 	upViewport(1);
     }
-    upViewport(1);
-
 }
 
 #convert LD into count data, including count for 'no LD' variants
@@ -2774,7 +2777,6 @@ if ('pdf' %in% args[['format']]) {
 	grid.newpage();
     }
     grid.log(args,metal);
-    grid.newpage();
     grid.summary(args,metal,genscore,category_anno);
     dev.off();
 } 
