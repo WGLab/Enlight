@@ -431,7 +431,9 @@ $page.= $q->h2("Input");
 $page.= $q->table(
     {-border=>0},
     $q->Tr(
-	$q->td("DEMO<br /><a href='/example/rs10318.txt'>(example file)</a>"),
+	$q->td("DEMO<br />
+	        <a href='/example/rs10318.txt'>(example input)</a><br />
+		<a href='/example/rs10318_out/index.html'>(example output)</a>"),
 	$q->td("<button type='button' onclick='loadExampleSetting()'>Load settings for example input</button>
 	    <br />
 	    <button type='button' onclick='loadExampleInput()'>Load example input</button>"),

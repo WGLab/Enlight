@@ -1,0 +1,97 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+die "Usage: check <file1 file2 ...>\n" unless @ARGV;
+
+my %cell=
+('Caco-2'=>'caco2',
+ 'HCT116'=>'hct116',
+ 'H1-hESC'=>'h1hesc',
+ 'MCF-7'=>'mcf7',
+ 'K562'=>'k562',
+ 'GM12878'=>'gm12878',
+ 'A549'=>'a549',
+ 'HeLa-S3'=>'helas3',
+ 'HepG2'=>'hepg2',
+ 'HUVEC'=>'huvec',
+ 'NHEK'=>'nhek',
+'NHLF'=>'nhlf',
+'HSMM'=>'hsmm',
+'HMEC'=>'hmec',
+'None'=>'none',
+ );
+
+my %assay=(
+		'methyl RRBS'=>'methylrrbs',
+		'DNase-seq'=>'dnase',
+		'FAIRE-seq'=>'faire',
+		'chromHMM'=>'broadhmm',
+		'ChIP-seq_H3K4me3'=>'h3k0*4me0*3',
+		'ChIP-seq_H3K9ac'=>'h3k0*9ac',
+		'ChIP-seq_H3K4me1'=>'h3k0*4me0*1',
+		'ChIP-seq_H3K27ac'=>'h3k27ac',
+		'ChIP-seq_H3K36me3'=>'h3k36me0*3',
+		'ChIP-seq_H3K79me2'=>'h3k79me0*2',
+		'ChIP-seq_H3K27me3'=>'h3k27me0*3',
+		'ChIP-seq_H3K9me3'=>'h3k0*9me0*3',
+		'ChIP-seq_TCF7L2'=>'tcf7l2|tcf4',
+		'ChIP-seq_TCF3'=>'tcf3',
+		'ChIP-seq_CTCF'=>'ctcf',
+		'TFBS Conservation'=>'tfbscons',
+		'TFBS Region'=>'tfbsreg',
+	  );
+
+for my $trackfile(@ARGV)
+{
+	open IN,'<',$trackfile or die "Failed to read $trackfile: $!\n";
+	while(<IN>)
+	{
+		s/\s+$//;
+		my @f=split /\t/;
+		$f[1]=~s/\w+://;
+		$f[2]=~s/\w+://;
+		my $cell=$cell{$f[1]};
+		my $assay=$assay{$f[2]};
+		$f[3]=lc $f[3];
+		if ($f[3] !~ /$cell/ || $f[3] !~ /$assay/)
+		{
+		warn "cell:$cell\n";
+		warn "assay:$assay\n";
+			warn "WARNING:$_\n";
+		}
+	}
+	close IN;
+
+}
+
+
+=head
+track1	cell:Caco-2	experiment:methyl RRBS	table:wgEncodeHaibMethylRrbsCaco2UwSitesRep1		
+track2	cell:Caco-2	experiment:DNase-seq	table:wgEncodeUwDnaseCaco2PkRep1		
+track3	cell:Caco-2	experiment:ChIP-seq_H3K4me3	table:wgEncodeUwHistoneCaco2H3k4me3StdPkRep1		
+track4	cell:Caco-2	experiment:ChIP-seq_H3K36me3	table:wgEncodeUwHistoneCaco2H3k36me3StdPkRep1		
+track5	cell:Caco-2	experiment:ChIP-seq_H3K27me3	table:wgEncodeUwHistoneCaco2H3k27me3StdPkRep1		
+track6	cell:Caco-2	experiment:ChIP-seq_CTCF	table:wgEncodeUwTfbsCaco2CtcfStdPkRep1		
+track7	cell:HCT116	experiment:methyl RRBS	table:wgEncodeHaibMethylRrbsHct116StanfordSitesRep1		
+track8	cell:HCT116	experiment:DNase-seq	table:wgEncodeUwDnaseHct116PkRep1		
+track9	cell:HCT116	experiment:ChIP-seq_H3K4me3	table:wgEncodeUwHistoneHct116H3k4me3StdPkRep1		
+track10	cell:HCT116	experiment:ChIP-seq_H3K4me1	table:wgEncodeSydhHistoneHct116H3k04me1UcdPk		
+track11	cell:HCT116	experiment:ChIP-seq_H3K27ac	table:wgEncodeSydhHistoneHct116H3k27acUcdPk		
+track12	cell:HCT116	experiment:ChIP-seq_TCF7L2	table:wgEncodeSydhTfbsHct116Tcf7l2UcdPk		
+track13	cell:HCT116	experiment:ChIP-seq_CTCF	table:wgEncodeHaibTfbsHct116CtcfcV0422111PkRep1		
+track14	cell:H1-hESC	experiment:methyl RRBS	table:wgEncodeHaibMethylRrbsH1hescHaibSitesRep1		
+track15	cell:H1-hESC	experiment:DNase-seq	table:wgEncodeOpenChromDnaseH1hescPk		
+track16	cell:H1-hESC	experiment:FAIRE-seq	table:wgEncodeOpenChromFaireH1hescPk		
+track17	cell:H1-hESC	experiment:ChIP-seq_H3K4me3	table:wgEncodeBroadHistoneH1hescH3k4me3StdPk		
+track18	cell:H1-hESC	experiment:ChIP-seq_H3K9ac	table:wgEncodeBroadHistoneH1hescH3k9acStdPk		
+track19	cell:H1-hESC	experiment:ChIP-seq_H3K4me1	table:wgEncodeBroadHistoneH1hescH3k4me1StdPk		
+track20	cell:H1-hESC	experiment:ChIP-seq_H3K27ac	table:wgEncodeBroadHistoneH1hescH3k27acStdPk		
+track21	cell:H1-hESC	experiment:ChIP-seq_H3K36me3	table:wgEncodeBroadHistoneH1hescH3k36me3StdPk		
+track22	cell:H1-hESC	experiment:ChIP-seq_H3K79me2	table:wgEncodeBroadHistoneH1hescH3k79me2StdPk		
+track23	cell:H1-hESC	experiment:ChIP-seq_H3K27me3	table:wgEncodeBroadHistoneH1hescH3k27me3StdPk		
+track24	cell:H1-hESC	experiment:ChIP-seq_H3K9me3	table:wgEncodeBroadHistoneH1hescH3k09me3StdPk		
+track25	cell:H1-hESC	experiment:ChIP-seq_CTCF	table:wgEncodeOpenChromChipH1hescCtcfPk		
+track26	cell:MCF-7	experiment:methyl RRBS	table:wgEncodeHaibMethylRrbsMcf7DukeSitesRep1		
+=cut

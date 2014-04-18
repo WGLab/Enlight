@@ -272,7 +272,7 @@ if ($anno_toggle)
 #------------------------------------------------------------------------------------------
 
 #generate locuszoom command
-$param.=" --metal $filename".($anno_toggle?".${ref}_multianno.txt":"";
+$param.=" --metal $filename".($anno_toggle?".${ref}_multianno.txt":"");
 $param.=" --build $ref" if $ref;
 $param.=" --markercol $markercol" if $markercol;
 $param.=" --source $ld_source" if $ld_source;
@@ -306,6 +306,7 @@ if ($varAnno)
 {
     my $rmcol=File::Spec->catfile($RealBin,"..","bin","formatter")." rmcol";
     push @command,"$rmcol $filename ${varAnno}_existence";
+    push @command,"$rmcol $filename.${ref}_multianno.txt ${varAnno}_existence" if $anno_toggle;
 }
 
 
