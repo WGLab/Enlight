@@ -342,24 +342,50 @@ Control: package for managing jobs, reporting errors, and returning results
 
 use Control;
 
+my %server_conf=&read_server_conf($conf_file);
+
+my $dsn="DBI:mysql:database=$dbname"; #data source name
+
+my $dbh=DBI->connect($dsn,$dbuser,$dbpassword,{
+
+	RaiseError=>1, #report error via die
+
+	PrintError=>0, #do not report error via warn
+
+    },) or die;
+
 my $c=Control->new(
-    dbh                     =>$dbh,
-    tablename               =>"submission",
-    maxjobnum               =>$server_conf{'maxjobnum'},
-    maxjobhist              =>$server_conf{'maxjobhist'},
-    wait_time               =>$server_conf{'waittime'},
-    max_per_ip              =>$server_conf{'maxperip'},
-    outdir                  =>$server_conf{'outdir'},
-    maxtime                 =>$server_conf{'maxtime'},
-    max_run_time            =>$server_conf{'max_run_time'},
-    command                 =>\@command,
-    access                  =>&Utils::rndStr(16,'a'..'z',0..9),
-    ip                      =>$ENV{'REMOTE_ADDR'},
+    dbh                     =>$dbh, #database handle
+    tablename               =>"submission", #mysql table storing all job status, information
+    maxjobnum               =>$server_conf{'maxjobnum'}, #max simultaneous jobs allowed
+    maxjobhist              =>$server_conf{'maxjobhist'}, #max jobs allowed in history, if there are more jobs, results of old jobs (up to maxjobhist) will be removed. this does not affect mysql records. Deleted jobs will be marked 'c' in mysql database
+    wait_time               =>$server_conf{'waittime'}, #waiting time before retry when a job is queued
+    max_per_ip              =>$server_conf{'maxperip'}, #max running job per IP
+    outdir                  =>$server_conf{'outdir'}, #output folder
+    maxtime                 =>$server_conf{'maxtime'}, #max time for a job in 'r'(running) status. Under extreme conditions (eg power outage) mysql may not be updated after some jobs accidentally die, so I set this option.
+    max_run_time            =>$server_conf{'max_run_time'}, #max running time for a job. this kills a job, when its parent is alive and can track its timing.
+    command                 =>\@command, #list of commands
+    access                  =>&Utils::rndStr(16,'a'..'z',0..9),  #random combination of letters and numbers, generated as folder name for each submission.
+    ip                      =>$ENV{'REMOTE_ADDR'}, #submitter IP
     date                    =>$date,
     'time'                  =>$time,
-    query                   =>$input,
-    param                   =>$param,
+    query                   =>$input, #the input
+    param                   =>$param, #locuszoom parameter, solely for archiving purpose. it was intended for estimating waiting time.
 );
+
+eval {
+    $c->tablePrepare(); #make sure the table exists
+    $c->jobCheck();
+    $c->jobClean();
+    $c->jobRegister(); #job ID will be saved with the object
+    $c->jobControl(); #job status totally controlled by Control.pm
+}; #capture error message rather than just die, since user might have left our website
+
+#We do not care about the return value from Control.pm, it just dies if anything goes wrong
+#
+$dbh->disconnect();
+
+my $error=$@ if $@;
 
 
 =head1 AUTHOR
