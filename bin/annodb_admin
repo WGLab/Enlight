@@ -41,60 +41,21 @@ my $annovar="annotate_variation.pl";
 my $liftover="liftOver";
 my $hg19to18chain="hg19ToHg18.over.chain";
 my %chr2no=(
-    'chr1' => '1',
-    'chr2' => '2',
-    'chr3' => '3',
-    'chr4' => '4',
-    'chr5' => '5',
-    'chr6' => '6',
-    'chr7' => '7',
-    'chr8' => '8',
-    'chr9' => '9',
-    'chr10' => '10',
-    'chr11' => '11',
-    'chr12' => '12',
-    'chr13' => '13',
-    'chr14' => '14',
-    'chr15' => '15',
-    'chr16' => '16',
-    'chr17' => '17',
-    'chr18' => '18',
-    'chr19' => '19',
-    'chr20' => '20',
-    'chr21' => '21',
-    'chr22' => '22',
-    'chrx' => '23',
-    'chry' => '24',
-    'chrmito' => '25',
-    'chrxy' => '26',
-    '1' => '1',
-    '2' => '2',
-    '3' => '3',
-    '4' => '4',
-    '5' => '5',
-    '6' => '6',
-    '7' => '7',
-    '8' => '8',
-    '9' => '9',
-    '10' => '10',
-    '11' => '11',
-    '12' => '12',
-    '13' => '13',
-    '14' => '14',
-    '15' => '15',
-    '16' => '16',
-    '17' => '17',
-    '18' => '18',
-    '19' => '19',
-    '20' => '20',
-    '21' => '21',
-    '22' => '22',
-    'x' => '23',
-    'y' => '24',
-    'mito' => '25',
-    'xy' => '26',
-);
-
+    'chr1' => '1', 'chr2' => '2', 'chr3' => '3', 'chr4' => '4',
+    'chr5' => '5', 'chr6' => '6', 'chr7' => '7', 'chr8' => '8',
+    'chr9' => '9', 'chr10' => '10', 'chr11' => '11', 'chr12' => '12',
+    'chr13' => '13', 'chr14' => '14', 'chr15' => '15', 'chr16' => '16',
+    'chr17' => '17', 'chr18' => '18', 'chr19' => '19', 'chr20' => '20',
+    'chr21' => '21', 'chr22' => '22', 'chrx' => '23', 'chry' => '24',
+    'chrmito' => '25', 'chrxy' => '26',
+    '1' => '1', '2' => '2', '3' => '3', '4' => '4',
+    '5' => '5', '6' => '6', '7' => '7', '8' => '8',
+    '9' => '9', '10' => '10', '11' => '11', '12' => '12',
+    '13' => '13', '14' => '14', '15' => '15', '16' => '16',
+    '17' => '17', '18' => '18', '19' => '19', '20' => '20',
+    '21' => '21', '22' => '22', 'x' => '23', 'y' => '24',
+    'mito' => '25', 'xy' => '26',
+); 
 $db=shift @ARGV;
 warn "No database\n" and pod2usage() unless $db;
 my @ins=split /,/,$inslst if $inslst;
@@ -110,6 +71,10 @@ if ($listfile)
     @ins=map { $tmp{$_}{table} } keys %tmp;
     @file=();
 } 
+if ( @file && @ins!=@file)
+{
+    die "ERROR: if -file is specified, the number of arguments for -insert must be equal\n";
+}
 
 #first process deletion
 if (@del)
@@ -156,7 +121,7 @@ if (@ins)
 }
 
 #cleanup
-unlink @unlink or die "Failed to clean @unlink: $!\n";
+unlink @unlink;
 
 ##########################SUBROUTINES########################
 sub bed2generic
@@ -261,7 +226,7 @@ sub filecheck
 	    }
 	}
 
-    } else
+    }else
     {
 	return 0;
     }

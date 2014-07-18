@@ -8,6 +8,9 @@ warn "NOTICE: run '$0 addbin' will output BED file with 1 column as BIN column\n
 warn "NOTICE: ANNOVAR will consider 1st column to be BIN by default\n";
 sleep 1;
 
+#how to insert the resulting BED file into enlight database?
+#~/projects/annoenlight/bin/annodb_admin -bedinput -f ../hg19_GTEX-140712-0019-17897.Brain_Cerebellum.ponly.txt -bincol -col 4 enlight_hg19.db -i GTEX_Brain_Cerebellum
+
 my $addbin=shift @ARGV;
 {
     my $in="hg18_All.individual.tracks.gff.v3";
