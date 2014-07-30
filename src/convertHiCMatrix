@@ -6,8 +6,9 @@ use strict;
 my $usage="
 convertHiCMatrix <subcommand> <...>
 subcommand:	
-compile	#compile a set of matrixes into one table
-query	#retrieve interaction information for certain regions
+compile		#compile a set of matrixes into one table
+hg18to19	#convert coordinates from hg18 to hg19
+query		#retrieve interaction information for certain regions
 ";
 @ARGV>=1 or die $usage,"\n";
 
@@ -35,15 +36,144 @@ if($subcommand eq "compile")
 } elsif ($subcommand eq "query")
 {
     &query(@ARGV);
-} else
+} elsif ($subcommand eq "hg18to19")
+{
+    &hg18to19(@ARGV);
+}else
 {
     die $usage,"\n";
 }
 
+############################################################
+#######################END OF MAIN##########################
+############################################################
+
+
 #read a bunch of matrixes, put them into one table
 sub compile
 {
+    my $usage="compile <build> <binsize> <out-file-prefix> <1.txt 2.txt ...>\n";
+    die "$usage\n" if @ARGV<=2;
 
+    my $build=shift @ARGV;
+    my $binsize=shift @ARGV;
+    my $outprefix=shift @ARGV;
+    my $outfile="$outprefix.$build.txt";
+    my $outfile2="$outprefix.hg19.txt";
+    my $lines=0;
+    my $fh;
+    my %in_fh; #input file filehandle hash, save overhead on opening
+    open $fh,'>',$outfile or die "ERROR: failed to open $outfile ($!)\n";
+    for my $i(@ARGV)
+    {
+	open (my $temp_fh,'<',$i) or die "ERROR: failed to open $i ($!)\n";
+	$in_fh{$i}=$temp_fh;
+    }
+    
+    die "ERROR: genome build must be hg18 or hg19\n" unless $build eq 'hg18' or $build eq 'hg19';
+    warn "NOTICE: binsize is $binsize\n";
+    warn "NOTICE: begin consolidating individual matrixes\n";
+    #prepere header
+    my %all_header; #store all numerical chromosome names in keys, values are [chr,pos1,pos2]
+    for my $i(@ARGV)
+    {
+	my $colname_ref=&read_raw_matrix_header($in_fh{$i});	
+	my $chr=${$colname_ref}[0][0]; #entry in colname: [chr,pos1,pos2]
+	if(defined $all_header{$chr})
+	{
+	    if(@{$all_header{$chr}} != @{$colname_ref})
+	    {
+		die "ERROR: BIN names found in $i differ from previous records\n";
+	    }
+	}
+	else
+	{
+	    $all_header{$chr}=$colname_ref;
+	}
+    }
+    #print header
+    &output_header(\%all_header,$fh);
+    warn "NOTICE: header done\n";
+    #prepare content
+    for my $i(sort keys %all_header)
+    {
+	&output_matrix($i,\%all_header,$fh,\%in_fh);
+    }
+    warn "NOTICE: content done\n";
+    warn "NOTICE: $lines lines of interaction data written to $outfile\n";
+    close $fh;
+    close $_ for (values %in_fh);
+
+    if($build eq 'hg18')
+    {
+	$lines=0;
+	&hg18to19($outfile);
+	warn "NOTICE: $lines written to $outfile\n";
+    }
+}
+
+#print header
+sub output_header
+{
+    my $header_ref=shift @_;
+    my $fh=shift @_;
+    my @f;
+
+    #keys are numerical chr
+    for my $i(sort keys %$header_ref)
+    {
+	#entry is [chr,pos1,pos2]
+	#suppose entries are sorted
+	for my $j( @{ ${$header_ref}{$i} } )
+	{ 
+	    my ($chr,$pos1,$pos2)=@$j;
+	    push "$chr:$pos1-$pos2",@f;
+	}
+    }
+
+    print $fh join ("\t","PLACE_HOLDER",@f),"\n";
+    warn "NOTICE: header printed\n";
+}
+#loop over all files again and again
+#until we find all interaction data 
+#for the specified chromosome
+sub output_matrix
+{
+    my $chr=shift @_; #chr of interest
+    #header, it's used to show what chromosome we
+    #need to look at for the chr of interest
+    my $header_ref=shift @_; 
+    my $fh=shift @_;
+    my $in_fh_ref=shift @_;
+    
+    my $lines=0;
+    #huge matrix storing interaction data for all pairwise interaction for chr of interest
+    #luckily the data itself should be around a few hundred MB
+    my @out; 
+
+    for my $i(sort keys %$header_ref)
+    {
+	#filename: HIC_gm06690_chr10_chr10_1000000_exp.txt
+	for my $j(keys %$in_fh_ref)
+	{
+	    my ($prefix)= $i=~m/^(.*?)\.txt$/ or die "ERROR: .txt file expected ($i)\n";
+	    my ($assay,$cell,$chr1,$chr2,$local_binsize,$type)=split /_/,$prefix;
+	    die "ERROR: failed to parse filename ($prefix)\n" unless defined $chr1 && defined $chr2 && defined $binsize;
+	    die "ERROR: incorrect bin size ($local_binsize vs $binsize)\n" unless $local_binsize == $binsize;
+	    next unless $chr1 eq $chr && $chr2 eq $i
+	    	     or $chr1 eq $i   && $chr2 eq $chr;
+		 #suppose entries are sorted??
+		 #you should check it!
+		 #START FROM HERE!!!!
+		 #store things in the giant @out matrix first !!!!
+
+	}
+    }
+}
+#convert coordinate from hg18 to hg19
+sub hg18to19
+{
+    my $usage="";
 }
 #retrieve values from certain regions
 #if only one region is specified, return interaction values for all genome with that region
@@ -54,24 +184,44 @@ sub query
 }
 
 #read raw interaction matrix
-sub read_raw_matrix
+sub read_raw_matrix_header
 {
-    open IN,'<',$file or die "ERROR: failed to read $file: $!\n";
-    while(<IN>)
+    my $fh=shift @_;
+    my @colname;
+    while(<$fh>)
     {
 	next if /^#/;
+	s/^\s+|\s+$//;
 	chomp;
 	if($.==2) #header line
-	@header=split;
-	else
 	{
-#for data lines, the 1st column is row name
-	    @f=split;
-	    unshift @f
+	    @colname=split;
+	    last;
+	    #because all pairwise interactions are included
+	    #column names will be sufficient to get to know
+	    #all BIN names
 	}
     }
+    for my $i(@colname)
+    {#colname stores ref to each BIN name
+	$i=&extract_chr_pos($i);
+    }
+    return \@colname;
 }
 
+sub extract_chr_pos
+{
+    my $s=shift @_;
+    my @f=split /[\|\.]/,$s;
+    my $chr,$pos1,$pos2;
+
+    die "ERROR: unable to parse header ($s)\n" unless @f>1;
+    ($chr,$pos1,$pos2)=split /[:\-]/,$f[$#f];
+    die "ERROR: unable to parse chromosome and position ($s)\n" unless 
+    				defined $chr && defined $pos1 && defined $pos2;
+    die "ERROR: unable to recognize chromosome name ($chr)\n" unless defined $chr2no{$chr};
+    return [$chr2no{$chr},$pos1,$pos2];
+}
 #read compiled matrix
 sub read_compiled_matrix
 {
@@ -79,15 +229,21 @@ sub read_compiled_matrix
 }
 
 #example output
+
 =head
+
 #hg18
 	1:1-999999	1:1000000-1999999	...
 1:1-999999	0	0	...
+
 =cut
 
 #example input
+
 =head
+
 #GMBothall.0.maq.ctg1.ctg22.1000000bp.hm.newtracks12forBryan.heatmap.matrix.tab
 	HIC_bin1|hg18|chr22:1-999999	HIC_bin2|hg18|chr22:1000000-1999999	HIC_bin3|hg18|chr22:2000000-2999999	HIC_bin4|hg18|chr22:3000000-3999999	HIC_bin5|hg18|chr22:4000000-4999999	HIC_bin6|hg18|chr22:5000000-5999999	HIC_bin7|hg18|chr22:6000000-6999999	HIC_bin8|hg18|chr22:7000000-7999999	HIC_bin9|hg18|chr22:8000000-8999999	HIC_bin10|hg18|chr22:9000000-9999999	HIC_bin11|hg18|chr22:10000000-10999999	HIC_bin12|hg18|chr22:11000000-11999999	HIC_bin13|hg18|chr22:12000000-12999999	HIC_bin14|hg18|chr22:13000000-13999999	HIC_bin15|hg18|chr22:14000000-14999999	HIC_bin16|hg18|chr22:15000000-15999999	HIC_bin17|hg18|chr22:16000000-16999999	HIC_bin18|hg18|chr22:17000000-17999999	HIC_bin19|hg18|chr22:18000000-18999999	HIC_bin20|hg18|chr22:19000000-19999999	HIC_bin21|hg18|chr22:20000000-20999999	HIC_bin22|hg18|chr22:21000000-21999999	HIC_bin23|hg18|chr22:22000000-22999999	HIC_bin24|hg18|chr22:23000000-23999999	HIC_bin25|hg18|chr22:24000000-24999999	HIC_bin26|hg18|chr22:25000000-25999999	HIC_bin27|hg18|chr22:26000000-26999999	HIC_bin28|hg18|chr22:27000000-27999999	HIC_bin29|hg18|chr22:28000000-28999999	HIC_bin30|hg18|chr22:29000000-29999999	HIC_bin31|hg18|chr22:30000000-30999999	HIC_bin32|hg18|chr22:31000000-31999999	HIC_bin33|hg18|chr22:32000000-32999999	HIC_bin34|hg18|chr22:33000000-33999999	HIC_bin35|hg18|chr22:34000000-34999999	HIC_bin36|hg18|chr22:35000000-35999999	HIC_bin37|hg18|chr22:36000000-36999999	HIC_bin38|hg18|chr22:37000000-37999999	HIC_bin39|hg18|chr22:38000000-38999999	HIC_bin40|hg18|chr22:39000000-39999999	HIC_bin41|hg18|chr22:40000000-40999999	HIC_bin42|hg18|chr22:41000000-41999999	HIC_bin43|hg18|chr22:42000000-42999999	HIC_bin44|hg18|chr22:43000000-43999999	HIC_bin45|hg18|chr22:44000000-44999999	HIC_bin46|hg18|chr22:45000000-45999999	HIC_bin47|hg18|chr22:46000000-46999999	HIC_bin48|hg18|chr22:47000000-47999999	HIC_bin49|hg18|chr22:48000000-48999999	HIC_bin50|hg18|chr22:49000000-49691431	
 HIC_bin1|hg18|chr1:1-999999	0	0	0	0	0	0	0	0	0	0	0	0	0	0	4.0	9.0	14.0	9.0	10.0	17.0	9.0	14.0	7.0	6.0	11.0	14.0	9.0	7.0	10.0	16.0	11.0	8.0	11.0	13.0	15.0	13.0	11.0	15.0	10.0	9.0	9.0	12.0	13.0	11.0	14.0	10.0	12.0	15.0	24.0	33.0
+
 =cut
