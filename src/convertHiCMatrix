@@ -69,28 +69,13 @@ sub compile
 	open (my $temp_fh,'<',$i) or die "ERROR: failed to open $i ($!)\n";
 	$in_fh{$i}=$temp_fh;
     }
-    
+
     die "ERROR: genome build must be hg18 or hg19\n" unless $build eq 'hg18' or $build eq 'hg19';
     warn "NOTICE: binsize is $binsize\n";
     warn "NOTICE: begin consolidating individual matrixes\n";
     #prepere header
     my %all_header; #store all numerical chromosome names in keys, values are [chr,pos1,pos2]
-    for my $i(@ARGV)
-    {
-	my $colname_ref=&read_raw_matrix_header($in_fh{$i});	
-	my $chr=${$colname_ref}[0][0]; #entry in colname: [chr,pos1,pos2]
-	if(defined $all_header{$chr})
-	{
-	    if(@{$all_header{$chr}} != @{$colname_ref})
-	    {
-		die "ERROR: BIN names found in $i differ from previous records\n";
-	    }
-	}
-	else
-	{
-	    $all_header{$chr}=$colname_ref;
-	}
-    }
+    &save_header(\%all_header,\%in_fh,\@ARGV);
     #print header
     &output_header(\%all_header,$fh);
     warn "NOTICE: header done\n";
@@ -112,6 +97,29 @@ sub compile
     }
 }
 
+#read header from files and save it to %all_header
+sub save_header
+{
+    my $all_header_ref=shift;
+    my $in_fh_ref=shift;
+
+    for my $i(keys %$in_fh_ref) #loop over all input files
+    {
+	my $colname_ref=&read_raw_matrix_header(${$in_fh_ref}{$i});	
+	my $chr=${$colname_ref}[0][0]; #entry in colname: [chr,pos1,pos2]
+	if(defined ${$all_header_ref}{$chr})
+	{
+	    if(@{${$all_header_ref}{$chr}} != @{$colname_ref})
+	    {
+		die "ERROR: BIN names found in $i differ from previous records\n";
+	    }
+	}
+	else
+	{
+	    ${$all_header}{$chr}=$colname_ref;
+	}
+    }
+}
 #print header
 sub output_header
 {
@@ -149,8 +157,9 @@ sub output_matrix
     my $lines=0;
     #huge matrix storing interaction data for all pairwise interaction for chr of interest
     #luckily the data itself should be around a few hundred MB
-    my @out; 
+    my %out; #use pos1 in each bin as key, store interaction with every other chromosome as value
 
+    #loop over all chromosomes
     for my $i(sort keys %$header_ref)
     {
 	#filename: HIC_gm06690_chr10_chr10_1000000_exp.txt
@@ -162,11 +171,35 @@ sub output_matrix
 	    die "ERROR: incorrect bin size ($local_binsize vs $binsize)\n" unless $local_binsize == $binsize;
 	    next unless $chr1 eq $chr && $chr2 eq $i
 	    	     or $chr1 eq $i   && $chr2 eq $chr;
+
+		 &read_raw_block(${$header_ref}{$i},${$in_fh_ref}{$j},\%out);
+		 sub read_raw_block
+		 {
+		     my $bin_ref=shift; #contains all bins: [chr,pos1,pos2]
+		     my $fh=shift;
+		     my $out_ref=shift;
+
+		     seek $fh,0,0;
+		     while(<$fh>)
+		     {
+			 next if /^#|^\s+$/;
+			 next if $.==2;
+			 last;
+		     }
+		     #start the loop again and omit all unnecessary lines
+		     while(<$fh>)
+		     {
+
+		     }
+		 }
+
+
 		 #suppose entries are sorted??
 		 #you should check it!
 		 #START FROM HERE!!!!
 		 #store things in the giant @out matrix first !!!!
-
+		 print $fh @$out;
+		 last; #only need to output chr1,chr2 interaction once
 	}
     }
 }
@@ -188,6 +221,7 @@ sub read_raw_matrix_header
 {
     my $fh=shift @_;
     my @colname;
+    seek $fh,0,0;
     while(<$fh>)
     {
 	next if /^#/;
