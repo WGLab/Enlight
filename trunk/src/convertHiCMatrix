@@ -2,6 +2,9 @@
 
 use warnings;
 use strict;
+use File::Basename qw/basename dirname/;
+use Array::Transpose;
+use Carp;
 
 my $usage="
 convertHiCMatrix <subcommand> <...>
@@ -28,6 +31,24 @@ my %chr2no=(
     '21' => '21', '22' => '22', 'x' => '23', 'y' => '24',
     'mito' => '25', 'xy' => '26',
 );
+my %ucsc2no
+my %no2ucsc=(
+    '1'=>'chr1',
+    '2'=>'chr2',
+    '3'=>'chr3',
+    '4'=>'chr4',
+    '5'=>'chr5',
+    '6'=>'chr6',
+    '7'=>'chr7',
+    '8'=>'chr8',
+    '9'=>'chr9',
+    '10'=>'chr10',
+    '11'=>'chr11',
+    '12'=>'chr12',
+    '13'=>'chr13',
+    '14'=>'chr14',
+    '15'=>'chr15',
+    '16'=>'chr16',
 
 my $subcommand=shift @ARGV;
 if($subcommand eq "compile")
@@ -59,10 +80,9 @@ sub compile
     my $binsize=shift @ARGV;
     my $outprefix=shift @ARGV;
     my $outfile="$outprefix.$build.txt";
-    my $outfile2="$outprefix.hg19.txt";
-    my $lines=0;
     my $fh;
     my %in_fh; #input file filehandle hash, save overhead on opening
+    my $lines=0;
     open $fh,'>',$outfile or die "ERROR: failed to open $outfile ($!)\n";
     for my $i(@ARGV)
     {
@@ -78,22 +98,19 @@ sub compile
     &save_header(\%all_header,\%in_fh,\@ARGV);
     #print header
     &output_header(\%all_header,$fh);
-    warn "NOTICE: header done\n";
     #prepare content
-    for my $i(sort keys %all_header)
+    for my $i(sort {$a<=>$b} keys %all_header)
     {
-	&output_matrix($i,\%all_header,$fh,\%in_fh);
+	&output_matrix($i,\%all_header,$fh,\%in_fh,$binsize,\$lines);
     }
     warn "NOTICE: content done\n";
-    warn "NOTICE: $lines lines of interaction data written to $outfile\n";
+    warn "NOTICE: $lines lines written to $outfile\n";
     close $fh;
     close $_ for (values %in_fh);
 
     if($build eq 'hg18')
     {
-	$lines=0;
 	&hg18to19($outfile);
-	warn "NOTICE: $lines written to $outfile\n";
     }
 }
 
@@ -111,12 +128,27 @@ sub save_header
 	{
 	    if(@{${$all_header_ref}{$chr}} != @{$colname_ref})
 	    {
-		die "ERROR: BIN names found in $i differ from previous records\n";
+		&dbg_print_header($all_header_ref);
+		die "ERROR: number of BIN names found in $i differs from previous records (",
+		scalar(@{${$all_header_ref}{$chr}})," vs ",scalar(@$colname_ref),")\n";
 	    }
 	}
 	else
 	{
-	    ${$all_header}{$chr}=$colname_ref;
+	    ${$all_header_ref}{$chr}=$colname_ref;
+	}
+    }
+}
+sub dbg_print_header
+{
+    my $header_ref=shift;
+    for my $i(keys %$header_ref)
+    {
+	warn "chr:$i\n";
+	for my $j( @{${$header_ref}{$i}})
+	{
+	    my ($chr,$pos1,$pos2)=@$j;
+	    warn "chr:$chr,pos1:$pos1,pos2:$pos2\n";
 	}
     }
 }
@@ -128,14 +160,16 @@ sub output_header
     my @f;
 
     #keys are numerical chr
-    for my $i(sort keys %$header_ref)
+    for my $i(sort {$a<=>$b} keys %$header_ref)
     {
 	#entry is [chr,pos1,pos2]
 	#suppose entries are sorted
-	for my $j( @{ ${$header_ref}{$i} } )
+	for my $j( @{${$header_ref}{$i}} )
 	{ 
+	    #warn "outputing chr:$i\n";
+	    #&dbg_print_header($header_ref);
 	    my ($chr,$pos1,$pos2)=@$j;
-	    push "$chr:$pos1-$pos2",@f;
+	    push @f,"$chr:$pos1-$pos2";
 	}
     }
 
@@ -153,60 +187,96 @@ sub output_matrix
     my $header_ref=shift @_; 
     my $fh=shift @_;
     my $in_fh_ref=shift @_;
-    
-    my $lines=0;
+    my $binsize=shift;
+    my $line_ref=shift;
+
     #huge matrix storing interaction data for all pairwise interaction for chr of interest
     #luckily the data itself should be around a few hundred MB
     my %out; #use pos1 in each bin as key, store interaction with every other chromosome as value
 
     #loop over all chromosomes
-    for my $i(sort keys %$header_ref)
+    for my $i(sort {$a<=>$b} keys %$header_ref)
     {
 	#filename: HIC_gm06690_chr10_chr10_1000000_exp.txt
 	for my $j(keys %$in_fh_ref)
 	{
-	    my ($prefix)= $i=~m/^(.*?)\.txt$/ or die "ERROR: .txt file expected ($i)\n";
+	    my $base=basename $j;
+	    my ($prefix)= $base=~m/^(.*?)\.txt$/ or die "ERROR: .txt file expected ($j)\n";
 	    my ($assay,$cell,$chr1,$chr2,$local_binsize,$type)=split /_/,$prefix;
-	    die "ERROR: failed to parse filename ($prefix)\n" unless defined $chr1 && defined $chr2 && defined $binsize;
-	    die "ERROR: incorrect bin size ($local_binsize vs $binsize)\n" unless $local_binsize == $binsize;
-	    next unless $chr1 eq $chr && $chr2 eq $i
-	    	     or $chr1 eq $i   && $chr2 eq $chr;
+	    die "ERROR: failed to parse filename ($prefix)\n" unless defined $chr1 && defined $chr2 && defined $local_binsize;
+	    die "ERROR: incorrect bin size ($local_binsize vs $binsize) in $j\n" unless $local_binsize == $binsize;
+	    $chr1=lc $chr1;
+	    $chr2=lc $chr2;
+	    next unless $chr2no{$chr1} eq $chr && $chr2no{$chr2} eq $i
+		or $chr2no{$chr1} eq $i   && $chr2no{$chr2} eq $chr;
 
-		 &read_raw_block(${$header_ref}{$i},${$in_fh_ref}{$j},\%out);
-		 sub read_raw_block
-		 {
-		     my $bin_ref=shift; #contains all bins: [chr,pos1,pos2]
-		     my $fh=shift;
-		     my $out_ref=shift;
-
-		     seek $fh,0,0;
-		     while(<$fh>)
-		     {
-			 next if /^#|^\s+$/;
-			 next if $.==2;
-			 last;
-		     }
-		     #start the loop again and omit all unnecessary lines
-		     while(<$fh>)
-		     {
-
-		     }
-		 }
-
-
-		 #suppose entries are sorted??
-		 #you should check it!
-		 #START FROM HERE!!!!
-		 #store things in the giant @out matrix first !!!!
-		 print $fh @$out;
-		 last; #only need to output chr1,chr2 interaction once
+	    &read_raw_block($chr,${$in_fh_ref}{$j},\%out);
+	    last; #only need to output chr1,chr2 interaction once
 	}
     }
+    &output_onechr_interaction($chr,$header_ref,\%out,$fh,$line_ref);
 }
-#convert coordinate from hg18 to hg19
 sub hg18to19
 {
-    my $usage="";
+    &converthg('hg19',@_);
+}
+sub hg19to18
+{
+    &converthg('hg18',@_);
+}
+#convert coordinate from hg18 to hg19 or hg19 to hg18
+sub converthg
+{
+    my $usage="hg18to19|hg19to18 <file>";
+    die "$usage\n" unless @_==2;
+    my $dest=shift;#could be hg18 or hg19
+    my $file=shift;
+    my $outfile="$file.$dest";
+	my $hg19to18chain="/home/yunfeiguo/Downloads/liftover/hg19ToHg18.over.chain";
+	my $hg18to19chain="/home/yunfeiguo/Downloads/liftover/hg18ToHg19.over.chain";
+	my $liftover="liftOver";
+
+	#extract header (1st line excluding comments)
+	#write to temp in BED format (chromosome name converted to ucsc chr)
+	#convert
+	#rewrite colname and rowname (check if rowname is same order as colname as expected)
+	
+	my $headeronly="/tmp/header.".rand($$).".bed";
+
+    #chromosomal name, 0-start or 1-start must be converted
+	&chr2ucsc($hg19out,$hg19tmp_ucscchr);
+	!system("mv -f $hg19tmp_ucscchr $hg19out") or die "Failed to rename: $!\n";
+
+	!system("$liftover -bedPlus=3 -tab $hg19out $hg19to18chain $hg18out /tmp/$$.liftover.tmp ") or die "Failed to lift over from hg19 to hg18: $!\n";
+
+	warn "NOTICE: output written to $outfile\n";
+}
+sub chr2ucsc
+{
+    my $in=shift;
+    my $out=shift;
+
+    open IN,'<',$in or die "Failed to read $in: $!\n";
+    open OUT,'>', $out or die "Failed to write to $out: $!\n";
+
+    while(<IN>)
+    {
+	if (/^(\d+)\t(\d+)\t(\d+)/)
+	{
+	    my $chr=$1;
+	    if ($chr == 23)
+	    {
+		s/^\d+/chrX/;
+	    } else
+	    {
+		s/^\d+/chr$chr/;
+	    }
+	}
+	print OUT;
+    }
+
+    close IN;
+    close OUT;
 }
 #retrieve values from certain regions
 #if only one region is specified, return interaction values for all genome with that region
@@ -214,6 +284,83 @@ sub hg18to19
 sub query
 {
 
+}
+#output all interaction for the specified chromosome
+sub output_onechr_interaction
+{
+    my $chr=shift;
+    my $header_ref=shift;
+    my $out_ref=shift;
+    my $fh=shift;
+    my $line_ref=shift;
+    my $prev_pos;
+
+    for my $i( @{${$header_ref}{$chr}} )
+    {
+	my ($chr,$pos1,$pos2)=@$i;
+	#bin name comes from colname, make sure it's sorted incrementally
+	#row name doesn't matter, it's stored in hash (%out)
+	if(defined $prev_pos)
+	{
+	    die "ERROR: header not sorted for $chr\n" unless $pos1>$prev_pos;
+	    $prev_pos=$pos1;
+	} else
+	{
+	    $prev_pos=$pos1;
+	}
+	print $fh join("\t","$chr:$pos1-$pos2",@{${$out_ref}{$pos1}}),"\n";
+	$$line_ref++;
+    }
+
+}
+#read one file(block) into the hash for output
+sub read_raw_block
+{
+    my $chr_interest=shift;
+    my $fh=shift;
+    my $out_ref=shift;
+    my @block_array;
+    my $read_by_row=1;
+
+    seek $fh,0,0;
+    $.=0;
+    while(<$fh>)
+    {
+	next if /^#|^\s+$/;
+	s/\s+$//;
+	my @f=split;
+	unshift @f," " if $.==2;
+	push @block_array,[@f];
+    }
+    for my $i(@block_array[1..$#block_array])
+    {
+	#the order of bin has been checked earlier
+	my ($chr,$pos1,$pos2)=@{&extract_chr_pos(${$i}[0])};
+	die "ERROR: unable to recognize row name (${$i}[0])\n" unless defined $chr && defined $pos1 && defined $pos2;
+	if ($chr ne $chr_interest)
+	{
+		$read_by_row=0;
+	}
+	last;
+    }
+    if(!$read_by_row)
+    {
+	#transpose @block_array
+	@block_array=transpose(\@block_array);
+    }
+    for my $i(@block_array[1..$#block_array])
+    {
+	#the order of bin has been checked earlier
+	my ($chr,$pos1,$pos2)=@{&extract_chr_pos(${$i}[0])};
+	die "ERROR: unable to recognize row name (${$i}[0])\n" unless defined $chr && defined $pos1 && defined $pos2;
+	if (defined ${$out_ref}{$pos1})
+	{
+	    push @{${$out_ref}{$pos1}},@{$i}[1..$#{$i}];
+	} else
+	{
+	    ${$out_ref}{$pos1}=[@{$i}[1..$#{$i}]];
+	}
+    }
 }
 
 #read raw interaction matrix
@@ -247,12 +394,13 @@ sub extract_chr_pos
 {
     my $s=shift @_;
     my @f=split /[\|\.]/,$s;
-    my $chr,$pos1,$pos2;
+    my ($chr,$pos1,$pos2);
 
-    die "ERROR: unable to parse header ($s)\n" unless @f>1;
+    die ("ERROR: unable to parse header ($s)\n") unless @f>1;
     ($chr,$pos1,$pos2)=split /[:\-]/,$f[$#f];
     die "ERROR: unable to parse chromosome and position ($s)\n" unless 
-    				defined $chr && defined $pos1 && defined $pos2;
+    defined $chr && defined $pos1 && defined $pos2;
+    $chr=lc $chr;
     die "ERROR: unable to recognize chromosome name ($chr)\n" unless defined $chr2no{$chr};
     return [$chr2no{$chr},$pos1,$pos2];
 }
