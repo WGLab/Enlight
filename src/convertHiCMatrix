@@ -10,8 +10,8 @@ my $usage="
 convertHiCMatrix <subcommand> <...>
 subcommand:	
 compile		#compile a set of matrixes into one table
-hg18to19	#convert coordinates from hg18 to hg19
 query		#retrieve interaction information for certain regions
+index		#generate index for matrix (at chromosomal resolution)
 ";
 @ARGV>=1 or die $usage,"\n";
 
@@ -31,24 +31,6 @@ my %chr2no=(
     '21' => '21', '22' => '22', 'x' => '23', 'y' => '24',
     'mito' => '25', 'xy' => '26',
 );
-my %ucsc2no
-my %no2ucsc=(
-    '1'=>'chr1',
-    '2'=>'chr2',
-    '3'=>'chr3',
-    '4'=>'chr4',
-    '5'=>'chr5',
-    '6'=>'chr6',
-    '7'=>'chr7',
-    '8'=>'chr8',
-    '9'=>'chr9',
-    '10'=>'chr10',
-    '11'=>'chr11',
-    '12'=>'chr12',
-    '13'=>'chr13',
-    '14'=>'chr14',
-    '15'=>'chr15',
-    '16'=>'chr16',
 
 my $subcommand=shift @ARGV;
 if($subcommand eq "compile")
@@ -57,9 +39,9 @@ if($subcommand eq "compile")
 } elsif ($subcommand eq "query")
 {
     &query(@ARGV);
-} elsif ($subcommand eq "hg18to19")
+} elsif ($subcommand eq "index")
 {
-    &hg18to19(@ARGV);
+    &index(@ARGV);
 }else
 {
     die $usage,"\n";
@@ -75,6 +57,8 @@ sub compile
 {
     my $usage="compile <build> <binsize> <out-file-prefix> <1.txt 2.txt ...>\n";
     die "$usage\n" if @ARGV<=2;
+    #example
+    #./convertHiCMatrix compile hg18 1000000 try_hic_1000000 interaction_matrix/HIC_k562*_1000000_exp.txt
 
     my $build=shift @ARGV;
     my $binsize=shift @ARGV;
@@ -107,11 +91,6 @@ sub compile
     warn "NOTICE: $lines lines written to $outfile\n";
     close $fh;
     close $_ for (values %in_fh);
-
-    if($build eq 'hg18')
-    {
-	&hg18to19($outfile);
-    }
 }
 
 #read header from files and save it to %all_header
@@ -216,74 +195,161 @@ sub output_matrix
     }
     &output_onechr_interaction($chr,$header_ref,\%out,$fh,$line_ref);
 }
-sub hg18to19
-{
-    &converthg('hg19',@_);
-}
-sub hg19to18
-{
-    &converthg('hg18',@_);
-}
-#convert coordinate from hg18 to hg19 or hg19 to hg18
-sub converthg
-{
-    my $usage="hg18to19|hg19to18 <file>";
-    die "$usage\n" unless @_==2;
-    my $dest=shift;#could be hg18 or hg19
-    my $file=shift;
-    my $outfile="$file.$dest";
-	my $hg19to18chain="/home/yunfeiguo/Downloads/liftover/hg19ToHg18.over.chain";
-	my $hg18to19chain="/home/yunfeiguo/Downloads/liftover/hg18ToHg19.over.chain";
-	my $liftover="liftOver";
-
-	#extract header (1st line excluding comments)
-	#write to temp in BED format (chromosome name converted to ucsc chr)
-	#convert
-	#rewrite colname and rowname (check if rowname is same order as colname as expected)
-	
-	my $headeronly="/tmp/header.".rand($$).".bed";
-
-    #chromosomal name, 0-start or 1-start must be converted
-	&chr2ucsc($hg19out,$hg19tmp_ucscchr);
-	!system("mv -f $hg19tmp_ucscchr $hg19out") or die "Failed to rename: $!\n";
-
-	!system("$liftover -bedPlus=3 -tab $hg19out $hg19to18chain $hg18out /tmp/$$.liftover.tmp ") or die "Failed to lift over from hg19 to hg18: $!\n";
-
-	warn "NOTICE: output written to $outfile\n";
-}
-sub chr2ucsc
-{
-    my $in=shift;
-    my $out=shift;
-
-    open IN,'<',$in or die "Failed to read $in: $!\n";
-    open OUT,'>', $out or die "Failed to write to $out: $!\n";
-
-    while(<IN>)
-    {
-	if (/^(\d+)\t(\d+)\t(\d+)/)
-	{
-	    my $chr=$1;
-	    if ($chr == 23)
-	    {
-		s/^\d+/chrX/;
-	    } else
-	    {
-		s/^\d+/chr$chr/;
-	    }
-	}
-	print OUT;
-    }
-
-    close IN;
-    close OUT;
-}
 #retrieve values from certain regions
 #if only one region is specified, return interaction values for all genome with that region
 #if two regions are specified, only return interaction values between the two regions
 sub query
 {
+    #query string example
+    #1:1000-2000 2:9999-1000000
+    #return string example
+    ####################################################
+    #SPACE	2:1-9999	2:10000-19999	...    #
+    #1:1000-1999	8.1	1.4	...	       #
+    #1:2000-2999	1.2	19.1	...	       #
+    ####################################################
+    my $usage="query <file> <output file> <region1> <region2>\n".
+    "<region1> chr:pos-pos, chr is numerical\n".
+    "<region2> chr:pos-pos, chr is numerical\n".
+    "If only one region is specified, output interaction between genome and this region\n".
+    "Otherwise, output interaction that is involved between the two regions\n";
+    die "$usage\n" unless @ARGV==4 or @ARGV==3;
+    my $file=shift;
+    my $idx="$file.idx";
+    my $output=shift;
+    my $region1=shift;
+    my $region2=shift;
+    my $lines=0;
 
+    die "ERROR: no index\n" unless -e $idx;
+    open (my $in ,"<",$file) or die "$file: $!\n";
+    open (my $out,">",$output) or die "$output: $!\n";
+    $lines=&gen_query_output({in=>$in,out=>$out,idx=>$idx,region1=>$region1,region2=>$region2});
+    close $in;
+    close $out;
+    warn "NOTICE: $lines lines written to $output\n";
+}
+#output interaction matrix specified by one region or two regions
+sub gen_query_output
+{
+    my $config=shift;
+    my $idx_ref=&read_idx($config->{idx});
+    my $lines=0;
+    my @col_needed=&find_col_needed($config->{in},$config->{region2}); #starts with 0!!!
+#when region2 is specified, col_needed is limited by it
+#otherwise, we output all interactions for region1
+    my @header=&get_header($config->{in});
+	    print {$config->{out}} join ("\t",@header[@col_needed]),"\n";
+	    $lines++;
+
+    my ($chr,$pos1,$pos2)= $config->{region1}=~/(.*?):(\d+)-(\d+)/;
+    die "ERROR: failed to parse region1 ($config->{region1})\n" unless defined $chr && defined $pos1 && defined $pos2;
+    seek $config->{in},$idx_ref->{$chr},0 or die "seek failed: $!\n";
+    while(readline $config->{in}) #since filehandle is stored as hash value, readline must be used instead of <>
+    {
+	s/[\r\n]+$//;
+	my @f=split /\t/;
+	die "ERROR: ",scalar(@header)," fields expected at line $_\n" unless @f==@header;
+	die "ERROR: failed to parse row name at line $_\n" unless $f[0]=~/^(.*?):(\d+)-(\d+)/;
+	my ($local_chr,$local_pos1,$local_pos2)=($1,$2,$3);
+	if($local_chr eq $chr && $local_pos1 <= $pos2 && $local_pos2 >= $pos1)
+	{
+	    #note: when filehandle is a hash value, you have to deference it before printing to it
+	    print {$config->{out}} join ("\t",@f[@col_needed]),"\n";
+	    $lines++;
+	} else
+	{#suppose records are sorted based on position, same chromosome records are grouped
+	    last;
+	}
+    }
+    return $lines;
+}
+#fetch header (1st line)
+sub get_header
+{
+    my $in=shift;
+    seek $in,0,0 or die "seek failed: $!";
+    my $header=<$in>;
+    $header=~s/[\r\n]+$//;
+    return split /\t/,$header;
+}
+#based on header in in and region, output colnum indexes matching region
+sub find_col_needed
+{
+    my $in=shift;
+    my $region=shift;
+    my @return;
+
+    my @f=&get_header($in);
+    if(defined $region)
+    {
+	push @return,0; #0 is empty
+	my ($chr,$pos1,$pos2)= $region=~/(.*?):(\d+)-(\d+)/;
+	die "ERROR: failed to parse region ($region)\n" unless defined $chr && defined $pos1 && defined $pos2;
+	for my $i(1..$#f)
+	{
+	    die "ERROR: failed to parse column name\n" unless $f[$i]=~/^(.*?):(\d+)-(\d+)/;
+	    my ($local_chr,$local_pos1,$local_pos2)=($1,$2,$3);
+	    if($local_chr eq $chr && $local_pos1 <= $pos2 && $local_pos2 >= $pos1)
+	    {
+		push @return,$i;
+	    } else
+	    {#suppose records are sorted based on position, same chromosome records are grouped
+		last;
+	    }
+	}
+    }
+    else
+    {
+	@return=(0..$#f);
+    }
+    return @return;
+}
+#record position of first apperance at row names for each chromosome
+sub index
+{
+    my $usage="index <file>\n";
+    die "$usage\n" unless @ARGV==1;
+    my $file=shift;
+    my $idx="$file.idx";
+    open IN,"<",$file or die "$file: $!\n";
+    open OUT,">",$idx or die "$idx $!\n";
+    warn "WARNING: assuming 1st line is column name, the rest is interaction matrix\n";
+    my $header=<IN>;
+    my $prev_chr;
+    my $prev_pos=tell;
+
+    while(<IN>)
+    {
+	die "ERROR: failed to parse row name at line $. of $file\n" unless /^(.*?):\d+-\d+/;
+	my $chr=$1;
+	if(!defined $prev_chr or $chr ne $prev_chr)
+	{
+	    print OUT "$chr\t$prev_pos\n";
+	    $prev_chr=$chr;
+	}
+	$prev_pos=tell;
+    }
+    close IN;
+    close OUT;
+    warn "NOTICE: $idx done\n";
+}
+#read index
+sub read_idx
+{
+    my $idx=shift;
+    my %return;
+    open IN,"<",$idx or die "$idx: $!\n";
+    while(<IN>)
+    {
+	s/[\r\n]+$//;
+	my @f=split;
+	die "ERROR: 2 fields epxected at line $. of $idx\n" unless @f==2;
+	die "ERROR: duplicate key at line $. of $idx\n" if defined $return{$f[0]};
+	$return{$f[0]}=$f[1];
+    }
+    close IN;
+    return \%return;
 }
 #output all interaction for the specified chromosome
 sub output_onechr_interaction
@@ -321,16 +387,25 @@ sub read_raw_block
     my $out_ref=shift;
     my @block_array;
     my $read_by_row=1;
+    my $field_count; #make sure every line has same number of fields
 
     seek $fh,0,0;
     $.=0;
     while(<$fh>)
     {
 	next if /^#|^\s+$/;
-	s/\s+$//;
+	s/[\r\n]+$//;
 	my @f=split;
 	unshift @f," " if $.==2;
 	push @block_array,[@f];
+	if (defined $field_count)
+	{
+	    die "ERROR: unequal number of fields at line $." unless $field_count==@f;
+	}
+	else
+	{
+	    $field_count=@f;
+	}
     }
     for my $i(@block_array[1..$#block_array])
     {
@@ -372,7 +447,7 @@ sub read_raw_matrix_header
     while(<$fh>)
     {
 	next if /^#/;
-	s/^\s+|\s+$//;
+	s/^\s+|[\r\n]+$//;
 	chomp;
 	if($.==2) #header line
 	{
