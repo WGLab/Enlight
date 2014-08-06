@@ -10,7 +10,9 @@ my $usage="
 convertHiCMatrix <subcommand> <...>
 subcommand:	
 compile		#compile a set of matrixes into one table
+convert		#just convert BIN name, copy modified content to a new file. Do not actually combine matrixes
 query		#retrieve interaction information for certain regions
+querysingle	#same as 'query', but only for intrachromosomal interaction
 index		#generate index for matrix (at chromosomal resolution)
 ";
 @ARGV>=1 or die $usage,"\n";
@@ -39,6 +41,12 @@ if($subcommand eq "compile")
 } elsif ($subcommand eq "query")
 {
     &query(@ARGV);
+} elsif ($subcommand eq "querysingle")
+{
+    &querysingle(@ARGV);
+} elsif ($subcommand eq "convert")
+{
+    &convert(@ARGV);
 } elsif ($subcommand eq "index")
 {
     &index(@ARGV);
@@ -152,7 +160,7 @@ sub output_header
 	}
     }
 
-    print $fh join ("\t","PLACE_HOLDER",@f),"\n";
+    print $fh join ("\t"," ",@f),"\n";
     warn "NOTICE: header printed\n";
 }
 #loop over all files again and again
@@ -194,6 +202,19 @@ sub output_matrix
 	}
     }
     &output_onechr_interaction($chr,$header_ref,\%out,$fh,$line_ref);
+}
+#similar to 'query', but only for intrachromosomal interactions
+sub querysingle
+{
+    my $usage="querysingle <intrachromosomal file> <output file> <region>\n";
+    die "$usage\n" if @ARGV!=3;
+    warn "WARNING: ***************************\n";
+    warn "WARNING: FIRST line must be HEADER!!\n";
+    warn "WARNING: ***************************\n";
+    my $file=shift;
+    my $out=shift;
+    my $region=shift;
+    &query($file,$out,$region);
 }
 #retrieve values from certain regions
 #if only one region is specified, return interaction values for all genome with that region
@@ -308,31 +329,33 @@ sub find_col_needed
 #record position of first apperance at row names for each chromosome
 sub index
 {
-    my $usage="index <file>\n";
-    die "$usage\n" unless @ARGV==1;
-    my $file=shift;
-    my $idx="$file.idx";
-    open IN,"<",$file or die "$file: $!\n";
-    open OUT,">",$idx or die "$idx $!\n";
-    warn "WARNING: assuming 1st line is column name, the rest is interaction matrix\n";
-    my $header=<IN>;
-    my $prev_chr;
-    my $prev_pos=tell;
-
-    while(<IN>)
+    my $usage="index <file1 file2 ...>\n";
+    die "$usage\n" unless @ARGV>=1;
+    while(my $file=shift)
     {
-	die "ERROR: failed to parse row name at line $. of $file\n" unless /^(.*?):\d+-\d+/;
-	my $chr=$1;
-	if(!defined $prev_chr or $chr ne $prev_chr)
+	my $idx="$file.idx";
+	open IN,"<",$file or die "$file: $!\n";
+	open OUT,">",$idx or die "$idx $!\n";
+	warn "WARNING: assuming 1st line is column name, the rest is interaction matrix\n";
+	my $header=<IN>;
+	my $prev_chr;
+	my $prev_pos=tell;
+
+	while(<IN>)
 	{
-	    print OUT "$chr\t$prev_pos\n";
-	    $prev_chr=$chr;
+	    die "ERROR: failed to parse row name at line $. of $file\n" unless /^(.*?):\d+-\d+/;
+	    my $chr=$1;
+	    if(!defined $prev_chr or $chr ne $prev_chr)
+	    {
+		print OUT "$chr\t$prev_pos\n";
+		$prev_chr=$chr;
+	    }
+	    $prev_pos=tell;
 	}
-	$prev_pos=tell;
+	close IN;
+	close OUT;
+	warn "NOTICE: $idx done\n";
     }
-    close IN;
-    close OUT;
-    warn "NOTICE: $idx done\n";
 }
 #read index
 sub read_idx
@@ -479,10 +502,54 @@ sub extract_chr_pos
     die "ERROR: unable to recognize chromosome name ($chr)\n" unless defined $chr2no{$chr};
     return [$chr2no{$chr},$pos1,$pos2];
 }
-#read compiled matrix
-sub read_compiled_matrix
+#convert BIN names to chr:pos-pos format without changing the content
+sub convert
 {
-
+    my $usage="convert <file1 file2 ...>";
+    die "$usage\n" unless @ARGV>=1;
+    for my $i(@_)
+    {
+	my $out="$i.BINname_converted";
+	my @header;
+	my @colname;
+	open (my $fh,"<",$i) or die "$i:$!\n";
+	open (my $outfh,">",$out) or die "$out:$!\n";
+	while(<$fh>)
+	{
+	    next if /^#|^\s*$/;
+	    s/[\r\n]+$//;
+	    my @f=split; #leading whitespaces are removed
+	    die "ERROR: ",scalar(@header)," fields expected at line $. of $i\n" if @header && @f!=@header+1;
+	    if(!@header)
+	    {
+		@header=@f; #1st field of header is empty
+		for my $j(@f)
+		{
+		    my ($chr,$pos1,$pos2)=@{&extract_chr_pos($j)};
+		    $j="$chr:$pos1-$pos2";
+		}
+		print $outfh join("\t"," ",@f),"\n";
+	    }
+	    else
+	    {
+		push @colname,$f[0];
+		my ($chr,$pos1,$pos2)=@{&extract_chr_pos($f[0])};
+		$f[0]="$chr:$pos1-$pos2";
+		print $outfh join("\t",@f),"\n";
+	    }
+	}
+	close $fh;
+	close $outfh;
+	for my $j(0..$#header)
+	{
+	    if(!defined $colname[$j] or $header[$j] ne $colname[$j])
+	    {
+		unlink $out;
+		die "ERROR: row name and column name inconsistent ($header[$j] vs $colname[$j]) in $i\n";
+	    }
+	}
+	warn "NOTICE: $out done\n";
+    }
 }
 
 #example output
