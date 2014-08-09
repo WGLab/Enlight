@@ -48,9 +48,84 @@ my @qformat=("whitespace","tab","space","comma");
 my %qformat_label=map {($_,$_)} @qformat;
 my $qformat_default="whitespace";
 my @chr=(1..22,'X');
+my $num_manual_select=9;
 
 my $page;
+my $q=new CGI::Pretty;
 
+##################REGION SPECIFICATION HTML CODE##############################
+#HTML code for single region specification
+my $single_region_spec = "<table border=1 class='single_region_spec_head'>
+<tr>
+	<td class='region_method_area'>
+	    <input type='radio' name='region_method' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP<br>
+	     <input type='radio' name='region_method' onclick='response_to_select_region(this)' value='gene'>Reference Gene<br>
+	     <input type='radio' name='region_method' onclick='response_to_select_region(this)' value='chr'>Chromosomal Region<br>
+	    </td>
+</tr>
+<tr>
+<td class='region_detail_area'> </td>
+</tr>";
+my $multi_region_spec="<table border=1>
+<tr>
+<td class='multi_region_method_area'>
+<input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='multi_region'>Manually Specify multi-region<br>
+<input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='region_file'>Region Spefication File<br>
+<tr>
+<td class='multi_region_detail_area'> </td>
+</tr>";
+my $file_region_spec="<table border=1>
+		<tr>
+		<td>Choose a region specification file</td>
+		<td><input type='file' name='region_file' size=15 /></td>
+		</tr>
+
+		<tr>
+		<td>HitSpec format is supported, BUT 7th column and beyond are IGNORED</td>
+		</tr>
+		<tr>
+		<td><a href='http://genome.sph.umich.edu/wiki/LocusZoom#Generating_a_Hit_Spec_File'>Help with HitSpec</a></td>
+		</tr></table>";
+my $snp_region_spec="<table border=1><tr>
+		<td>Index SNP</td>
+		<td><input type='text' name='refsnp' size=15 /></td>
+		</tr>
+
+		<tr>
+		<td>Flanking region (kb)</td>
+		<td><input type='text' name='snpflank' size=15 value='$flank_default'/></td>
+		</tr></table>";
+my $gene_region_spec= "<table border=1>
+                <tr>
+		<td>Reference Gene</td>
+		<td><input type='text' name='refgene' size=15 /></td>
+		</tr>
+		<tr>
+		<td>Flanking region (kb)</td>
+		<td><input type='text' name='geneflank' size=15 value='$flank_default' /></td>
+		<tr>
+		<td>Optional Index SNP (default is SNP with lowest P value)</td>
+		<td><input type='text' name='refsnp_for_gene' size=15 /></td>
+		</tr></table>";
+my $chr_region_spec= "<table>
+		<tr>
+		<td>Chromosome</td>
+		<td><select name='chr' >".
+		join ("\n",map { "<option value='$_'>$_</option>" } @chr)
+		."</select></td>
+		</tr>
+		<tr>
+		<td>Start (Mb)</td>
+		<td><input type='text' name='start' size=15 /></td>
+		<tr>
+		<td>End (Mb)</td>
+		<td><input type='text' name='end' size=15 /></td>
+		<tr>
+		<td>Optional Index SNP (default is SNP with lowest P value)</td>
+		<td><input type='text' name='refsnp_for_chr' size=15 /></td>
+		</tr>
+</table>";
+###############################END OF REGION SPECIFICATION CODE#######################################	    
 
 my $jscode="
 function changeTracks()
@@ -143,44 +218,61 @@ function changeTracks()
     }
 }
 
-function getCheckedRadio(radio_group) 
+function response_to_select_region(caller)
 {
-    for (var i = 0; i < radio_group.length; i++) 
+    var region_spec_container=\$(\"td.region_detail_area\");
+    if(\$(caller).val()=='snp')
     {
-	var button = radio_group[i];
-	if (button.checked) 
-	{
-	    return button;
-	}
+    	region_spec_container.html(\"".&rm_newline($snp_region_spec)."\");
     }
-    return undefined;
+    else if (\$(caller).val()=='gene')
+    {
+    	region_spec_container.html(\"".&rm_newline($gene_region_spec)."\");
+    }
+    else if(\$(caller).val()=='chr')
+    {
+    	region_spec_container.html(\"".&rm_newline($chr_region_spec)."\");
+    }
 }
 
-function response_to_select_region(input_value)
+function response_to_multi_select_region(caller)
 {
+    var region_spec_container=\$(\"td.multi_region_detail_area\");
 
-    var radio_group=document.getElementsByName('region_method');
-    var input_value=getCheckedRadio(radio_group).value;
-
-    if (input_value=='snp')
+    if(\$(caller).val()=='region_file')
     {
-	document.getElementById('snp_region_specify').style.display='block';
-	document.getElementById('gene_region_specify').style.display='none';
-	document.getElementById('chr_region_specify').style.display='none';
-    } else if (input_value=='gene')
-    {
-	document.getElementById('gene_region_specify').style.display='block';
-	document.getElementById('chr_region_specify').style.display='none';
-	document.getElementById('snp_region_specify').style.display='none';
-    } else if (input_value=='chr')
-    {
-	document.getElementById('gene_region_specify').style.display='none';
-	document.getElementById('chr_region_specify').style.display='block';
-	document.getElementById('snp_region_specify').style.display='none';
+    	region_spec_container.html(\"".&rm_newline($file_region_spec)."\");
     }
-
+    else if(\$(caller).val()=='multi_region')
+    {
+    	region_spec_container.html(\"".
+	&rm_newline(&gen_multi_manual_select_code($num_manual_select,$single_region_spec)).
+	"\");
+	\$(region_spec_container).find(\"table.single_region_spec_head\").each(
+		function()
+		{
+		  \$(this).find(\"td.region_method_area input\").first().trigger(\"click\");
+		}
+	);
+    }
 }
 
+function toggle_single_multi_region(caller)
+{
+    var container=\$(\"#region_specification_div_id\");
+    if(\$(caller).val()=='single')
+    {
+        \$(caller).val('multi');
+        container.html(\"".&rm_newline($single_region_spec)."\");
+	container.find(\"td.region_method_area input\").first().trigger(\"click\");
+    }
+    else if (\$(caller).val()=='multi')
+    {
+        \$(caller).val('single');
+        container.html(\"".&rm_newline($multi_region_spec)."\");
+	container.find(\"td.multi_region_method_area input\").first().trigger(\"click\");
+    }
+}
 
 function clear_datatrack_selection()
 {
@@ -202,11 +294,13 @@ function loadExampleSetting()
     document.getElementById('pvalcol_id').value='p';
     document.getElementById('varAnno_id').value='GTEx_eQTL_11162013';
     document.getElementById('source_ref_pop_id').value='1000G_March2012,hg19,EUR';	
-    document.getElementById('region_method_snp').checked=true;
-    response_to_select_region();
 
-    document.getElementById('refsnp_id').value='rs10318';
-    document.getElementById('snp_flank_region').value='50';
+    \$(\"#region_multi_single_button_id\").val(\"single\");
+    \$(\"#region_multi_single_button_id\").trigger(\"click\");
+
+    \$(\"td.region_detail_area input[name='snpflank']\").val(\"50\");
+    \$(\"td.region_detail_area input[name='refsnp']\").val(\"rs10318\");
+
     document.getElementById('generic_toggle_id').checked=true;
     document.getElementById('anno_toggle_id').checked=true;
     document.getElementById('avinput_id').checked=false;
@@ -284,6 +378,15 @@ function check_before_submission()
     	    alert('Illegal email address!');
     	    return false;
     	}
+    } else
+    {
+    //when multiple regions are specified, the job will take a while
+    //user should provide email
+        if(\$(\"#region_multi_single_button_id\").value=='single')
+        {
+            alert('Email must be provided when multiple regions are to be plotted');
+            return false;
+        }
     }
 
     //check genome build
@@ -359,55 +462,65 @@ function check_before_submission()
     var region_pat=/[ \\\$\\t\\r\\n\\*\\|\\?\\>\\<\\'\\\"\\,\\;\\:\\[\\]\\{\\}]/;
     var region_method=document.getElementsByName('region_method');
 
-    var refsnp=document.getElementById('refsnp_id').value;
-    var snpflank=document.getElementById('snp_flank_region').value;
-    var refgene=document.getElementById('refgene_id').value;
-    var geneflank=document.getElementById('geneflank_id').value;
-    var generefsnp=document.getElementById('refsnp_for_gene_id').value;
-    var chr=document.getElementById('chr_id').value;
-    var start=document.getElementById('start_id').value;
-    var end=document.getElementById('end_id').value;
-    var chrrefsnp=document.getElementById('refsnp_for_chr_id').value;
+    
+    //user must either upload a region specification file
+    //or specify region for each region specification table
 
-    if (region_method[0].value == 'snp')
+    if(! \$(\"input[name='region_file']\").val() )
     {
-    	if ( refsnp.length==0 || snpflank.length==0)
-    	{
-    		alert('No reference SNP or flanking region');
-    		return false;
-    	} else if (region_pat.test(refsnp) || region_pat.test(snpflank))
-    	{
-    		alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
-    		return false;
-    	}	
-    } else if (region_method[0].value == 'gene')
-    {
-    	if ( refgene.length==0 || geneflank.length==0)
-   	{
-   		alert('No reference gene or flanking region');
-   		return false;
-   	} else if (region_pat.test(refgene) || region_pat.test(geneflank) || region_pat.test(generefsnp))
-   	{
-   		alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
-   		return false;
-   	}	
-    } else if (region_method[0].value == 'chr')
-    {
-    	if ( chr.length==0 || start.length==0 || end.length==0)
-    	{
-    		alert('No chromosome name or start or end');
-    		return false;
-    	} else if (region_pat.test(chr) || region_pat.test(start) || region_pat.test(end) || region_pat.test(chrrefsnp))
-    	{
-    		alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
-    		return false;
-    	}	
+    \$(region_method).each(
+     function() {
+        var refsnp=\$(\"table.single_region_spec_head\").find(\"input[name='refsnp']\").val();
+        var snpflank=\$(\"table.single_region_spec_head\").find(\"input[name='snpflank']\").val();
+        var refgene=\$(\"table.single_region_spec_head\").find(\"input[name='refgene']\").val();
+        var geneflank=\$(\"table.single_region_spec_head\").find(\"input[name='geneflank']\").val();
+        var generefsnp=\$(\"table.single_region_spec_head\").find(\"input[name='refsnp_for_gene']\").val();
+        var chr=\$(\"table.single_region_spec_head\").find(\"input[name='chr']\").val();
+        var start=\$(\"table.single_region_spec_head\").find(\"input[name='start']\").val();
+        var end=\$(\"table.single_region_spec_head\").find(\"input[name='end']\").val();
+        var chrrefsnp=\$(\"table.single_region_spec_head\").find(\"input[name='refsnp_for_chr']\").val();
+
+        if (\$(this).value == 'snp')
+        {
+        	if ( refsnp.length==0 || snpflank.length==0)
+        	{
+        		alert('No reference SNP or flanking region');
+        		return false;
+        	} else if (region_pat.test(refsnp) || region_pat.test(snpflank))
+        	{
+        		alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
+        		return false;
+        	}	
+        } else if (\$(this).value == 'gene')
+        {
+        	if ( refgene.length==0 || geneflank.length==0)
+            {
+            	alert('No reference gene or flanking region');
+            	return false;
+            } else if (region_pat.test(refgene) || region_pat.test(geneflank) || region_pat.test(generefsnp))
+            {
+            	alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
+            	return false;
+            }	
+        } else if (\$(this).value == 'chr')
+        {
+        	if ( chr.length==0 || start.length==0 || end.length==0)
+        	{
+        		alert('No chromosome name or start or end');
+        		return false;
+        	} else if (region_pat.test(chr) || region_pat.test(start) || region_pat.test(end) || region_pat.test(chrrefsnp))
+        	{
+        		alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
+        		return false;
+        	}	
+        }
+     }
+    );
     }
 }
 ";
 
 ################html generation###############
-my $q=new CGI::Pretty;
 #my $c=new Captcha::reCAPTCHA;
 
 #print $q->header; #not useful unless read by APACHE directly
@@ -425,21 +538,21 @@ $jscode
 #RECAPTCHA
 $page.= $q->noscript($q->h1("Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight."));
 $page.= $q->h2("Introduction");
-$page.= $q->p("$intro<br /><br />");
+$page.= $q->p("$intro<br><br>");
 $page.= $q->start_form(-name=>'main',-action=>"/cgi-bin/process.cgi",-method=>"post",-onSubmit=>"return check_before_submission();");
 $page.= $q->h2("Input");
 $page.= $q->table(
     {-border=>0},
     $q->Tr(
-	$q->td("DEMO<br />
-	        <a href='/example/rs10318.txt'>(example input)</a><br />
+	$q->td("DEMO<br>
+	        <a href='/example/rs10318.txt'>(example input)</a><br>
 		<a href='/example/rs10318_out/index.html'>(example output)</a>"),
 	$q->td("<button type='button' onclick='loadExampleSetting()'>Load settings for example input</button>
-	    <br />
+	    <br>
 	    <button type='button' onclick='loadExampleInput()'>Load example input</button>"),
     ),
     $q->Tr(
-	$q->td("<span title='receive result link'>Email (optional)</span>"),
+	$q->td("<span title='receive result link'>Email (mandatory for multi-region)</span>"),
 	$q->td("<input name='email' id='email_id' type='email' onclick=\"this.value=''\" />"),
     ),
     $q->Tr(
@@ -459,6 +572,16 @@ $page.= $q->table(
 	$q->td($q->textfield(-name=>"pvalcol",-id=>'pvalcol_id',-default=>'', -onclick=>"this.value=''")),
     ),
     $q->Tr(
+	$q->td(	["Genome Build",
+                '<label>
+		<input type="radio" name="ref" value="hg18">hg18
+		</label>
+		<label>
+		<input type="radio" name="ref" id="ref_hg19" value="hg19" checked="checked">hg19
+		</label>']
+	),
+    ),
+    $q->Tr(
 	$q->td("<span title='choose data set for computing Linkage Disequilibrium'>Genome Build/LD source/Population</span>"),
 	$q->td(
 	    $q->popup_menu(-name=>'source_ref_pop',-id=>'source_ref_pop_id',-values=> \@source_ref_pop,-labels=>\%source_ref_pop_label,-default=>[$default_source_ref_pop])
@@ -472,89 +595,52 @@ $page.= $q->table(
     ),
 );
 
-$page.="<br /> <br />\n";
+
+#########################START OF REGION SPECIFICATION SECTION#########################################
+$page.="<br> <br>\n";
 $page.= $q->h2("<span title='plot region'>Specify a region</span>");
-$page.= $q->table(
-    {-border=>1},
+$page.= $q->div($q->table({-class=>'noborder'},
+			$q->Tr($q->td(
+					"<button style='margin-left:auto;margin-right:auto' type='button' value='single' id='region_multi_single_button_id' onlick='toggle_single_multi_region(this);'>Toggle to Select Single or Multiple Regions</button>"),
+			      ),
+			$q->Tr($q->td(
+					"<div id='region_specification_div_id'></div>"),
+			      ),
+			));
+##############################END OF REGION SPECIFICATION SECTION####################################
+$page.="<br> <br>\n";
+$page.= $q->h2("<span title='Plot HiC interaction heatmap'>HiC interaction plot</span>");
+$page.= $q->table( {-border=>1},
     $q->Tr(
-	$q->td ( 
-	    "<input type='radio' name='region_method' id='region_method_snp' value='snp'  onclick='response_to_select_region()' checked >Reference SNP<br>
-	    <input type='radio' name='region_method' onclick='response_to_select_region()' value='gene'>Reference Gene<br>
-	    <input type='radio' name='region_method' onclick='response_to_select_region()' value='chr'>Chromosomal Region<br>
-	    "
+	$q->td( {-colspan=>2},
+	    "<span title='Do you want an HiC interaction heatmap plot?'>".
+	    $q->checkbox(-name=>'heatmap_toggle',-id=>'heatmap_toggle_id',-checked=>1,-label=>'Output interaction heatmap?').
+	    "</span>"
+	), #return 'on' if checked
+    ),
+    $q->Tr(
+	$q->td( ["Interaction type (resolution)",
+		'<label>
+		<input type="radio" name="interaction_type" value="interchromosomal" >INTERchromosomal(1Mb)
+		</label><br>
+		<input type="radio" name="interaction_type" value="intrachromosomal" checked="checked">INTRAchromosomal(100Kb)
+		</label>'
+	    ]
 	),
     ),
     $q->Tr(
-	$q->td(
-	    $q->table( {-id=>'snp_region_specify',-style=>'display:none'},
-		"<tr>
-		<td>Index SNP</td>
-		<td><input type='text' name='refsnp' id='refsnp_id' onclick=\"this.value=''\"/></td>
-		</tr>
-
-		<tr>
-		<td>Flanking region (kb)</td>
-		<td><input type='text' name='snpflank' id='snp_flank_region' onclick=\"this.value=''\" value='$flank_default'/></td>
-		</tr>"
-	    ),
-
-	    $q->table( {-id=>'gene_region_specify',-style=>'display:none;'},
-		"<tr>
-		<td>Reference Gene</td>
-		<td><input type='text' name='refgene' id='refgene_id' onclick=\"this.value=''\"/></td>
-		</tr>
-		<tr>
-		<td>Flanking region (kb)</td>
-		<td><input type='text' name='geneflank' id='geneflank_id' onclick=\"this.value=''\" value='$flank_default' /></td>
-		<tr>
-		<td>Optional Index SNP (default is SNP with lowest P value)</td>
-		<td><input type='text' name='refsnp_for_gene' id='refsnp_for_gene_id' onclick=\"this.value=''\" /></td>
-		</tr>"),
-
-	    $q->table( {-id=>'chr_region_specify',-style=>'display:none;'},
-		"<tr>
-		<td>Chromosome</td>
-		<td><select name='chr' id='chr_id'>
-		<option value='1'>1</option>
-		<option value='2'>2</option>
-		<option value='3'>3</option>
-		<option value='4'>4</option>
-		<option value='5'>5</option>
-		<option value='6'>6</option>
-		<option value='7'>7</option>
-		<option value='8'>8</option>
-		<option value='9'>9</option>
-		<option value='10'>10</option>
-		<option value='11'>11</option>
-		<option value='12'>12</option>
-		<option value='13'>13</option>
-		<option value='14'>14</option>
-		<option value='15'>15</option>
-		<option value='16'>16</option>
-		<option value='17'>17</option>
-		<option value='18'>18</option>
-		<option value='19'>19</option>
-		<option value='20'>20</option>
-		<option value='21'>21</option>
-		<option value='22'>22</option>
-		<option value='X'>X</option>
-		</select></td>
-		</tr>
-		<tr>
-		<td>Start (Mb)</td>
-		<td><input type='text' name='start' id='start_id' onclick=\"this.value=''\"/></td>
-		<tr>
-		<td>End (Mb)</td>
-		<td><input type='text' name='end' id='end_id' onclick=\"this.value=''\"/></td>
-		<tr>
-		<td>Optional Index SNP (default is SNP with lowest P value)</td>
-		<td><input type='text' name='refsnp_for_chr' id='refsnp_for_chr_id' onclick=\"this.value=''\"/></td>
-		</tr>"),
+	$q->td( ["Cell lines",
+		'<label>
+		<input type="radio" name="interaction_cell_type" value="k562" >K562
+		</label>
+		<input type="radio" name="interaction_cell_type" value="gm06690" checked="checked">GM06690
+		</label>'
+	    ]
 	),
     ),
 );
 
-$page.="<br /> <br />\n";
+$page.="<br> <br>\n";
 $page.= $q->h2("<span title='show signal strengths in regions'>Generic plot (using UCSC BED tables)</span>");
 $page.= $q->table( {-class=>'noborder'},
     $q->Tr(
@@ -577,17 +663,7 @@ $page.= $q->table( {-class=>'noborder'},
 	),
     ),
     $q->Tr(
-	$q->td(	["Genome Build",
-                '<label>
-		<input type="radio" name="ref" value="hg18">hg18
-		</label>
-		<label>
-		<input type="radio" name="ref" id="ref_hg19" value="hg19" checked="checked">hg19
-		</label>']
-	),
-    ),
-    $q->Tr(
-	$q->td( ["Adavanced options",
+	$q->td( ["Advanced options",
 		'<label>
 		<input type="radio" name="detail_toggle" value="show" onclick="showDetail()">show
 		</label>
@@ -600,7 +676,7 @@ $page.= $q->table( {-class=>'noborder'},
 $page.= $q->table({-class=>'advanced',-id=>'option_detail_id',-style=>'display:none'},
     $q->Tr(
 	[$q->td(
-	    $q->checkbox(-name=>'ld_toggle',-id=>'ld_toggle_id',-checked=>1,-label=>'Output linkage disequilibrium information (written in input file)?')
+	    $q->checkbox(-name=>'ld_toggle',-id=>'ld_toggle_id',-checked=>1,-label=>'Output linkage disequilibrium information (written in input file)')
 	),
 	#$q->td(
 	#	"<p>LD breakdown in summary plot (separated by comma, mininum 0, maximum 1)</p>
@@ -617,7 +693,7 @@ $page.= $q->table({-class=>'advanced',-id=>'option_detail_id',-style=>'display:n
     ),
 );
 $page.= "</br></br>";
-$page.= $q->p({-class=>'center'},"<b>Please upload your own files AFTER selecting data tracks.</b><br />");
+$page.= $q->p({-class=>'center'},"<b>Please upload your own files <b style=\"color:red\">AFTER</b> selecting data tracks.</b><br>");
 $page.= $q->table(
     $q->Tr(
 	$q->th(["Cell Line",
@@ -715,7 +791,7 @@ sub template2real
     {
 	if (/<body>/)
 	{
-	    print OUT "<body onload=\"changeTracks();response_to_select_region();\">\n";
+	    print OUT "<body onload=\"changeTracks();toggle_single_multi_region(\$('#region_multi_single_button_id'));\">\n";
 
 	} else
 	{
@@ -743,4 +819,23 @@ sub tab2hash
     }
     close IN;
     return %hash;
+}
+#generate html code for manual multiple region selection (n is number of cells, unit is the content for each cell)
+sub gen_multi_manual_select_code
+{
+    my $n=shift;
+    my $unit=shift;
+    my $cell_per_line=3;
+    my $s='';
+    my $lines=int($n/$cell_per_line);
+    my $cells=$n % $cell_per_line;
+    $s.=("<tr>".("<td>$unit</td>"x$cell_per_line)."</tr>")x$lines if $lines>0;
+    $s.="<tr>".("<td>$unit</td>"x$cells)."</tr>" if $cells>0;
+    return $s;
+}
+sub rm_newline
+{
+my $s=shift;
+$s=~s/\n//mg;
+return $s;
 }
