@@ -41,6 +41,7 @@ my $anno_exe=File::Spec->catfile($RealBin,"..","bin","table_annovar.pl"); #custo
 
 FIXME!!!!!
 #use this value with 'region_methodINT' (INT is the index from 0 to 8) to get all region_methods (snp, gene, ...)
+#also when single region is specified, 'region_method' is used
 my $num_manual_select=$server_conf{'num_manual_region_select'};
 
 #read database file settings
