@@ -39,6 +39,10 @@ my $anno_exedir=$server_conf{'annovar_bin'} || &Utils::error("No ANNOVAR executa
 my $python_dir=$server_conf{'python_bin'};
 my $anno_exe=File::Spec->catfile($RealBin,"..","bin","table_annovar.pl"); #customized version of table_annovar.pl
 
+FIXME!!!!!
+#use this value with 'region_methodINT' (INT is the index from 0 to 8) to get all region_methods (snp, gene, ...)
+my $num_manual_select=$server_conf{'num_manual_region_select'};
+
 #read database file settings
 my $hg19db=$server_conf{'hg19db'} || &Utils::error("No hg19 database\n",$log,$admin_email);
 my $hg18db=$server_conf{'hg18db'} || &Utils::error("No hg18 database\n",$log,$admin_email);
