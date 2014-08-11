@@ -55,25 +55,6 @@ my $q=new CGI::Pretty;
 
 ##################REGION SPECIFICATION HTML CODE##############################
 #HTML code for single region specification
-my $single_region_spec = "<table border=1 class='single_region_spec_head left_aln'>
-<tr>
-	<td class='region_method_area'>
-	    <input type='radio' name='region_method' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP<br>
-	     <input type='radio' name='region_method' onclick='response_to_select_region(this)' value='gene'>Reference Gene<br>
-	     <input type='radio' name='region_method' onclick='response_to_select_region(this)' value='chr'>Chromosomal Region<br>
-	    </td>
-</tr>
-<tr>
-<td class='region_detail_area'> </td>
-</tr></table>";
-my $multi_region_spec="<table class='noborder'>
-<tr>
-<td class='multi_region_method_area'>
-<input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='multi_region'>Manually Specify multi-region<br>
-<input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='region_file'>Region Spefication File<br>
-<tr>
-<td class='multi_region_detail_area'> </td>
-</tr></table>";
 my $file_region_spec="<table class='noborder'>
 		<tr>
 		<td colspan=2>HitSpec format is supported (<a href='http://genome.sph.umich.edu/wiki/LocusZoom#Generating_a_Hit_Spec_File'>help</a>), <br>BUT 7th column and beyond are IGNORED
@@ -82,28 +63,28 @@ my $file_region_spec="<table class='noborder'>
 		<input type='file' name='region_file' size=15 />
 </td> </tr>
 </table>";
-my $snp_region_spec="<table ><tr>
+my $snp_region_spec="<table class='snp_region_spec'><tr>
 		<td>Index SNP</td>
 		<td><input type='text' name='refsnp' size=15 /></td>
 		</tr>
 
 		<tr>
 		<td>Flanking region (kb)</td>
-		<td><input type='text' name='snpflank' size=15 value='$flank_default'/></td>
+		<td><input type='text' name='snpflank' size=15 value=''/></td>
 		</tr></table>";
-my $gene_region_spec= "<table >
+my $gene_region_spec= "<table class='gene_region_spec'>
                 <tr>
 		<td>Reference Gene</td>
 		<td><input type='text' name='refgene' size=15 /></td>
 		</tr>
 		<tr>
 		<td>Flanking region (kb)</td>
-		<td><input type='text' name='geneflank' size=15 value='$flank_default' /></td>
+		<td><input type='text' name='geneflank' size=15 value='' /></td>
 		<tr>
 		<td>Optional Index SNP (default is SNP with lowest P value)</td>
 		<td><input type='text' name='refsnp_for_gene' size=15 /></td>
 		</tr></table>";
-my $chr_region_spec= "<table>
+my $chr_region_spec= "<table class='chr_region_spec'>
 		<tr>
 		<td>Chromosome</td>
 		<td><select name='chr' >".
@@ -121,6 +102,25 @@ my $chr_region_spec= "<table>
 		<td><input type='text' name='refsnp_for_chr' size=15 /></td>
 		</tr>
 </table>";
+my $single_region_spec = "<table border=1 class='single_region_spec_head left_aln'>
+<tr>
+	<td class='region_method_area'>
+	    <input type='radio' name='region_method' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP<br>
+	     <input type='radio' name='region_method' onclick='response_to_select_region(this)' value='gene'>Reference Gene<br>
+	     <input type='radio' name='region_method' onclick='response_to_select_region(this)' value='chr'>Chromosomal Region<br>
+	    </td>
+</tr>
+<tr>
+<td class='region_detail_area'>$snp_region_spec $gene_region_spec $chr_region_spec </td>
+</tr></table>";
+my $multi_region_spec="<table class='noborder'>
+<tr>
+<td class='multi_region_method_area'>
+<input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='multi_region'>Manually Specify multi-region<br>
+<input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='region_file'>Region Spefication File<br>
+<tr>
+<td class='multi_region_detail_area'><div id='file_region_specification_div_id'>$file_region_spec</div> <div id='multi_manual_region_specification_div_id'><table border=1>".(&gen_multi_manual_select_code($num_manual_select,$single_region_spec))."</table></div></td>
+</tr></table>";
 ###############################END OF REGION SPECIFICATION CODE#######################################	    
 
 my $jscode="
@@ -219,32 +219,36 @@ function response_to_select_region(caller)
     var region_spec_container=\$(caller).parentsUntil(\"table.single_region_spec_head\").find(\"td.region_detail_area\");
     if(\$(caller).val()=='snp')
     {
-    	region_spec_container.html(\"".&rm_newline($snp_region_spec)."\");
+	\$(region_spec_container).find('table.snp_region_spec').show();
+	\$(region_spec_container).find('table').not('.snp_region_spec').hide();
     }
     else if (\$(caller).val()=='gene')
     {
-    	region_spec_container.html(\"".&rm_newline($gene_region_spec)."\");
+	\$(region_spec_container).find('table.gene_region_spec').show();
+	\$(region_spec_container).find('table').not('.gene_region_spec').hide();
     }
     else if(\$(caller).val()=='chr')
     {
-    	region_spec_container.html(\"".&rm_newline($chr_region_spec)."\");
+	\$(region_spec_container).find('table.chr_region_spec').show();
+	\$(region_spec_container).find('table').not('.chr_region_spec').hide();
     }
 }
 
 function response_to_multi_select_region(caller)
 {
-    var region_spec_container=\$(\"td.multi_region_detail_area\");
+    var file_region_spec_container=\$(\"#file_region_specification_div_id\");
+    var manual_region_spec_container=\$(\"#multi_manual_region_specification_div_id\");
 
     if(\$(caller).val()=='region_file')
     {
-    	region_spec_container.html(\"".&rm_newline($file_region_spec)."\");
+	\$(file_region_spec_container).show();
+	\$(manual_region_spec_container).hide();
     }
     else if(\$(caller).val()=='multi_region')
     {
-    	region_spec_container.html(\"<table border=1>".
-	&rm_newline(&gen_multi_manual_select_code($num_manual_select,$single_region_spec)).
-	"</table>\");
-	\$(region_spec_container).find(\"table.single_region_spec_head\").each(
+	\$(manual_region_spec_container).show();
+	\$(file_region_spec_container).hide();
+	\$(manual_region_spec_container).find(\"table.single_region_spec_head\").each(
 		function()
 		{
 		  var i=\$(this).find(\"td.region_method_area input\").first()
@@ -255,20 +259,24 @@ function response_to_multi_select_region(caller)
     }
 }
 
+//display and hide single region selection and multi-region selection alternatively
 function toggle_single_multi_region(caller)
 {
-    var container=\$(\"#region_specification_div_id\");
+    var single_container=\$(\"#region_specification_div_id\");
+    var multi_container=\$(\"#multi_region_specification_div_id\");
     if(\$(caller).val()=='single')
     {
         \$(caller).val('multi');
-        container.html(\"".&rm_newline($single_region_spec)."\");
-	container.find(\"td.region_method_area input\").first().trigger(\"click\");
+	\$(multi_container).hide();
+        \$(single_container).show();
+	\$(single_container).find(\"td.region_method_area input\").first().trigger(\"click\");
     }
     else if (\$(caller).val()=='multi')
     {
         \$(caller).val('single');
-        container.html(\"".&rm_newline($multi_region_spec)."\");
-	container.find(\"td.multi_region_method_area input\").first().trigger(\"click\");
+	\$(single_container).hide();
+        \$(multi_container).show();
+	\$(multi_container).find(\"td.multi_region_method_area input\").first().trigger(\"click\");
     }
 }
 
@@ -458,72 +466,99 @@ function check_before_submission()
 
     //region specification
     var region_pat=/[ \\\$\\t\\r\\n\\*\\|\\?\\>\\<\\'\\\"\\,\\;\\:\\[\\]\\{\\}]/;
-    var region_method=\$(document).find(\"input[name^='region_method']:checked\");
+    var region_method;
     var return_value=true;
-
+    var at_least_one=false;
+    
+    //when toggled to multi view, the value of toggler is single and vice versa
+    if (\$('#region_multi_single_button_id').val()=='single')
+    {
+    	region_method=\$('#multi_region_specification_div_id').find(\"input[name^='region_method']:checked\");//select input elements with name starting with region_method
+    }
+    else if (\$('#region_multi_single_button_id').val()=='multi')
+    {
+    	region_method=\$('#region_specification_div_id').find(\"input[name^='region_method']:checked\");//select input elements with name starting with region_method
+    }
     
     //user must either upload a region specification file
     //or specify region for each region specification table
 
-    if(! \$(\"input[name='region_file']\").val() )
-    {
-    \$(region_method).each(
-     function() {
-    var region_spec_container=\$(this).parentsUntil(\"table.single_region_spec_head\").find(\"td.region_detail_area\");
-        var refsnp=\$(region_spec_container).find(\"input[name='refsnp']\").val();
-        var snpflank=\$(region_spec_container).find(\"input[name='snpflank']\").val();
-        var refgene=\$(region_spec_container).find(\"input[name='refgene']\").val();
-        var geneflank=\$(region_spec_container).find(\"input[name='geneflank']\").val();
-        var generefsnp=\$(region_spec_container).find(\"input[name='refsnp_for_gene']\").val();
-        var chr=\$(region_spec_container).find(\"select[name='chr']\").val();
-        var start=\$(region_spec_container).find(\"input[name='start']\").val();
-        var end=\$(region_spec_container).find(\"input[name='end']\").val();
-        var chrrefsnp=\$(region_spec_container).find(\"input[name='refsnp_for_chr']\").val();
+	if(! \$(\"input[name='region_file']\").val() )
+	{
+		\$(region_method).each(
+				function() {
+				var region_spec_container=\$(this).parentsUntil(\"table.single_region_spec_head\").find(\"td.region_detail_area\");
+				var refsnp=\$(region_spec_container).find(\"input[name='refsnp']\").val();
+				var snpflank=\$(region_spec_container).find(\"input[name='snpflank']\").val();
+				var refgene=\$(region_spec_container).find(\"input[name='refgene']\").val();
+				var geneflank=\$(region_spec_container).find(\"input[name='geneflank']\").val();
+				var generefsnp=\$(region_spec_container).find(\"input[name='refsnp_for_gene']\").val();
+				var chr=\$(region_spec_container).find(\"select[name='chr']\").val();
+				var start=\$(region_spec_container).find(\"input[name='start']\").val();
+				var end=\$(region_spec_container).find(\"input[name='end']\").val();
+				var chrrefsnp=\$(region_spec_container).find(\"input[name='refsnp_for_chr']\").val();
 
-        if (\$(this).val() == 'snp')
-        {
-        	if ( refsnp.length==0 || snpflank.length==0)
-        	{
-        		alert('No reference SNP or flanking region');
-			return_value=false;
-        		return false;//stop each iteration
-        	} else if (region_pat.test(refsnp) || region_pat.test(snpflank))
-        	{
-        		alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
-			return_value=false;
-        		return false;
-        	}	
-        } else if (\$(this).val() == 'gene')
-        {
-        	if ( refgene.length==0 || geneflank.length==0)
-            {
-            	alert('No reference gene or flanking region');
-			return_value=false;
-            	return false;
-            } else if (region_pat.test(refgene) || region_pat.test(geneflank) || region_pat.test(generefsnp))
-            {
-            	alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
-			return_value=false;
-            	return false;
-            }	
-        } else if (\$(this).val() == 'chr')
-        {
-        	if ( chr.length==0 || start.length==0 || end.length==0)
-        	{
-        		alert('No chromosome name or start or end');
-			return_value=false;
-        		return false;
-        	} else if (region_pat.test(chr) || region_pat.test(start) || region_pat.test(end) || region_pat.test(chrrefsnp))
-        	{
-        		alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
-			return_value=false;
-        		return false;
-        	}	
-        }
-     }
-    );
-    }
-	return return_value;
+					if (\$(this).val() == 'snp')
+					{	
+						if ( (refsnp.length!=0 && snpflank.length==0) || (refsnp.length==0 && snpflank.length!=0) )
+						{
+							alert('Both reference SNP and flanking region must be supplied.');
+							return_value=false;
+							return false;//stop each iteration
+						} else if (region_pat.test(refsnp) || region_pat.test(snpflank))
+						{
+							alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
+							return_value=false;
+							return false;
+						}	
+						if( refsnp.length!=0 && snpflank.length!=0)
+						{
+							at_least_one=true;
+						}
+					} else if (\$(this).val() == 'gene')
+					{
+						if ( (refgene.length!=0 && geneflank.length==0) || (refgene.length==0 && geneflank.length!=0) )
+						{
+							alert('Both reference gene and flanking region must be supplied.');
+							return_value=false;
+							return false;
+						} else if (region_pat.test(refgene) || region_pat.test(geneflank) || region_pat.test(generefsnp))
+						{
+							alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
+							return_value=false;
+							return false;
+						}	
+						if( refgene.length!=0 && geneflank.length!=0)
+						{
+							at_least_one=true;
+						}
+					} else if (\$(this).val() == 'chr')
+					{
+						if ( (start.length!=0 && end.length==0) || (start.length==0 && end.length!=0) )
+						{
+							alert('Both chromosome start and end must be supplied');
+							return_value=false;
+							return false;
+						} else if (region_pat.test(chr) || region_pat.test(start) || region_pat.test(end) || region_pat.test(chrrefsnp))
+						{
+							alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
+							return_value=false;
+							return false;
+						}	
+						if( start.length!=0 && end.length!=0)
+						{
+							at_least_one=true;
+						}
+					}
+			}
+		);
+	}
+	if(!at_least_one && return_value)
+	{
+		//when return_value is false, an alert has been issued, no need to give more alerts
+		alert('No region is specified!');
+	}
+return return_value&&at_least_one;
 }
 ";
 
@@ -611,7 +646,7 @@ $page.= $q->div($q->table({-class=>'noborder'},
 					"<button style='margin-left:auto;margin-right:auto' type='button' value='single' id='region_multi_single_button_id' onclick='toggle_single_multi_region(this);'>Toggle to Select Single or Multiple Regions</button>"),
 			      ),
 			$q->Tr($q->td(
-					"<div id='region_specification_div_id'></div>"),
+					"<div id='region_specification_div_id' style='display:none'>$single_region_spec</div><div style='display:none' id='multi_region_specification_div_id'> $multi_region_spec</div>"),
 			      ),
 			));
 ##############################END OF REGION SPECIFICATION SECTION####################################
