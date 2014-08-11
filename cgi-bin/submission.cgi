@@ -201,14 +201,18 @@ function changeTracks()
     {
 	var newrow=document.createElement('tr');
 	var col=document.createElement('td');
+	var span=document.createElement('span');
 	var label=document.createElement('label');
 	var upload=document.createElement('input');
+	span.title='Drag or use Ctrl, Shift to select multiple files';
 	label.innerHTML='Custom track (BED format;.gz okay)';
 	upload.type='file';
 	upload.name='custom_table';
+	upload.multiple='multiple';
 
 	label.appendChild(upload);
-	col.appendChild(label);
+	span.appendChild(label);
+	col.appendChild(span);
 	newrow.appendChild(col);
 	insertPos.appendChild(newrow);
     }
@@ -328,22 +332,11 @@ function loadExampleSetting()
 }
 function loadExampleInput()
 {
-    var query_cell=document.getElementById('query_cell_id');
-    var label=document.createElement('label');
-    var hiddenInput=document.createElement('input');
 
-    while(query_cell.firstChild)
-    {
-	query_cell.removeChild(query_cell.firstChild);
-    }
+    \$('#query_example_label_div_id').show();
+    \$('#query_hidden_id').val('1');
+    \$('#query_file_div_id').hide();
 
-    label.innerHTML='Example Input loaded';
-    hiddenInput.type='hidden';
-    hiddenInput.name='example_upload';
-    hiddenInput.value='1';
-
-    query_cell.appendChild(label);
-    query_cell.appendChild(hiddenInput);
     alert('Example input loaded.');
 } 
 function hideDetail()
@@ -356,8 +349,10 @@ function showDetail()
 }
 function check_before_submission()
 {
-    var query_file=document.getElementById('query_file_id').value;
-    var query_url=document.getElementById('query_URL_id').value;
+   if(\$('#query_hidden_id').val() == '0')
+   {
+    var query_file=\$('#query_file_id').val();
+    var query_url=\$('#query_URL_id').val();
 
     if (query_file.length>0 && query_url.length>0)
     {
@@ -371,6 +366,7 @@ function check_before_submission()
 	alert('No input!');
 	return false;
     }
+   }
 
     //check email
 
@@ -446,18 +442,21 @@ function check_before_submission()
     var anno_toggle=document.getElementById('anno_toggle_id').checked;
     var datatrack=document.getElementsByName('generic_table');
     var custom_table=document.getElementsByName('custom_table');
-    //remove empty elements
-    custom_table=Array.prototype.filter.call(custom_table,function(x) {return x.value});
+    var custom_table_count=0;
+    \$(custom_table).each(function(){
+		    custom_table_count+=this.files.length;
+		    });
+    alert('custom table: '+custom_table_count);
 
     if ( generic_toggle || anno_toggle )
     {
-	if (datatrack.length==0 && custom_table.length==0)
+	if (datatrack.length==0 && custom_table_count==0)
 	{
 	    alert (\"No annotation data tracks selected or uploaded \\nwhile generic plot or annotation is enabled.\");
 	    return false;
 	}
     }
-    if ( datatrack.length+custom_table.length>$generic_table_max)
+    if ( datatrack.length+custom_table_count>$generic_table_max)
     {
 	alert('Too many data tracks (max: $generic_table_max)');
 	return false;
@@ -599,7 +598,14 @@ $page.= $q->table(
     ),
     $q->Tr(
 	$q->td("Input file (1st line is header; .gz okay)"),
-	$q->td({-id=>'query_cell_id'},$q->filefield(-id=>"query_file_id",-name=>"query"),"</br></br>or paste URL","<input name='query_URL' type='url' id='query_URL_id' />"),
+	$q->td({-id=>'query_cell_id'},
+		$q->div({id=>'query_file_div_id'},
+			$q->filefield(-id=>"query_file_id",-name=>"query"),
+			"</br>or paste URL","<input name='query_URL' type='url' id='query_URL_id' />"
+		       ),
+		"<input id='query_hidden_id' type='hidden' name='example_upload' value=''/>",
+		"<div id='query_example_label_div_id' style='display:none'><label id='query_example_label'>Example input loaded</label></div>"
+	      ),
     ),
     $q->Tr(
 	$q->td("Field delimiter"),
