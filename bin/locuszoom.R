@@ -252,7 +252,8 @@ ryan.theme <- function(args) {
 		       xlabPos=-2.75,
 		       height=9,
 		       rfrows=4,
-		       genericRows=3
+		       genericRows=3,
+		       xyplotRows=3
 		       )
     return(ModifyList(args,argUpdates));
 }
@@ -273,6 +274,7 @@ giant.theme <-  function(args) {
     argUpdates <- list(
 		       rfrows=10,
 		       genericRows=7,
+		       xyplotRows=5,
 		       recombOver=TRUE,
 		       recombAxisColor='black',
 		       recombAxisAlpha=1,
@@ -405,7 +407,7 @@ AdjustModesOfArgs <- function(args) {
 		      function(x) { as.numeric(unlist(strsplit(x,","))) } );
 
     args <- sublapply( args,
-		      c('rfrows','genericRows'),
+		      c('rfrows','genericRows','xyplotRows'),
 		      function(x) { as.integer(unlist(strsplit(x,","))) } );
 
     args <- sublapply( args,
@@ -1144,6 +1146,46 @@ grid.legend <- function (pch, labels, frame = TRUE, hgap = unit(0.5, "lines"),
     fg;
 }
 
+#parse or set default Y labels, arguments will be recycled if there are fewer than needed
+getXYplotYlab <- function ( args ,xyplotNo)
+{
+    header=NULL;
+    splitylab=NULL;
+    if(args[['xyplotlog']] == 'YES')
+    {
+	header="(log)";
+    } else if (args[['xyplotlog']] == 'MINUS')
+    {
+	header="(-log)";
+    } 
+    if(!is.null(args[['xyplotylab']]))
+    {
+	splitylab=unlist(strsplit(args[['xyplotylab']],','));
+    } else
+    {
+	splitylab="Y"; #default Y label
+    }
+    splitylab=rep(paste(header,splitylab,sep=""),xyplotNo);
+    return (splitylab[1:xyplotNo]);
+}
+#expand range, if two ends equal, treat it differently
+expandRange <- function (x)
+{
+    result = extendrange(x,f=0.1);
+    if (result[1] == result[2])
+    {
+	if(result[1] == 0)
+	{
+	    result[1]=-0.5;
+	    result[2]=0.5;
+	} else
+	{
+	    result[1] = result[1] - abs(result[1]*0.5);
+	    result[2] = result[2] + abs(result[2]*0.5);
+	}
+    }
+    return(result);
+}
 
 
 #############################################################
@@ -1157,10 +1199,17 @@ grid.legend <- function (pch, labels, frame = TRUE, hgap = unit(0.5, "lines"),
 #generic mark
 zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,refidx=NULL,nrugs=0,postlude=NULL,args=NULL,...)
 {
-
+    print(1200);
+    print(str(metal));
     #get number of generic plots and category plots to adjust widths and heights
     genericNo=0;
     categoryNo=0;
+    xyplotNo=0;
+
+    if(!is.null(args[['xyplotCol']]))
+    {
+	xyplotNo = length(unlist(strsplit(args[['xyplotCol']],',')));
+    }
 
     if (length(names(genscore)) > 0)
     {
@@ -1269,19 +1318,18 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
 							 nrugs,
 							 1,
 							 3,
-							 1+args[['categoryFontSize']]*args[['categoryRows']]*categoryNo,
-							 1,
-							 2*args[['geneFontSize']]*args[['rfrows']],
-							 getGenericPlotHeight(genericNo,5*args[['genericRows']]),
-							 1,
-							 4),
+							 1+args[['categoryFontSize']]*args[['categoryRows']]*categoryNo, #category plot
+							 1,#spacing
+							 2*args[['geneFontSize']]*args[['rfrows']],#gene annotation
+							 getGenericPlotHeight((xyplotNo+genericNo),2.5*(args[['xyplotRows']]+args[['genericRows']])),#XY plot and generic plot
+							 4,
+							 1),
 
 						       c('lines',
 							 'lines',
 							 'lines',
 							 'lines',
 							 'null',
-							 'lines',
 							 'lines',
 							 'lines',
 							 'lines', 
@@ -1303,7 +1351,7 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
     #    separation,category strip1,category strip2,...
     #    separation
     #    genes
-    #    separation1,generic plot1,separation2,generic plot2,...
+    #	 separation1,xyplot1,separation2,xyplot2,...  || separation1,generic plot1,separation2,generic plot2,...
     #    subtitle text 
     #    spacer
     #
@@ -1586,13 +1634,99 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
 		     );
 	upViewport(1);
     }
+    #create an area for both xyplot and generic plot
+    #the purpose of this is to distribute the plotting area proportionately, based on number of plots we'll draw
+    pushViewport(
+		 viewport(
+			  layout.pos.row=9,
+			  layout.pos.col=2,
+			  name="XYplotANDGenericOverall",
+			  clip="off",
+			  layout=grid.layout(2,1,heights=unit(c(xyplotNo,genericNo),"null")) )
+		 );
+    #XYplot
+    if ( xyplotNo )
+    {
+	pushViewport(
+		     viewport(
+			      layout.pos.row=1,
+			      name="XYplotOuter",
+			      clip="off")
+		     );
+	pushViewport(
+		     viewport(
+			      name="XYplotInner",
+			      layout=grid.layout(xyplotNo,1),
+			      )
+		     );
+	#every XY plot will get its own label
+	#the title of every plot will be same as the column name from which the data points come
+	xyplotylab = getXYplotYlab(args,xyplotNo);
+	xyplotcol = unlist(strsplit(args[['xyplotCol']],','));
+
+	for (xyplot_index in 1 : xyplotNo)
+	{
+	    #individual xyplot
+	    xyplotDataRange=expandRange(range(metal[,xyplotcol[xyplot_index]],na.rm=TRUE));
+
+	    pushViewport(viewport(layout.pos.row=xyplot_index,layout.pos.col=1));
+	    #draw a y lab for each plot
+	    grid.text( x=unit(args[['ylabPos']],'lines'), label=xyplotylab[xyplot_index],rot=90, gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]));
+
+	    pushViewport(viewport(
+				  layout=grid.layout(2,1,
+						     heights=unit(c(1,5/xyplotNo*args[['xyplotRows']]),c("lines","null"))
+						     )
+				  ));
+
+	    #plot title
+	    print(1651);
+	    pushViewport(
+			 viewport(layout.pos.row=1,layout.pos.col=1,name=paste("xyplotTitle",xyplot_index,sep=""))
+			 );
+	    grid.text( xyplotcol[xyplot_index] );
+	    upViewport(1);
+
+	    #plot XY plot
+	    #data has been converted to numerical
+	    print(1659);
+	    pushViewport(#a simpler way to adjust scale is to use extension
+			 viewport(xscale=pvalVp$xscale,yscale=xyplotDataRange,
+				  layout.pos.row=2,
+				  layout.pos.col=1,
+				  name=paste("xyplotPlotArea",xyplot_index,sep=""),
+				  clip="off",
+				  ));
+	    print(1668);
+	    grid.yaxis(at=args[['yat']],
+		       gp=gpar(cex=args[['axisSize']]*0.8,col=args[['frameColor']],alpha=args[['frameAlpha']] )
+		       );
+
+
+	    print(1671);
+	    pushViewport(
+			 viewport(xscale=xRange,yscale=xyplotDataRange,name=paste('xyplot',xyplot_index,sep=""),clip="on")
+			 );
+	    print(1677);
+	    print(metal$pos);
+	    print(metal[,xyplotcol[xyplot_index]]);
+	    grid.points(x=metal$pos,y=metal[,xyplotcol[xyplot_index]],gp=gpar(col=args[['xyplotColor']]));
+	    print(1699);
+	    upViewport(1);
+	    grid.rect(gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
+	    print(1702);
+
+	    upViewport(1);
+	    upViewport(2);
+	}
+	upViewport(2);
+    }
     ###########	multiple generic plots
     if ( genericNo && args[['showGeneric']] ) 
     {
 	pushViewport(
 		     viewport(
-			      layout.pos.row=9,
-			      layout.pos.col=2,
+			      layout.pos.row=2,
 			      name="genericOuter",
 			      clip="off")
 		     );
@@ -1626,7 +1760,7 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
 
 	    pushViewport(viewport(
 				  layout=grid.layout(2,1,
-						     heights=unit(c(1,5/genericNo*args[['genericRows']]),c("null","null"))
+						     heights=unit(c(1,5/genericNo*args[['genericRows']]),c("lines","null"))
 						     )
 				  ));
 
@@ -1666,10 +1800,11 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
 	}
 	upViewport(2);
     }
+    upViewport(1); #get out of xyplot and generic plot region
     #add xaxis 
     pushViewport(
 		 viewport(xscale=pvalVp$xscale,
-			  layout.pos.row=10,
+			  layout.pos.row=9,
 			  layout.pos.col=2,
 			  name="xaxis",
 			  )
@@ -1982,6 +2117,8 @@ grid.summary=function(args,metal,genscore,category_anno)
 				  ));
 	    pushViewport(viewport(layout.pos.row=2,clip='on'));
 	    name=categoryNames[1];
+	    print(2114);
+	    print(metal);
 	    cat_slice=as.factor(metal[[name]]);
 	    levels(cat_slice)=c(levels(cat_slice),'NA');
 	    cat_slice[is.na(cat_slice)]='NA';
@@ -2058,22 +2195,11 @@ argv <- function(){
 getAnnoForPlot=function(args,metal,anno)
 {
     annoNames=NA;
-    annoNo=0;
     if (length(names(anno)) > 0)
     {
 	annoNames=names(anno);
-	annoNo=length(annoNames);
-	for (i in 1:annoNo)
-	{
-	    name=annoNames[i];
-	    if ( prod(dim(metal[[name]])) == 0)
-	    {
-		print (paste(i," doesn't exist in metal input"));
-		annoNames[i]=NA;
-	    }
-	}
+	annoNames=annoNames[annoNames %in% names(metal)];
     }
-    annoNames=annoNames[!is.na(annoNames)]
     return(annoNames);
 }
 
@@ -2105,6 +2231,12 @@ default.args <- list(
 		     categoryFontSize=.8, 		      #font size for category plot
 		     categoryFontColor='gray50',	      #font color for category plot
 		     categoryAlpha=.8,		      #alpha value for category plot and text
+
+		     xyplotCol=NULL,			   # list of column names (comma-delimited) in input for xyplot
+		     xyplotRows='3',			   # number of rows for xyplot
+		     xyplotColor='blue',		   # color for xyplot
+		     xyplotylab=NULL,			   # comma-delimited list of labels for y-axis
+		     xyplotlog = "MINUS",		   # whether to plot in log-scale (YES), -log scale (MINUS), or no log (NO)
 
 		     theme = NULL,                         # select a theme (collection of settings) for plot
 		     experimental = FALSE,                 # try some experimental features?
@@ -2528,6 +2660,51 @@ if ( is.null(args[['reload']]) ) {
     } else
     {
 	category_anno=NULL;
+    }
+
+
+    #xyplot score
+    if(!is.null(args[['xyplotCol']]))
+    {
+	cat("\nR-DEBUG: Processing XY plot data...\n");
+	#naming
+	if(length(unique(names(metal))) != length(names(metal)))
+	{
+	    stop("Column names in METAL must be unique!");
+	}
+	xyplotcol = unlist(strsplit(args[['xyplotCol']],','));
+	if (length(which(xyplotcol %in% names(metal))) != length(xyplotcol))
+	{
+	    stop("Some XYPlot columns can NOT be found in METAL");
+	}
+	print(2674);
+	print(str(metal));
+	xyplotData=data.frame(metal[,xyplotcol]);
+	print(str(xyplotData));
+	colnames(xyplotData)=xyplotcol;#column names are not set automatically
+	for (i in 1:length(names(xyplotData)))
+	{
+	    #convert string to numerical value, if in scientific notation, convert to plain decimal numbers
+	    if ( !is.numeric(xyplotData[[i]]) )
+	    {
+		stop(paste(names(xyplotData)[i],"is not numeric"));
+	    }
+	}
+	if (args[['xyplotlog']] == 'YES')
+	{
+	    xyplotData = log(xyplotData,10);
+	} else if (args[['xyplotlog']] == 'MINUS')
+	{
+	    xyplotData = -log(xyplotData,10);
+	} else if (args[['xyplotlog']] == 'NO')
+	{
+	    1;
+	} else
+	{
+	    stop("Wrong xyplotlog option: YES, NO, MINUS only");
+	}
+	metal[,xyplotcol] = xyplotData;
+	rm(xyplotcol,xyplotData);
     }
 
     # snpset positions
