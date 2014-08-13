@@ -350,7 +350,7 @@ function showDetail()
 function check_before_submission()
 {
    if(\$('#query_hidden_id').val() == '0')
-   {
+   {//we're NOT using example input
     var query_file=\$('#query_file_id').val();
     var query_url=\$('#query_URL_id').val();
 
