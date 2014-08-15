@@ -669,9 +669,9 @@ $page.= $q->table( {-border=>1},
     $q->Tr(
 	$q->td( ["Interaction type (resolution)",
 		'<label>
-		<input type="radio" name="interaction_type" value="interchromosomal" >INTERchromosomal(1Mb)
+		<input type="radio" name="interaction_type" value="interchromosomal" '."onclick=\"\$('#interaction_chr_tr_id').show();\"".' >INTERchromosomal(1Mb)
 		</label><br>
-		<input type="radio" name="interaction_type" value="intrachromosomal" checked="checked">INTRAchromosomal(100Kb)
+		<input type="radio" name="interaction_type" value="intrachromosomal" '."onclick=\"\$('#interaction_chr_tr_id').hide();\"".' checked="checked">INTRAchromosomal(100Kb)
 		</label>'
 	    ]
 	),
@@ -685,6 +685,11 @@ $page.= $q->table( {-border=>1},
 		</label>'
 	    ]
 	),
+    ),
+    $q->Tr({id=>'interaction_chr_tr_id',style=>'display:none'},
+	$q->td(["Chromosome","<select name='interaction_chr' >".
+		join ("\n",map { "<option value='$_'>$_</option>" } @chr)
+		."</select>"]),
     ),
 );
 
