@@ -1197,7 +1197,7 @@ expandRange <- function (x)
 # NB: *** passing in entire args list *** 
 #
 #generic mark
-zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,refidx=NULL,nrugs=0,postlude=NULL,args=NULL,...)
+zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,refidx=NULL,nrugs=0,postlude=NULL,args=NULL,heatmapData=NULL,...)
 {
     print(1200);
     print(str(metal));
@@ -1841,6 +1841,24 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
     if (is.character(postlude) && file.exists(postlude)) {
 	source(postlude);
     }
+    #end of first page
+    ############################################################################
+    #SECOND PAGE (INTERACTION HEATMAP) BEGINS HERE
+    ############################################################################
+    if(!is.null(args[['heatmapFile']]))
+    {
+	grid.newpage();
+
+	#use levelplot in lattice package to draw heatmap
+	levelplot(value~chr1*chr2,heatmapData,
+		  colorkey=list(tick.number=10),
+		  scales=list(tick.number=5),
+		  xlim=pvalVp$xscale,
+		  col.regions=colorRampPalette(args[['heatmapColor']])(100),
+		  xlab=paste("chr",args[['chr']],unit2char(args[['unit']])),ylab=paste("chr",args[['chr2']],unit2char(args[['unit']])),
+		  main=paste("chr",args[['chr']],"chr",args[['chr2']],"interaction")
+		  );
+    }
 }  ## end zplot
 
 grid.log <- function(args,metal,linespacing=1.5,debug=FALSE)
@@ -2237,6 +2255,9 @@ default.args <- list(
 		     xyplotColor='blue',		   # color for xyplot
 		     xyplotylab=NULL,			   # comma-delimited list of labels for y-axis
 		     xyplotlog = "MINUS",		   # whether to plot in log-scale (YES), -log scale (MINUS), or no log (NO)
+		     
+		     heatmapFile=NULL,			   #file containing matrix for heatmap plotting
+		     heatmapColor='blue,white,red'	   #low range to high range color
 
 		     theme = NULL,                         # select a theme (collection of settings) for plot
 		     experimental = FALSE,                 # try some experimental features?
@@ -2256,6 +2277,7 @@ default.args <- list(
 		     xat=NULL,                             # values for x-axis ticks
 		     xnsmall=NULL,                         # number of digits after decimal point on x-axis labels
 		     chr = NULL,                           # chromosome
+		     chr2 = NULL,		           # chromosome 2, only useful when a heatmap is plotted
 		     start = NULL,                         # start of region (string, may include Mb, kb, etc.)
 		     end = NULL,                           # end of region (string, may include Mb, kb, etc.)
 		     flank = "300kb",                      # surround refsnp by this much
@@ -2707,6 +2729,31 @@ if ( is.null(args[['reload']]) ) {
 	rm(xyplotcol,xyplotData);
     }
 
+    #read in heatmap data
+    if(!is.null(args[['heatmapFile']]))
+    {
+	cat("\nR-DEBUG: Processing heatmap data ...\n");
+	
+	#disable check.names to avoid unwanted changes in chr:pos-pos format
+	heatmapRawData = GetData(args[['heatmapFile']],header=TRUE,check.names=FALSE)
+	#example (header has one less field)
+	#1:1-1000	1:1001-2000
+	#1:1-1000	4.5	3.2
+	#1:1001-2000	4.5	3.2
+
+	rowpos1=regexpr(":[[:digit:]]+",rownames(heatmapRawData));
+	rownames(heatmapRawData)=substr(rownames(heatmapRawData),rowpos1+1,rowpos1+attr(rowpos1,"match.length")-1);
+	colname_reg=regexpr("(?<chr>[[:digit:]]+):(?<pos1>[[:digit:]]+)-(?<pos2>[[:digit:]]+)",colnames(heatmapRawData),perl=TRUE);
+	colpos1= substr(colnames(heatmapRawData),
+		     attr(colname_reg,"capture.start")[,"pos1"],
+		     attr(colname_reg,"capture.start")[,"pos1"]+attr(colname_reg,"capture.length")[,"pos1"]-1);
+	colpos2= substr(colnames(heatmapRawData),attr(colname_reg,"capture.start")[,"pos2"],attr(colname_reg,"capture.start")[,"pos2"]+attr(colname_reg,"capture.length")[,"pos2"]-1);
+	#use the middle point of each region as the Y coordinate on heatmap
+	colnames(heatmapRawData)=(as.numeric(pos1)+as.numeric(pos2))/2
+	heatmapData = expand.grid(chr1=as.numeric(rownames(heatmapRawData))/args[['unit']],chr2=as.numeric(colnames(heatmapRawData))/args[['unit']]);
+	heatmapData$value = as.vector(t(heatmapRawData));
+    }
+
     # snpset positions
 
     rug <- GetData( args[['snpsetFile']], default=rug.default,
@@ -2800,7 +2847,7 @@ if ( is.null(args[['reload']]) ) {
 	print(levels(rug))
     }
 
-    save(metal,annot,recrate,genscore,category_anno,ld,args,rug,file='loaded.Rdata');
+    save(metal,annot,recrate,genscore,category_anno,ld,args,rug,heatmapData,file='loaded.Rdata');
     #save space
 
     if ( prod(dim(metal) ) < 1) { stop("No data read.\n"); }
@@ -2905,9 +2952,15 @@ if ( is.null(args[['reload']]) ) {
 	cat("\n\n");
 	print(summary(category_anno));
     }
+    if (! is.null(heatmapData))
+    {
+	cat("heatmap data summary");
+	cat("\n\n");
+	print(summary(heatmapData));
+    }
 
 
-    save(metal,annot,recrate,genscore,category_anno,refFlatRaw,refFlat,rug,file=args[['rdata']]);
+    save(metal,annot,recrate,genscore,category_anno,refFlatRaw,refFlat,rug,heatmapData,file=args[['rdata']]);
     #save space
 
 } else {
@@ -2950,7 +3003,7 @@ if ('pdf' %in% args[['format']]) {
     if ( prod(dim(metal)) == 0 ) { 
 	message ('No data to plot.'); 
     } else {
-	zplot(metal,ld,recrate,genscore,category_anno,refidx,nrugs=nrugs,args=args,postlude=args[['postlude']]);
+	zplot(metal,ld,recrate,genscore,category_anno,refidx,nrugs=nrugs,args=args,heatmapData=heatmapData,postlude=args[['postlude']]);
 	grid.newpage();
     }
     grid.log(args,metal);

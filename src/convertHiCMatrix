@@ -6,6 +6,10 @@ use File::Basename qw/basename dirname/;
 use Array::Transpose;
 use Carp;
 
+two things to fix:
+1. add support for interaction between region1 and a whole genome
+2. make header have one fewer fields than other rows (for R read.table)
+
 my $usage="
 convertHiCMatrix <subcommand> <...>
 subcommand:	
@@ -232,7 +236,7 @@ sub query
     my $usage="query <file> <output file> <region1> <region2>\n".
     "<region1> chr:pos-pos, chr is numerical\n".
     "<region2> chr:pos-pos, chr is numerical\n".
-    "If only one region is specified, output interaction between genome and this region\n".
+    "If only one region is specified, output interaction between entire genome and this region\n".
     "Otherwise, output interaction that is involved between the two regions\n";
     die "$usage\n" unless @ARGV==4 or @ARGV==3;
     my $file=shift;
@@ -260,11 +264,12 @@ sub gen_query_output
 #when region2 is specified, col_needed is limited by it
 #otherwise, we output all interactions for region1
     my @header=&get_header($config->{in});
-	    print {$config->{out}} join ("\t",@header[@col_needed]),"\n";
-	    $lines++;
+    print {$config->{out}} join ("\t",@header[@col_needed]),"\n";
+    $lines++;
 
     my ($chr,$pos1,$pos2)= $config->{region1}=~/(.*?):(\d+)-(\d+)/;
     die "ERROR: failed to parse region1 ($config->{region1})\n" unless defined $chr && defined $pos1 && defined $pos2;
+    die "ERROR: pos2 must be larger than pos1\n" if $pos1>$pos2;
     seek $config->{in},$idx_ref->{$chr},0 or die "seek failed: $!\n";
     while(readline $config->{in}) #since filehandle is stored as hash value, readline must be used instead of <>
     {
@@ -273,14 +278,17 @@ sub gen_query_output
 	die "ERROR: ",scalar(@header)," fields expected at line $_\n" unless @f==@header;
 	die "ERROR: failed to parse row name at line $_\n" unless $f[0]=~/^(.*?):(\d+)-(\d+)/;
 	my ($local_chr,$local_pos1,$local_pos2)=($1,$2,$3);
-	if($local_chr eq $chr && $local_pos1 <= $pos2 && $local_pos2 >= $pos1)
+	if($local_chr eq $chr && $local_pos2 >= $pos1)
 	{
-	    #note: when filehandle is a hash value, you have to deference it before printing to it
-	    print {$config->{out}} join ("\t",@f[@col_needed]),"\n";
-	    $lines++;
-	} else
-	{#suppose records are sorted based on position, same chromosome records are grouped
-	    last;
+	    if($local_pos1 <= $pos2)
+	    {
+		#note: when filehandle is a hash value, you have to deference it before printing to it
+		print {$config->{out}} join ("\t",@f[@col_needed]),"\n";
+		$lines++;
+	    } else
+	    {#suppose records are sorted based on position, same chromosome records are grouped
+		last;
+	    }
 	}
     }
     return $lines;
@@ -305,18 +313,22 @@ sub find_col_needed
     if(defined $region)
     {
 	push @return,0; #0 is empty
-	my ($chr,$pos1,$pos2)= $region=~/(.*?):(\d+)-(\d+)/;
-	die "ERROR: failed to parse region ($region)\n" unless defined $chr && defined $pos1 && defined $pos2;
+	my ($chr,$pos1,$pos2)= $region=~/^(.*?):(\d+?)-(\d+)/;
+	die "ERROR: failed to parse region ($region)\n" if( (!defined $chr) or (!defined $pos1) or (!defined $pos2));
+        die "ERROR: pos2 must be larger than pos1\n" if $pos1>$pos2;
 	for my $i(1..$#f)
 	{
 	    die "ERROR: failed to parse column name\n" unless $f[$i]=~/^(.*?):(\d+)-(\d+)/;
 	    my ($local_chr,$local_pos1,$local_pos2)=($1,$2,$3);
-	    if($local_chr eq $chr && $local_pos1 <= $pos2 && $local_pos2 >= $pos1)
+	    if($local_chr eq $chr && $local_pos2 >= $pos1)
 	    {
-		push @return,$i;
-	    } else
-	    {#suppose records are sorted based on position, same chromosome records are grouped
-		last;
+		if($local_pos1 <= $pos2)
+		{
+		    push @return,$i;
+		} else
+		{#suppose records are sorted based on position, same chromosome records are grouped
+		    last;
+		}
 	    }
 	}
     }
