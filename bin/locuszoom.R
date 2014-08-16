@@ -1848,16 +1848,20 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
     if(!is.null(args[['heatmapFile']]))
     {
 	grid.newpage();
+	pushViewport(viewport());
 
 	#use levelplot in lattice package to draw heatmap
-	levelplot(value~chr1*chr2,heatmapData,
+	heatmapObj <- levelplot(value~chr1*chr2,heatmapData,
 		  colorkey=list(tick.number=10),
 		  scales=list(tick.number=5),
 		  xlim=pvalVp$xscale,
-		  col.regions=colorRampPalette(args[['heatmapColor']])(100),
-		  xlab=paste("chr",args[['chr']],unit2char(args[['unit']])),ylab=paste("chr",args[['chr2']],unit2char(args[['unit']])),
+		  col.regions=colorRampPalette(unlist(strsplit(args[['heatmapColor']],',')))(100),
+		  xlab=paste("chr",args[['chr']],unit2char(args[['unit']])),
+		  ylab=paste("chr",args[['chr2']],unit2char(args[['unit']])),
 		  main=paste("chr",args[['chr']],"chr",args[['chr2']],"interaction")
 		  );
+	print(heatmapObj,newpage=FALSE,more=TRUE);
+	upViewport(1);
     }
 }  ## end zplot
 
@@ -2257,7 +2261,8 @@ default.args <- list(
 		     xyplotlog = "MINUS",		   # whether to plot in log-scale (YES), -log scale (MINUS), or no log (NO)
 		     
 		     heatmapFile=NULL,			   #file containing matrix for heatmap plotting
-		     heatmapColor='blue,white,red'	   #low range to high range color
+		     					   #path must be ABSOLUTE!!!!!
+		     heatmapColor='blue,white,red',	   #low range to high range color
 
 		     theme = NULL,                         # select a theme (collection of settings) for plot
 		     experimental = FALSE,                 # try some experimental features?
@@ -2735,21 +2740,24 @@ if ( is.null(args[['reload']]) ) {
 	cat("\nR-DEBUG: Processing heatmap data ...\n");
 	
 	#disable check.names to avoid unwanted changes in chr:pos-pos format
-	heatmapRawData = GetData(args[['heatmapFile']],header=TRUE,check.names=FALSE)
+	heatmapRawData = GetData(args[['heatmapFile']],header=TRUE,check.names=FALSE);
 	#example (header has one less field)
 	#1:1-1000	1:1001-2000
 	#1:1-1000	4.5	3.2
 	#1:1001-2000	4.5	3.2
 
+	#use start point for each region
 	rowpos1=regexpr(":[[:digit:]]+",rownames(heatmapRawData));
 	rownames(heatmapRawData)=substr(rownames(heatmapRawData),rowpos1+1,rowpos1+attr(rowpos1,"match.length")-1);
 	colname_reg=regexpr("(?<chr>[[:digit:]]+):(?<pos1>[[:digit:]]+)-(?<pos2>[[:digit:]]+)",colnames(heatmapRawData),perl=TRUE);
 	colpos1= substr(colnames(heatmapRawData),
 		     attr(colname_reg,"capture.start")[,"pos1"],
 		     attr(colname_reg,"capture.start")[,"pos1"]+attr(colname_reg,"capture.length")[,"pos1"]-1);
-	colpos2= substr(colnames(heatmapRawData),attr(colname_reg,"capture.start")[,"pos2"],attr(colname_reg,"capture.start")[,"pos2"]+attr(colname_reg,"capture.length")[,"pos2"]-1);
+	colpos2= substr(colnames(heatmapRawData),
+			attr(colname_reg,"capture.start")[,"pos2"],
+			attr(colname_reg,"capture.start")[,"pos2"]+attr(colname_reg,"capture.length")[,"pos2"]-1);
 	#use the middle point of each region as the Y coordinate on heatmap
-	colnames(heatmapRawData)=(as.numeric(pos1)+as.numeric(pos2))/2
+	colnames(heatmapRawData)=(as.numeric(colpos1)+as.numeric(colpos2))/2
 	heatmapData = expand.grid(chr1=as.numeric(rownames(heatmapRawData))/args[['unit']],chr2=as.numeric(colnames(heatmapRawData))/args[['unit']]);
 	heatmapData$value = as.vector(t(heatmapRawData));
     }
