@@ -649,7 +649,7 @@ $page.="<br> <br>\n";
 $page.= $q->h2("<span title='plot region'>Specify a region</span>");
 $page.= $q->div($q->table({-class=>'noborder'},
 			$q->Tr($q->td(
-					"<button style='margin-left:auto;margin-right:auto' type='button' value='single' id='region_multi_single_button_id' onclick='toggle_single_multi_region(this);'>Toggle to Select Single or Multiple Regions</button>"),
+					"<button style='margin-left:auto;margin-right:auto' type='button' value='single' name='region_multi_single_button' id='region_multi_single_button_id' onclick='toggle_single_multi_region(this);'>Toggle to Select Single or Multiple Regions</button>"),
 			      ),
 			$q->Tr($q->td(
 					"<div id='region_specification_div_id' style='display:none'>$single_region_spec</div><div style='display:none' id='multi_region_specification_div_id'> $multi_region_spec</div>"),
@@ -888,7 +888,14 @@ sub gen_multi_manual_select_code
     $s.=("<tr>".("<td>$unit</td>"x$cell_per_line)."</tr>")x$lines if $lines>0;
     $s.="<tr>".("<td>$unit</td>"x$cells)."</tr>" if $cells>0;
 
-     $s=~s/\bregion_method\b/"region_method".($j==1? ($j=$num_button_group,$i++):($j--,$i))/eg;
+    #make some elements used in post-processing distinguishable by name
+    $s=~s/\bregion_method\b/"region_method".($j==1? ($j=$num_button_group,$i++):($j--,$i))/eg;
+    for my $i("refsnp","snpflank","refgene","geneflank","refsnp_for_gene","chr","start","end","refsnp_for_chr")
+    {
+	$j=$num_button_group;
+	$i=0;
+	$s=~s/name='$i/"name='$i".($j==1? ($j=$num_button_group,$i++):($j--,$i))/eg;
+    }
     return $s;
 }
 sub rm_newline
