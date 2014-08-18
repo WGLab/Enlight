@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/home/yunfeiguo/localperl/bin/perl
 
 use strict;
 use warnings;
@@ -13,7 +13,7 @@ use Control;
 
 BEGIN
 {
-    $ENV{PERL5LIB}=($ENV{PERL5LIB} ? $ENV{PERL5LIB}:"")."/path/to/perllib";
+    $ENV{PERL5LIB}=($ENV{PERL5LIB} ? $ENV{PERL5LIB}:"")."/home/yunfeiguo/localperl/lib/5.18.1:/home/yunfeiguo/localperl/lib/site_perl/5.18.1";
 }
 
 chdir File::Spec->catdir($RealBin,"..") or &Utils::error ("Cannot enter installation directory\n"); #go to installation dir for safety
@@ -31,7 +31,7 @@ my $upload_dir=$server_conf{'tmp'} || "/tmp";
 my $dbname=$server_conf{'dbname'} || &Utils::error("No MySQL database name\n",$log,$admin_email);
 my $dbuser=$server_conf{'dbuser'} || &Utils::error("No MySQL database user\n",$log,$admin_email);
 my $dbpassword=$server_conf{'dbpassword'} || &Utils::error("No MySQL database password\n",$log,$admin_email);
-my $generic_table_max=$server_conf{'generic_table_max'} || 10;
+my $generic_table_max=$server_conf{'generic_table_max'} || 20;
 #my $private_key=$server_conf{'private_key'} || &Utils::error("No RECAPTCHA private key\n",$log,$admin_email);
 my $lz_exe=$server_conf{'locuszoom_exe'} || &Utils::error("No locuszoom executable path\n",$log,$admin_email);
 my $anno_dir=$server_conf{'annovar_dir'} || &Utils::error("No ANNOVAR database directory\n",$log,$admin_email);
@@ -39,10 +39,9 @@ my $anno_exedir=$server_conf{'annovar_bin'} || &Utils::error("No ANNOVAR executa
 my $python_dir=$server_conf{'python_bin'};
 my $anno_exe=File::Spec->catfile($RealBin,"..","bin","table_annovar.pl"); #customized version of table_annovar.pl
 
-FIXME!!!!!
 #use this value with 'region_methodINT' (INT is the index from 0 to 8) to get all region_methods (snp, gene, ...)
 #also when single region is specified, 'region_method' is used
-my $num_manual_select=$server_conf{'num_manual_region_select'};
+my $num_manual_select=$server_conf{'num_manual_region_select'} || &Utils::error("No predefined number of manually specified regions\n",$log,$admin_email);
 
 #read database file settings
 my $hg19db=$server_conf{'hg19db'} || &Utils::error("No hg19 database\n",$log,$admin_email);
@@ -82,14 +81,12 @@ my $source_ref_pop=$q->param('source_ref_pop');
 my ($ld_source,$ld_ref,$ld_pop)=split(',',$source_ref_pop);
 
 #region specification method
-my $flank;
-my $refsnp;
-my $refgene;
-my $chr;
-my $start;
-my $end;
-my $region_spec_method=$q->param('region_method');
-&process_region_spec($region_spec_method);
+my %region_spec = (
+    count	=>	0,
+    method	=>	[],#refsnp,refgene,chr
+    detail	=>	[],#{flank=>'100kb',refsnp=>'rs10318'},...
+);
+&process_region_spec;
 
 my $pvalcol=$q->param('pvalcol');
 my $ref=$q->param("ref");
@@ -101,29 +98,10 @@ my $db=($ref eq 'hg19'? $hg19db:$hg18db);
 my $generic_toggle=1 if (defined $q->param('generic_toggle') && $q->param('generic_toggle') eq 'on');
 my $anno_toggle=1 if (defined $q->param('anno_toggle') && $q->param('anno_toggle') eq 'on');
 my $ld_toggle=1 if (defined $q->param('ld_toggle') && $q->param('ld_toggle') eq 'on');
-my $varAnno=$q->param('varAnno') eq 'NULL'? undef:$q->param('varAnno');
+my $varAnno=$q->param('varAnno') eq 'NULL'? undef:$q->param('varAnno'); #eQTL db annotation
 
 #option check
-&Utils::error("Illegal email address\n",$log,$admin_email) if ($user_email && $user_email !~ /[\w\-\.]+\@[\w\-\.]+\.[\w\-\.]+/);
-&Utils::error("Too many generic tracks (max: $generic_table_max)\n",$log,$admin_email) if (@generic_table + (grep {$_} $q->param('custom_table')) ) > $generic_table_max;
-if ( $generic_toggle || $anno_toggle )
-{
-    unless (@generic_table || %custom_table)
-    {
-	&Utils::error("No annotation data tracks selected or uploaded while generic plot or annotation is enabled\n",$log,$admin_email) 
-    }
-}
-&Utils::error("Genome builds don't match ($ref vs $source_ref_pop).\n",$log,$admin_email) unless (lc($ld_ref) eq lc($ref));
-&Utils::error("No marker column\n",$log,$admin_email) unless $markercol;
-&Utils::error("No P value column\n",$log,$admin_email) unless $pvalcol;
-&Utils::error("Only letters, numbers, dashes, underscores are allowed in column name\n",$log,$admin_email) if $markercol=~/[^\w\-]/ or $pvalcol=~/[^\w\-]/;
-&Utils::error ("No genome build or illegal genome build: $ref\n",$log,$admin_email) unless $ref=~/^hg1[89]$/;
-&Utils::error ("User must specify one of the following items: refsnp, refgene or chr, start, end together\n",$log,$admin_email)
-unless ($refsnp || $refgene || ($chr && $start && $end));
-&Utils::error ("$refgene not FOUND in database (NOTE: gene name is case-sensitive)\n",$log,$admin_email) if ($refgene and ! &geneINDB($refgene,$db));
-&Utils::error ("$refsnp not FOUND in database (NOTE: snp name is case-sensitive)\n",$log,$admin_email) if ($refsnp and ! &snpINDB($refsnp,$db));
-&Utils::error ("Either upload from local, or specify a file via URL. Cannot do both.\n",$log,$admin_email) if ($query_url && $filename);
-&Utils::error ("Illegal characters found in URL: \\,\' not allowed.\n",$log,$admin_email) if ($query_url && $query_url=~/[\\']/);
+&opt_check;
 
 ##check upload
 &handleUpload;
@@ -136,12 +114,13 @@ unless ($refsnp || $refgene || ($chr && $start && $end));
 
 
 #parameter ok, generate command
-my ($param,$lz_cmd,$anno_table_cmd,@unlink);
+my ($param,$lz_cmd,@unlink);
 my @command;
 
 
 #-------------------------------------------------------------------------------------------
 #process annotation tables
+#this part has nothing to do with multi-region
 if (%custom_table)
 {
     #insert custom_table into locuszoom database
@@ -165,7 +144,10 @@ if (%custom_table)
 
     if ($anno_toggle)
     {
-	#copy annovar db files
+	#when annotation is enabled, and custom tables are uploaded, we'll annotate
+	#query files with custom tables in addition to any predefined tables
+
+	#copy mandatory annovar db files
 	my @db_name=(@generic_table,"refGene","ALL.sites.2012_04");
 	push @db_name,$varAnno if $varAnno;
 	my @anno_db_file=map { "${ref}_$_.txt" } @db_name;
@@ -178,7 +160,7 @@ if (%custom_table)
 	{
 	    my $file=$custom_table{$name};
 	    my $anno_tmp="${ref}_$name.txt";
-	    #add BIN column as 1st column is necessary as ANNOVAR will consider this file as one from UCSC genome browser
+	    #add BIN column as 1st column is necessary because ANNOVAR will consider this file as one from UCSC genome browser
 	    push @command,"$addbin_exe $file $anno_tmp";
 	    push @unlink,$file,$anno_tmp;
 	}
@@ -218,10 +200,13 @@ if ($anno_toggle || $varAnno)
     push @command,"cp $input $filename";
 }
 
+#FIXME
+#this part will be changed to XYplot soon
 if ($varAnno)
 {
     #/home/yunfeiguo/projects/annoenlight/bin/locuszoom  --build hg18 --markercol dbSNP135 --source 1000G_Aug2009 --category wgEncodeBroadHmmHepg2HMM categoryKey=/home/yunfeiguo/projects/annoenlight/conf/chromHMM_legend.txt --generic wgEncodeAwgTfbsUwHelas3CtcfUniPk,wgEncodeOpenChromChipHepg2CtcfPk --pop YRI --flank 100kb --refsnp rs10318 --pvalcol p --metal tmp --delim whitespace --prefix hg18 --db /home/yunfeiguo/projects/annoenlight/data/database/enlight_hg18_20131130.db showAnnot=TRUE annotCol=eQTL annotPch='24,1' annotOrder='y,n' annotName='eQTL'
 
+    #in order to generate XYplot, we have to use p_only file instead
     my $col="${varAnno}_existence"; #this database is solely used for marking variants (exist or not)
     my $anno_table_cmd;
     my $tmp="/tmp/$$".rand($$).".varAnno.tmp";
@@ -251,6 +236,7 @@ if ($varAnno)
 if ($anno_toggle)
 {
     my %operation;
+    my $anno_table_cmd;
     for(@generic_table,keys %custom_table)
     {
 	$operation{$_}='r5';
@@ -276,39 +262,54 @@ if ($anno_toggle)
 #all annotations written to .hg1*_multianno file
 #------------------------------------------------------------------------------------------
 
-#generate locuszoom command
-$param.=" --metal $filename".($anno_toggle?".${ref}_multianno.txt":"");
-$param.=" --build $ref" if $ref;
-$param.=" --markercol $markercol" if $markercol;
-$param.=" --source $ld_source" if $ld_source;
-if (@category_table)
+#locuszoom command generation will done multiple times
+#depending on user's request
+#3 types of region specification: refsnp, refgene, chr/start/end
+#3 ways to enter region specification: manual single region/manual multi-region/multi-region hitspec file
+
+#locuszoom command generation is split into two parts: fixed, extensible
 {
-    $param.=" --category ".join(',',@category_table);
-    $param.=" categoryKey=$hmmLegend" if -f $hmmLegend;
+#fixed
+    $param.=" --metal $filename".($anno_toggle?".${ref}_multianno.txt":"");
+    $param.=" --build $ref" if $ref;
+    $param.=" --markercol $markercol" if $markercol;
+    $param.=" --source $ld_source" if $ld_source;
+    if (@category_table)
+    {
+	$param.=" --category ".join(',',@category_table);
+	$param.=" categoryKey=$hmmLegend" if -f $hmmLegend;
+    }
+    $param.=" --generic ".join (',',@generic_table,keys %custom_table) if ($generic_toggle && (@generic_table||%custom_table));
+    $param.=" --pop $ld_pop" if $ld_pop;
+    $param.=" --pvalcol $pvalcol" if $pvalcol;
+    $param.=" --delim tab"; #all delimiters have been converted to TAB
+    $param.=" --plotonly";
+    $param.=" --db $db";
+#extensible    
+for my $i(1..$region_count)
+{
+#generate locuszoom command
+    $param.=" --flank ${flank}kb" if $flank;
+    $param.=" --refsnp $refsnp" if $refsnp;
+    $param.=" --refgene $refgene" if $refgene;
+    $param.=" --chr $chr" if $chr;
+    $param.=" --start ".$start*1000000 if $start; #unit is MB
+    $param.=" --end ".$end*1000000 if $end;
+    $param.=" --write-ld-to LD_Rsquare" if $ld_toggle;
+
+    $lz_cmd="$lz_exe $param";
+
+    push @command,$lz_cmd;
 }
-$param.=" --generic ".join (',',@generic_table,keys %custom_table) if ($generic_toggle && (@generic_table||%custom_table));
-$param.=" --pop $ld_pop" if $ld_pop;
-$param.=" --flank ${flank}kb" if $flank;
-$param.=" --refsnp $refsnp" if $refsnp;
-$param.=" --refgene $refgene" if $refgene;
-$param.=" --chr $chr" if $chr;
-$param.=" --start ".$start*1000000 if $start; #unit is MB
-$param.=" --end ".$end*1000000 if $end;
-$param.=" --pvalcol $pvalcol" if $pvalcol;
-$param.=" --delim tab"; #all delimiters have been converted to TAB
-$param.=" --plotonly";
-$param.=" --db $db";
-$param.=" --write-ld-to LD_Rsquare" if $ld_toggle;
-
-$lz_cmd="$lz_exe $param";
-
-push @command,$lz_cmd;
+}
 push @unlink,"ld_cache.db"; #locuszoom cache
 #locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 100kb --refsnp rs10318 --category wgEncodeBroadHmmGm12878HMM,wgEncodeBroadHmmH1hescHMM --pvalcol p --metal rs10318.txt  --prefix chrhmm categoryKey=~/projects/annoenlight/data/database/chromHMM_legend.txt --generic wgEncodeUwDnaseCaco2HotspotsRep1,wgEncodeRegTfbsClusteredV2
 #remove *_existence column
 #-------------------------------------------------------------------------------------------
 if ($varAnno)
 {
+    #FIXME!!!!
+    #change _existence to ponly column
     my $rmcol=File::Spec->catfile($RealBin,"..","bin","formatter")." rmcol";
     push @command,"$rmcol $filename ${varAnno}_existence";
     push @command,"$rmcol $filename.${ref}_multianno.txt ${varAnno}_existence" if $anno_toggle;
@@ -554,28 +555,113 @@ sub snpINDB
 }
 sub process_region_spec
 {
+    my $region_conf_ref = shift;
+    #first let's figure out which way does the user enter region specification
+    my $single_multi_toggle = $q->param('region_multi_single_button');
+    my $multi_region_method = $q->param('multi_region_method');
+    #single region?
+    if($single_multi_toggle eq 'multi') 
+    #because this is a toggle button,
+    #multi indicates current status of single, vice versa
+    {
+	$region_conf_ref->{count} = 1;
+	#since count=1,we pass empty string as index to individual_region_proc
+	my $idx='';
+	unless (&individual_region_proc($region_conf_ref,$q->param('region_method'.$idx),$idx))
+	{
+	    &Utils::error("At least one region must be specified\n",$log,$admin_email);
+	}
+    } elsif ($single_multi_toggle eq 'single')
+    {
+	#manual multi-region?
+	if ($multi_region_method eq 'multi_region')
+	{
+	    for my $i(1..$num_manual_select)
+	    {
+		my $idx=0;
+		if($individual_region_proc($region_conf_ref,$q->param('region_method'.$idx),$idx))
+		{
+		    $region_conf_ref->{count}++;
+		}
+		$idx++;
+	    }
+	} elsif ( $multi_region_method eq 'region_file')#HITSPEC file?
+	{
+
+	}
+    }
+}
+sub individual_region_proc
+{
+    my $conf = shift;
     my $method=shift;
+    my $idx = shift;
+    my $detail;
 
     if ($method eq 'snp')
     {
-	$flank=$q->param('snpflank');
-	$refsnp=$q->param('refsnp');
+	my ($flank,$snp)=($q->param('snpflank'.$idx) ,$q->param('refsnp'.$idx));
+	$detail = { 
+	    flank => $flank ,
+	    refsnp => $snp,
+	};
+	return 0 unless $flank && $snp; #none of required fields can be empty
     } elsif ($method eq 'gene')
     {
-	$flank=$q->param('geneflank');
-	$refsnp=$q->param('refsnp_for_gene');
-	$refgene=$q->param('refgene');
+	my ($flank,$gene,$snp) = ($q->param('geneflank'.$idx) , $q->param('refgene'.$idx) , $q->param('refsnp_for_gene'.$idx));
+	$detail = { 
+	    flank => $flank,
+	    refgene => $gene ,
+	    refsnp => $snp ,
+	};
+	return 0 unless $flank && $gene; #none of required fields can be empty
     } elsif ($method eq 'chr')
     {
-	$start=$q->param('start');
-	$end=$q->param('end');
-	$chr=$q->param('chr');
-	$refsnp=$q->param('refsnp_for_chr');
+	my ($start,$end,$chr,$snp) = ($q->param('start'.$idx) ,$q->param('end'.$idx) ,$q->param('chr'.$idx) ,$q->param('refsnp_for_chr'.$idx));
+	$detail = { 
+	    start => $start,
+	    end => $end ,
+	    chr => $chr ,
+	    refsnp => $snp ,
+	};
+	return 0 unless $start && $end && $chr; #none of required fields can be empty
+    } else
+    {
+	&Utils::error("Unrecognized region specification method: $method\n",$log,$admin_email);
     }
 
     #remove weird char
-    for ($flank,$refsnp,$refgene,$start,$end,$chr)
+    for my $i(keys %$detail)
     {
-	s/[\$ \t\r\n\*\|\?\>\<\'\"\,\;\:\[\]\{\}]//g if defined;
+	if (defined $detail->{$i})
+	{
+	    $detail->{$i} =~ s/[\$ \t\r\n\*\|\?\>\<\'\"\,\;\:\[\]\{\}]//g;
+	}
     }
+    push @{$conf->{detail}},$detail;
+    push @{$conf->{method}},$method;
+    return 1; #return TRUE if nothing bad happens
+}
+sub opt_check
+{
+    &Utils::error("Illegal email address\n",$log,$admin_email) if ($user_email && $user_email !~ /[\w\-\.]+\@[\w\-\.]+\.[\w\-\.]+/);
+    &Utils::error("Too many generic tracks (max: $generic_table_max)\n",$log,$admin_email) if (@generic_table + (grep {$_} $q->param('custom_table')) ) > $generic_table_max;
+    if ( $generic_toggle || $anno_toggle )
+    {
+	unless (@generic_table || %custom_table)
+	{
+	    &Utils::error("No annotation data tracks selected or uploaded while generic plot or annotation is enabled\n",$log,$admin_email) 
+	}
+    }
+    &Utils::error("Genome builds don't match ($ref vs $source_ref_pop).\n",$log,$admin_email) unless (lc($ld_ref) eq lc($ref));
+    &Utils::error("No marker column\n",$log,$admin_email) unless $markercol;
+    &Utils::error("No P value column\n",$log,$admin_email) unless $pvalcol;
+    &Utils::error("Only letters, numbers, dashes, underscores are allowed in column name\n",$log,$admin_email) if $markercol=~/[^\w\-]/ or $pvalcol=~/[^\w\-]/;
+    &Utils::error ("No genome build or illegal genome build: $ref\n",$log,$admin_email) unless $ref=~/^hg1[89]$/;
+    &Utils::error ("User must specify one of the following items: refsnp, refgene or chr, start, end together\n",$log,$admin_email)
+    unless ($refsnp || $refgene || ($chr && $start && $end));
+    &Utils::error ("$refgene not FOUND in database (NOTE: gene name is case-sensitive)\n",$log,$admin_email) if ($refgene and ! &geneINDB($refgene,$db));
+    &Utils::error ("$refsnp not FOUND in database (NOTE: snp name is case-sensitive)\n",$log,$admin_email) if ($refsnp and ! &snpINDB($refsnp,$db));
+    &Utils::error ("Either upload from local, or specify a file via URL. Cannot do both.\n",$log,$admin_email) if ($query_url && $filename);
+    &Utils::error ("Illegal characters found in URL: \\,\' not allowed.\n",$log,$admin_email) if ($query_url && $query_url=~/[\\']/);
 }
