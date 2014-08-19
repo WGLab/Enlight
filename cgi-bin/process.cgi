@@ -86,7 +86,6 @@ my %region_spec = (
     method	=>	[],#refsnp,refgene,chr
     detail	=>	[],#{flank=>'100kb',refsnp=>'rs10318'},...
 );
-&process_region_spec;
 
 my $pvalcol=$q->param('pvalcol');
 my $ref=$q->param("ref");
@@ -112,6 +111,8 @@ my $varAnno=$q->param('varAnno') eq 'NULL'? undef:$q->param('varAnno'); #eQTL db
 &checkBED(%custom_table) if %custom_table;
 &checkHeader($input,$markercol,$pvalcol);
 
+#check and save region specification
+&process_region_spec(\%region_spec);
 
 #parameter ok, generate command
 my ($param,$lz_cmd,@unlink);
@@ -286,7 +287,8 @@ if ($anno_toggle)
     $param.=" --plotonly";
     $param.=" --db $db";
 #extensible    
-for my $i(1..$region_count)
+=head
+for my $i(1..$region_spec->{count})
 {
 #generate locuszoom command
     $param.=" --flank ${flank}kb" if $flank;
@@ -301,6 +303,7 @@ for my $i(1..$region_count)
 
     push @command,$lz_cmd;
 }
+=cut
 }
 push @unlink,"ld_cache.db"; #locuszoom cache
 #locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 100kb --refsnp rs10318 --category wgEncodeBroadHmmGm12878HMM,wgEncodeBroadHmmH1hescHMM --pvalcol p --metal rs10318.txt  --prefix chrhmm categoryKey=~/projects/annoenlight/data/database/chromHMM_legend.txt --generic wgEncodeUwDnaseCaco2HotspotsRep1,wgEncodeRegTfbsClusteredV2
@@ -553,11 +556,76 @@ sub snpINDB
     }
     return undef;
 }
+sub individual_region_proc
+{
+    my $conf = shift;
+    my $method=shift;
+    my $idx = shift;
+    my $detail;
+
+    if ($method eq 'snp')
+    {
+	my ($flank,$snp)=($q->param('snpflank'.$idx) ,$q->param('refsnp'.$idx));
+	$detail = { 
+	    flank => $flank ,
+	    refsnp => $snp,
+	};
+	return 0 unless $flank && $snp; #none of required fields can be empty
+    } elsif ($method eq 'gene')
+    {
+	my ($flank,$gene,$snp) = (
+	    $q->param('geneflank'.$idx) , 
+	    $q->param('refgene'.$idx) , 
+	    $q->param('refsnp_for_gene'.$idx));
+
+	&Utils::error ("$gene not FOUND in database (NOTE: gene name is case-sensitive)\n",
+	    $log,$admin_email) if ($gene and ! &geneINDB($gene,$db));
+
+	$detail = { 
+	    flank => $flank,
+	    refgene => $gene ,
+	    refsnp => $snp ,
+	};
+	return 0 unless $flank && $gene; #none of required fields can be empty
+    } elsif ($method eq 'chr')
+    {
+	my ($start,$end,$chr,$snp) = (
+	    $q->param('start'.$idx) ,
+	    $q->param('end'.$idx) ,
+	    $q->param('chr'.$idx) ,
+	    $q->param('refsnp_for_chr'.$idx));
+	$detail = { 
+	    start => $start,
+	    end => $end ,
+	    chr => $chr ,
+	    refsnp => $snp ,
+	};
+	return 0 unless $start && $end && $chr; #none of required fields can be empty
+    } else
+    {
+	&Utils::error("Unrecognized region specification method: $method\n",$log,$admin_email);
+    }
+
+    &Utils::error ($detail->{refsnp}." not FOUND in database (NOTE: snp name is case-sensitive)\n",
+	$log,$admin_email) if (defined $detail->{refsnp} and ! &snpINDB($detail->{refsnp},$db));
+
+    #remove weird char
+    for my $i(keys %$detail)
+    {
+	if (defined $detail->{$i})
+	{
+	    $detail->{$i} =~ s/[\$ \t\r\n\*\|\?\>\<\'\"\,\;\:\[\]\{\}]//g;
+	}
+    }
+    push @{$conf->{detail}},$detail;
+    push @{$conf->{method}},$method;
+    return 1; #return TRUE if nothing bad happens
+}
 sub process_region_spec
 {
     my $region_conf_ref = shift;
     #first let's figure out which way does the user enter region specification
-    my $single_multi_toggle = $q->param('region_multi_single_button');
+    my $single_multi_toggle = $q->param('region_multi_single_hidden');
     my $multi_region_method = $q->param('multi_region_method');
     #single region?
     if($single_multi_toggle eq 'multi') 
@@ -576,71 +644,31 @@ sub process_region_spec
 	#manual multi-region?
 	if ($multi_region_method eq 'multi_region')
 	{
+		my $idx=0;
 	    for my $i(1..$num_manual_select)
 	    {
-		my $idx=0;
-		if($individual_region_proc($region_conf_ref,$q->param('region_method'.$idx),$idx))
+		if(&individual_region_proc($region_conf_ref,$q->param('region_method'.$idx),$idx))
 		{
 		    $region_conf_ref->{count}++;
 		}
 		$idx++;
 	    }
+	    if($region_conf_ref->{count} == 0)
+	    {
+		&Utils::error("At least one region must be specified in multi-region specification\n",$log,$admin_email);
+	    }
 	} elsif ( $multi_region_method eq 'region_file')#HITSPEC file?
 	{
-
+		&Utils::error("NOT IMPLEMENTED YET: region_file interpretation\n",$log,$admin_email);
 	}
     }
-}
-sub individual_region_proc
-{
-    my $conf = shift;
-    my $method=shift;
-    my $idx = shift;
-    my $detail;
-
-    if ($method eq 'snp')
-    {
-	my ($flank,$snp)=($q->param('snpflank'.$idx) ,$q->param('refsnp'.$idx));
-	$detail = { 
-	    flank => $flank ,
-	    refsnp => $snp,
-	};
-	return 0 unless $flank && $snp; #none of required fields can be empty
-    } elsif ($method eq 'gene')
-    {
-	my ($flank,$gene,$snp) = ($q->param('geneflank'.$idx) , $q->param('refgene'.$idx) , $q->param('refsnp_for_gene'.$idx));
-	$detail = { 
-	    flank => $flank,
-	    refgene => $gene ,
-	    refsnp => $snp ,
-	};
-	return 0 unless $flank && $gene; #none of required fields can be empty
-    } elsif ($method eq 'chr')
-    {
-	my ($start,$end,$chr,$snp) = ($q->param('start'.$idx) ,$q->param('end'.$idx) ,$q->param('chr'.$idx) ,$q->param('refsnp_for_chr'.$idx));
-	$detail = { 
-	    start => $start,
-	    end => $end ,
-	    chr => $chr ,
-	    refsnp => $snp ,
-	};
-	return 0 unless $start && $end && $chr; #none of required fields can be empty
-    } else
-    {
-	&Utils::error("Unrecognized region specification method: $method\n",$log,$admin_email);
-    }
-
-    #remove weird char
-    for my $i(keys %$detail)
-    {
-	if (defined $detail->{$i})
-	{
-	    $detail->{$i} =~ s/[\$ \t\r\n\*\|\?\>\<\'\"\,\;\:\[\]\{\}]//g;
-	}
-    }
-    push @{$conf->{detail}},$detail;
-    push @{$conf->{method}},$method;
-    return 1; #return TRUE if nothing bad happens
+    #&Utils::error("all params: ".join(" ",$q->param),$log,$admin_email);
+    &Utils::error("single or multi?: $single_multi_toggle<br>".
+    "what multi_region method: $multi_region_method<br>".
+    "count?: ".$region_conf_ref->{count}."<br>".
+    join(" ","method:",@{$region_conf_ref->{method}}).
+    join(" ","detail:",map{ join(" ",keys %$_,values %$_) }@{$region_conf_ref->{detail}})
+	,$log,$admin_email);
 }
 sub opt_check
 {
@@ -658,10 +686,6 @@ sub opt_check
     &Utils::error("No P value column\n",$log,$admin_email) unless $pvalcol;
     &Utils::error("Only letters, numbers, dashes, underscores are allowed in column name\n",$log,$admin_email) if $markercol=~/[^\w\-]/ or $pvalcol=~/[^\w\-]/;
     &Utils::error ("No genome build or illegal genome build: $ref\n",$log,$admin_email) unless $ref=~/^hg1[89]$/;
-    &Utils::error ("User must specify one of the following items: refsnp, refgene or chr, start, end together\n",$log,$admin_email)
-    unless ($refsnp || $refgene || ($chr && $start && $end));
-    &Utils::error ("$refgene not FOUND in database (NOTE: gene name is case-sensitive)\n",$log,$admin_email) if ($refgene and ! &geneINDB($refgene,$db));
-    &Utils::error ("$refsnp not FOUND in database (NOTE: snp name is case-sensitive)\n",$log,$admin_email) if ($refsnp and ! &snpINDB($refsnp,$db));
     &Utils::error ("Either upload from local, or specify a file via URL. Cannot do both.\n",$log,$admin_email) if ($query_url && $filename);
     &Utils::error ("Illegal characters found in URL: \\,\' not allowed.\n",$log,$admin_email) if ($query_url && $query_url=~/[\\']/);
 }

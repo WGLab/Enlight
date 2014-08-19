@@ -268,16 +268,16 @@ function toggle_single_multi_region(caller)
 {
     var single_container=\$(\"#region_specification_div_id\");
     var multi_container=\$(\"#multi_region_specification_div_id\");
-    if(\$(caller).val()=='single')
+    if(\$('#region_multi_single_hidden_id').val()=='single')
     {
-        \$(caller).val('multi');
+        \$('#region_multi_single_hidden_id').val('multi');
 	\$(multi_container).hide();
         \$(single_container).show();
 	\$(single_container).find(\"td.region_method_area input\").first().trigger(\"click\");
     }
-    else if (\$(caller).val()=='multi')
+    else if (\$('#region_multi_single_hidden_id').val()=='multi')
     {
-        \$(caller).val('single');
+        \$('#region_multi_single_hidden_id').val('single');
 	\$(single_container).hide();
         \$(multi_container).show();
 	\$(multi_container).find(\"td.multi_region_method_area input\").first().trigger(\"click\");
@@ -305,7 +305,7 @@ function loadExampleSetting()
     document.getElementById('varAnno_id').value='GTEx_eQTL_11162013';
     document.getElementById('source_ref_pop_id').value='1000G_March2012,hg19,EUR';	
 
-    \$(\"#region_multi_single_button_id\").val(\"single\");
+    \$(\"#region_multi_single_hidden_id\").val(\"single\");
     \$(\"#region_multi_single_button_id\").trigger(\"click\");
 
     \$(\"td.region_detail_area input[name='snpflank']\").val(\"50\");
@@ -384,7 +384,7 @@ function check_before_submission()
     {
     //when multiple regions are specified, the job will take a while
     //user should provide email
-        if(\$(\"#region_multi_single_button_id\").val()=='single')
+        if(\$(\"#region_multi_single_hidden_id\").val()=='single')
         {
             alert('Email must be provided when multiple regions are to be plotted');
             return false;
@@ -446,7 +446,6 @@ function check_before_submission()
     \$(custom_table).each(function(){
 		    custom_table_count+=this.files.length;
 		    });
-    alert('custom table: '+custom_table_count);
 
     if ( generic_toggle || anno_toggle )
     {
@@ -470,11 +469,11 @@ function check_before_submission()
     var at_least_one=false;
     
     //when toggled to multi view, the value of toggler is single and vice versa
-    if (\$('#region_multi_single_button_id').val()=='single')
+    if (\$('#region_multi_single_hidden_id').val()=='single')
     {
     	region_method=\$('#multi_region_specification_div_id').find(\"input[name^='region_method']:checked\");//select input elements with name starting with region_method
     }
-    else if (\$('#region_multi_single_button_id').val()=='multi')
+    else if (\$('#region_multi_single_hidden_id').val()=='multi')
     {
     	region_method=\$('#region_specification_div_id').find(\"input[name^='region_method']:checked\");//select input elements with name starting with region_method
     }
@@ -487,15 +486,15 @@ function check_before_submission()
 		\$(region_method).each(
 				function() {
 				var region_spec_container=\$(this).parentsUntil(\"table.single_region_spec_head\").find(\"td.region_detail_area\");
-				var refsnp=\$(region_spec_container).find(\"input[name='refsnp']\").val();
-				var snpflank=\$(region_spec_container).find(\"input[name='snpflank']\").val();
-				var refgene=\$(region_spec_container).find(\"input[name='refgene']\").val();
-				var geneflank=\$(region_spec_container).find(\"input[name='geneflank']\").val();
-				var generefsnp=\$(region_spec_container).find(\"input[name='refsnp_for_gene']\").val();
-				var chr=\$(region_spec_container).find(\"select[name='chr']\").val();
-				var start=\$(region_spec_container).find(\"input[name='start']\").val();
-				var end=\$(region_spec_container).find(\"input[name='end']\").val();
-				var chrrefsnp=\$(region_spec_container).find(\"input[name='refsnp_for_chr']\").val();
+				var refsnp=\$(region_spec_container).find(\"input[name^='refsnp']\").val();
+				var snpflank=\$(region_spec_container).find(\"input[name^='snpflank']\").val();
+				var refgene=\$(region_spec_container).find(\"input[name^='refgene']\").val();
+				var geneflank=\$(region_spec_container).find(\"input[name^='geneflank']\").val();
+				var generefsnp=\$(region_spec_container).find(\"input[name^='refsnp_for_gene']\").val();
+				var chr=\$(region_spec_container).find(\"select[name^='chr']\").val();
+				var start=\$(region_spec_container).find(\"input[name^='start']\").val();
+				var end=\$(region_spec_container).find(\"input[name^='end']\").val();
+				var chrrefsnp=\$(region_spec_container).find(\"input[name^='refsnp_for_chr']\").val();
 
 					if (\$(this).val() == 'snp')
 					{	
@@ -551,13 +550,16 @@ function check_before_submission()
 					}
 			}
 		);
-	}
-	if(!at_least_one && return_value)
+		if(!at_least_one && return_value)
+		{
+			//when return_value is false, an alert has been issued, no need to give more alerts
+			alert('No region is specified!');
+		}
+		return return_value&&at_least_one;
+	} else
 	{
-		//when return_value is false, an alert has been issued, no need to give more alerts
-		alert('No region is specified!');
+		return true;
 	}
-return return_value&&at_least_one;
 }
 ";
 
@@ -649,7 +651,8 @@ $page.="<br> <br>\n";
 $page.= $q->h2("<span title='plot region'>Specify a region</span>");
 $page.= $q->div($q->table({-class=>'noborder'},
 			$q->Tr($q->td(
-					"<button style='margin-left:auto;margin-right:auto' type='button' value='single' name='region_multi_single_button' id='region_multi_single_button_id' onclick='toggle_single_multi_region(this);'>Toggle to Select Single or Multiple Regions</button>"),
+					"<button style='margin-left:auto;margin-right:auto' type='button' id='region_multi_single_button_id' onclick='toggle_single_multi_region(this);'>Toggle to Select Single or Multiple Regions</button>
+					<input type='hidden' id='region_multi_single_hidden_id' name='region_multi_single_hidden' value='single'></input>"),
 			      ),
 			$q->Tr($q->td(
 					"<div id='region_specification_div_id' style='display:none'>$single_region_spec</div><div style='display:none' id='multi_region_specification_div_id'> $multi_region_spec</div>"),
@@ -890,11 +893,11 @@ sub gen_multi_manual_select_code
 
     #make some elements used in post-processing distinguishable by name
     $s=~s/\bregion_method\b/"region_method".($j==1? ($j=$num_button_group,$i++):($j--,$i))/eg;
-    for my $i("refsnp","snpflank","refgene","geneflank","refsnp_for_gene","chr","start","end","refsnp_for_chr")
+    for my $item("refsnp","snpflank","refgene","geneflank","refsnp_for_gene","chr","start","end","refsnp_for_chr")
     {
 	$j=$num_button_group;
 	$i=0;
-	$s=~s/name='$i/"name='$i".($j==1? ($j=$num_button_group,$i++):($j--,$i))/eg;
+	$s=~s/name='$item\b/"name='$item".($i++)/eg;
     }
     return $s;
 }
