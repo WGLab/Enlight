@@ -335,9 +335,12 @@ def is_gzip(file):
   b = False;
 
   try:
+    print("338");
     f = gzip.open(file);
+    print("339");
     f.read(1024);
     f.close();
+    print("341");
     b = True;
   except:
     pass
@@ -1303,7 +1306,8 @@ def runQuery(query,args):
       out.close();
       
       if count <= 0:
-        file = None;
+	  if query.func_name != 'generic_in_region' and query.func_name != 'category_in_region':
+	      file = None;
 
     except:
       error_msg = str(sys.exc_info()[1]);
@@ -1602,7 +1606,7 @@ def main():
       if opts.prefix != None:
         temp_dir += opts.prefix + "_";
       if not opts.no_date:
-        temp_dir += time.strftime("%y%m%d%H%M%S") + "_";
+        temp_dir += time.strftime("%y%m%d") + "_";
       temp_dir += str(entry[0]);
 
       # Setup the temporary directory.

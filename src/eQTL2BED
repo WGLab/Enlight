@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use FindBin qw/$RealBin/;
 
 #convert UChicago, GTEX eQTL data to BED format with name column containing the annotation
 warn "NOTICE: run '$0 addbin' will output BED file with 1 column as BIN column\n";
@@ -18,18 +19,20 @@ my $addbin=shift @ARGV;
     my $hg19out_ponly="hg19_UChicago_eQTL.txt"; #p values only
     my $hg18out="hg18_UChicago_eQTL.all.txt";
     my $hg19out="hg19_UChicago_eQTL.all.txt";
-    my @all=($hg18out,$hg19out,$hg18out_ponly,$hg19_ponly);
+    my @all=($hg18out,$hg19out,$hg18out_ponly,$hg19out_ponly);
 
     #chromosomal name, 0-start or 1-start must be converted
     &convertUChicago2BED($in,$hg18out,$hg18out_ponly);
 
+    !system("$RealBin/any_hg_convert hg19 bed numerical 0 $hg18out $hg18out_ponly") or die "Failed to convert coordinate\n";
+    !system("mv -f ${hg18out}hg19 $hg19out") and !system("mv -f ${hg18out_ponly}hg19 $hg19out_ponly") or die "Failed to rename\n";
 
     if (defined $addbin && $addbin eq 'addbin')
     {
-	&addBIN($hg18out,$hg19out);
+	&addBIN(@all);
     }
 
-    warn "UChicago data writtent to $hg18out,$hg19out\n";
+    warn "UChicago data writtent to ",join(",",@all),"\n";
 }
 
 {
