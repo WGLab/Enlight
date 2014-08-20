@@ -990,6 +990,10 @@ panel.generic <- function (genscore,unit,start,end,score,color=NULL,...)
     score=genscore$score;
     len=length(start);
 
+	print('start');
+print(start);
+print('end');
+print(end);
     if (len != length(end) || len != length(score))
     {
 	warning("Generic file must have equal columns each row!");
@@ -1041,6 +1045,9 @@ panel.category <- function (x,unit,key=NULL,alpha=1,...)
     end=x$end;
     annotation=as.factor(x$annotation);
 
+print('category start/end');
+print(start);
+print(end);
     if (length(start) != length(end) || length(start) != length(annotation))
     {
 	warning("Category annotation must have equal columns each row!");
@@ -1066,6 +1073,9 @@ panel.category <- function (x,unit,key=NULL,alpha=1,...)
 	    }
 	}
     }
+	print('current viewport xscale');
+	vp=current.viewport();
+	print(vp$xscale);
     grid.rect(  x=start/unit,
 	      width=(end-start)/unit,
 	      gp=gpar(fill=as.character(annotation),lty=0,alpha=alpha),
@@ -1227,14 +1237,12 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
 
     if (! args[['showCategory']])
     {
-	categoryNo=0;
+	    categoryNo=0;
     }
-
     if (xRange[1]<0)
     {
-	xRange[1]=0;
+	    xRange[1]=0;
     }
-
 
 
     refSnp <- metal$MarkerName[refidx];
@@ -1586,7 +1594,7 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
 			 );
 
 	    panel.category(category_anno[[i]],args[['unit']],key=args[['categoryKey']],alpha=args[['categoryAlpha']]);
-
+print(names(category_anno)[i]);
 	    grid.text(
 		      label=names(category_anno)[i],
 		      just=c("center"),
@@ -1756,9 +1764,9 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
 		genscoreRange=c(0,genscoreMax*1.2);
 	    }
 
-	    pushViewport(viewport(layout.pos.row=genscore_index,layout.pos.col=1));
+	    pushViewport(viewport(xscale=pvalVp$xscale,layout.pos.row=genscore_index,layout.pos.col=1));
 
-	    pushViewport(viewport(
+	    pushViewport(viewport(xscale=pvalVp$xscale,
 				  layout=grid.layout(2,1,
 						     heights=unit(c(1,5/genericNo*args[['genericRows']]),c("lines","null"))
 						     )
@@ -1790,6 +1798,13 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
 	    pushViewport(
 			 viewport(xscale=xRange,yscale=genscoreRange,name=paste('genscore',genscore_index,sep=""),clip="on")
 			 );
+            
+print('pvalxscale');
+print(pvalVp$xscale);
+print('xrange');
+print(xRange);
+	print('generic name');
+print(names(genscore[genscore_index]));
 	    panel.generic(
 			  genscore[[genscore_index]],unit=args[['unit']],color=args[['genericColor']]);
 	    upViewport(1);
@@ -2760,6 +2775,9 @@ if ( is.null(args[['reload']]) ) {
 	colnames(heatmapRawData)=(as.numeric(colpos1)+as.numeric(colpos2))/2
 	heatmapData = expand.grid(chr1=as.numeric(rownames(heatmapRawData))/args[['unit']],chr2=as.numeric(colnames(heatmapRawData))/args[['unit']]);
 	heatmapData$value = as.vector(t(heatmapRawData));
+    } else
+    {
+        heatmapData = NULL;
     }
 
     # snpset positions
@@ -3014,6 +3032,8 @@ if ('pdf' %in% args[['format']]) {
 	zplot(metal,ld,recrate,genscore,category_anno,refidx,nrugs=nrugs,args=args,heatmapData=heatmapData,postlude=args[['postlude']]);
 	grid.newpage();
     }
+    print("metal content");
+    print(metal);
     grid.log(args,metal);
     grid.summary(args,metal,genscore,category_anno);
     dev.off();
