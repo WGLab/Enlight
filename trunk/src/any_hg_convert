@@ -23,7 +23,7 @@ my %ALL_NAMING=('numerical'=>\@INT_CHR,'1KG'=>\@ONEKG_CHR,'UCSC'=>\@UCSC_CHR);
 #accept any input as long as method to decipher chr:pos is given
 #accept any chromosome naming (numerical, 1KG, UCSC)
 #
-my $usage="any_hg_convert <hg18|hg19> <format> <chr naming> <bin> <file1 file2 ...>\n".
+my $usage="any_hg_convert <hg18|hg19> <format:bed|matrix> <chr naming> <bin> <file1 file2 ...>\n".
 	  "hg18 or hg19 refers to the build you want convert TO.\n".
 	  "<chr naming> numerical, 1KG, UCSC\n".
 	  "<bin> integer for BIN column, 0 for none, 1 for exist (first column). No other integer allowed.\n";

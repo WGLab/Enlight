@@ -14,38 +14,26 @@ sleep 1;
 my $addbin=shift @ARGV;
 {
     my $in="hg18_All.individual.tracks.gff.v3";
-    my $hg18out="hg18_UChicago_eQTL.txt";
-    my $hg19out="hg19_UChicago_eQTL.txt";
-    my $hg18out_exist="hg18_UChicago_eQTL_existence.txt";
-    my $hg19out_exist="hg19_UChicago_eQTL_existence.txt";
-
-    &convertUChicago2BED($in,$hg18out);
-
-    #hg18 to hg19
-    my $liftover="liftOver";
-    my $hg18to19chain="/home/yunfeiguo/Downloads/liftover/hg18ToHg19.over.chain";
-    my $hg18tmp_ucscchr="/tmp/$$.withucscchr";
-    my $hg19tmp_ucscchr="/tmp/$$.zeroStart.tmp";
+    my $hg18out_ponly="hg18_UChicago_eQTL.txt"; #p values only
+    my $hg19out_ponly="hg19_UChicago_eQTL.txt"; #p values only
+    my $hg18out="hg18_UChicago_eQTL.all.txt";
+    my $hg19out="hg19_UChicago_eQTL.all.txt";
+    my @all=($hg18out,$hg19out,$hg18out_ponly,$hg19_ponly);
 
     #chromosomal name, 0-start or 1-start must be converted
+    &convertUChicago2BED($in,$hg18out,$hg18out_ponly);
 
-    &chr2ucsc($hg18out,$hg18tmp_ucscchr);
-    !system("mv -f $hg18tmp_ucscchr $hg18out") or die "Failed to rename: $!\n";
-
-    ! system("$liftover -bedPlus=3 -tab $hg18out $hg18to19chain $hg19out /tmp/$$.liftover.tmp ") or die "Failed to lift over from hg19 to hg18: $!\n";
-
-    &convertAnno2Exist({$hg18out=>$hg18out_exist,$hg19out=>$hg19out_exist});
 
     if (defined $addbin && $addbin eq 'addbin')
     {
-	&addBIN($hg18out,$hg19out,$hg18out_exist,$hg19out_exist);
+	&addBIN($hg18out,$hg19out);
     }
 
-    warn "UChicago data writtent to $hg18out,$hg19out,$hg18out_exist,$hg19out_exist\n";
+    warn "UChicago data writtent to $hg18out,$hg19out\n";
 }
 
 {
-    my $prefix="GTEX-140712-0019-17897";
+    my $prefix="GTEX-140712";
     #input has filename: hg19_$prefix.tab
     #output BED has filename: hg19_$prefix.$id.bed
     my $in="hg19_$prefix.tab";
@@ -64,13 +52,11 @@ my $addbin=shift @ARGV;
 
     for my $i(keys %dict)
     {
-    my $hg18out="hg18_$prefix.$dict{$i}.txt";
-    my $hg19out="hg19_$prefix.$dict{$i}.txt";
-    my $hg18out_exist="hg18_${prefix}_existence.$dict{$i}.txt";
-    my $hg19out_exist="hg19_${prefix}_existence.$dict{$i}.txt";
-    my $hg18out_ponly="hg18_$prefix.$dict{$i}.ponly.txt";
-    my $hg19out_ponly="hg19_$prefix.$dict{$i}.ponly.txt";
-    my @all=($hg18out,$hg19out,$hg18out_exist,$hg19out_exist,$hg18out_ponly,$hg19out_ponly);
+    my $hg18out="hg18_$prefix.$dict{$i}.all.txt";
+    my $hg19out="hg19_$prefix.$dict{$i}.all.txt";
+    my $hg18out_ponly="hg18_$prefix.$dict{$i}.txt"; #only contains p values
+    my $hg19out_ponly="hg19_$prefix.$dict{$i}.txt"; #only contains p values
+    my @all=($hg18out,$hg19out,$hg18out_ponly,$hg19out_ponly);
 
 	&convertGTEX2bed($in,$hg19out,$i);
 
@@ -83,8 +69,6 @@ my $addbin=shift @ARGV;
 	!system("mv -f $hg19tmp_ucscchr $hg19out") or die "Failed to rename: $!\n";
 
 	!system("$liftover -bedPlus=3 -tab $hg19out $hg19to18chain $hg18out /tmp/$$.liftover.tmp ") or die "Failed to lift over from hg19 to hg18: $!\n";
-
-	&convertAnno2Exist({$hg18out=>$hg18out_exist,$hg19out=>$hg19out_exist});
 
 	!system("perl -pe '\@a=split /\\t/;\$a[3]=~s/.*P:(.*?),.*/\$1/;\$_=join \"\\t\",\@a;' $hg18out > $hg18out_ponly") or die "Failed to extract p values: $!\n";
 	!system("perl -pe '\@a=split /\\t/;\$a[3]=~s/.*P:(.*?),.*/\$1/;\$_=join \"\\t\",\@a;' $hg19out > $hg19out_ponly") or die "Failed to extract p values: $!\n";
@@ -106,8 +90,10 @@ sub convertUChicago2BED
 #chr1	Degner2012_dsQTL	Degner_dsQTL	801099	801099	3.68973163336755	.	.	DegnerDSQTL "chr1.801099 a dsQTL for 802000 to 802100" ; Note "Acts in cis "; Plot=<a href="http://eqtl.uchicago.edu/dsQTL_data/FIGURES/caQTL_7_FEB_2012/DegnerDSQTL.chr1.801099.html" >See QTL plots and view/leave comments</a>
     my $in=shift;
     my $out=shift;
+    my $ponly=shift;
     open IN,'<',$in or die "Failed to read from $in: $!\n";
     open OUT,'>',$out or die "Failed to write to $out: $!\n";
+    open PONLY,'>',$ponly or die "Failed to write to $ponly: $!\n";
 
     while (<IN>)
     {
@@ -138,12 +124,15 @@ sub convertUChicago2BED
 	$anno=~s/\s+$//;
 	$start--; #0-start
 	print OUT "$chr\t$start\t$end\t$anno\n";
+	print PONLY "$chr\t$start\t$end\t$score\n";
     }
     close IN;
     close OUT;
+    close PONLY;
 
     my $tmp="/tmp/$$.sorted.eqtl";
     !system("msort -k n1,n2 $out > $tmp") and !system("mv -f $tmp $out") or die "Failed to sort: $!\n";
+    !system("msort -k n1,n2 $ponly > $tmp") and !system("mv -f $tmp $ponly") or die "Failed to sort: $!\n";
 }
 sub convertGTEX2bed
 {

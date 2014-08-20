@@ -452,7 +452,7 @@ pos2bp <- function(pos) {
 # read file, using filename to determine method.
 #
 
-read.file <- function(file,header=T,na.strings=c('NA','','.','na'),quote="",fill=TRUE,...) 
+read.file <- function(file,header=T,na.strings=c('NA','','.','na'),quote="",fill=TRUE,check.names=FALSE,...) 
 {
     if (! file.exists(file) ) { 
 	return(NULL);
@@ -461,7 +461,7 @@ read.file <- function(file,header=T,na.strings=c('NA','','.','na'),quote="",fill
 
     # if file ends .csv, then read.csv
     if ( regexpr("\\.csv",file) > 0 ) {
-	return(read.csv(file,header=header,na.strings=na.strings,quote=quote,fill=fill,...));
+	return(read.csv(file,header=header,na.strings=na.strings,quote=quote,fill=fill,check.names=check.names,...));
     }
 
     # if file ends .Rdata, then load
@@ -471,7 +471,7 @@ read.file <- function(file,header=T,na.strings=c('NA','','.','na'),quote="",fill
     }
 
     # default is read.table, force \t delimiter for all files except .csv
-    return(read.table(file,header=header,na.strings=na.strings,quote=quote,fill=fill,sep="\t",...));
+    return(read.table(file,header=header,na.strings=na.strings,quote=quote,fill=fill,sep="\t",check.names=check.names,...));
 }
 
 #############################################################
@@ -1157,26 +1157,18 @@ grid.legend <- function (pch, labels, frame = TRUE, hgap = unit(0.5, "lines"),
 }
 
 #parse or set default Y labels, arguments will be recycled if there are fewer than needed
-getXYplotYlab <- function ( args ,xyplotNo)
+getXYplotYlab <- function ( args ,ylab)
 {
-    header=NULL;
-    splitylab=NULL;
     if(args[['xyplotlog']] == 'YES')
     {
-	header="(log)";
+	return (bquote(paste(log[10],.(ylab),sep="")));
     } else if (args[['xyplotlog']] == 'MINUS')
     {
-	header="(-log)";
-    } 
-    if(!is.null(args[['xyplotylab']]))
+	return (bquote(paste(-log[10],.(ylab),sep="")));
+    }  else
     {
-	splitylab=unlist(strsplit(args[['xyplotylab']],','));
-    } else
-    {
-	splitylab="Y"; #default Y label
+	return (ylab);
     }
-    splitylab=rep(paste(header,splitylab,sep=""),xyplotNo);
-    return (splitylab[1:xyplotNo]);
 }
 #expand range, if two ends equal, treat it differently
 expandRange <- function (x)
@@ -1669,17 +1661,19 @@ print(names(category_anno)[i]);
 		     );
 	#every XY plot will get its own label
 	#the title of every plot will be same as the column name from which the data points come
-	xyplotylab = getXYplotYlab(args,xyplotNo);
 	xyplotcol = unlist(strsplit(args[['xyplotCol']],','));
+	#y-axis label will be recycled
+	xyplotylab = rep(unlist(strsplit(args[['xyplotylab']],',')),xyplotNo)[1:xyplotNo];
 
 	for (xyplot_index in 1 : xyplotNo)
 	{
 	    #individual xyplot
+	    xyplotylab_local = getXYplotYlab(args,xyplotylab[xyplot_index]);
 	    xyplotDataRange=expandRange(range(metal[,xyplotcol[xyplot_index]],na.rm=TRUE));
 
 	    pushViewport(viewport(layout.pos.row=xyplot_index,layout.pos.col=1));
 	    #draw a y lab for each plot
-	    grid.text( x=unit(args[['ylabPos']],'lines'), label=xyplotylab[xyplot_index],rot=90, gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]));
+	    grid.text( x=unit(args[['ylabPos']],'lines'), label=xyplotylab_local,rot=90, gp=gpar(cex=args[['axisTextSize']], col=args[['axisTextColor']], alpha=args[['frameAlpha']]));
 
 	    pushViewport(viewport(
 				  layout=grid.layout(2,1,
