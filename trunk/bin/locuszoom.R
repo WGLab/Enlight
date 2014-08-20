@@ -999,7 +999,10 @@ print(end);
 	warning("Generic file must have equal columns each row!");
     }
 
+    if(length(start)*length(end)*length(score) != 0)
+    {#grid.rect doesn't work when input length is zero
     plot_grob=grid.rect(x=start,y=0,width=end-start,height=score,gp=gpar(fill=color,col=color),default.units='native',just=c('left','bottom'));
+    }
 }
 panel.piechart<-function(slices,labels,colors,title)
 {
@@ -1669,7 +1672,15 @@ print(names(category_anno)[i]);
 	{
 	    #individual xyplot
 	    xyplotylab_local = getXYplotYlab(args,xyplotylab[xyplot_index]);
-	    xyplotDataRange=expandRange(range(metal[,xyplotcol[xyplot_index]],na.rm=TRUE));
+	    if (length(which(is.na(metal[,xyplotcol[xyplot_index]]))) != length(metal[,xyplotcol[xyplot_index]]) &&
+	        length(metal[,xyplotcol[xyplot_index]]) != 0)
+	    {
+		xyplotDataRange=expandRange(range(metal[,xyplotcol[xyplot_index]],na.rm=TRUE));
+	    } else
+	    {
+		#when is no meaningful data, use this as default scale
+		xyplotDataRange=c(0,1);
+	    }
 
 	    pushViewport(viewport(layout.pos.row=xyplot_index,layout.pos.col=1));
 	    #draw a y lab for each plot
@@ -1750,12 +1761,14 @@ print(names(category_anno)[i]);
 	for (genscore_index in 1:length(names(genscore)) )
 	{
 	    ##########generic plot title
-	    genscoreMax=max(genscore[[genscore_index]]$score);
-	    #default y range 0,100
-	    genscoreRange=c(0,100); 
-	    if (genscoreMax > 0)
+	    if (length(which(is.na(genscore[[genscore_index]]$score))) != length(genscore[[genscore_index]]$score) &&
+	    	length(genscore[[genscore_index]]$score) != 0 )
 	    {
-		genscoreRange=c(0,genscoreMax*1.2);
+		genscoreRange=expandRange(range(genscore[[genscore_index]]$score,na.rm=TRUE));
+	    } else
+	    {
+#when is no meaningful data, use this as default scale
+		genscoreRange=c(0,100); 
 	    }
 
 	    pushViewport(viewport(xscale=pvalVp$xscale,layout.pos.row=genscore_index,layout.pos.col=1));
@@ -2634,6 +2647,9 @@ if ( is.null(args[['reload']]) ) {
 	generic_file_list = generic_file_list[generic_file_list != "None"];
 	genscore=vector('list',length(generic_file_list));
 	#naming
+	print(2644);
+	print(generic_file_list);
+	print(genscore);
 	for (i in 1:length(generic_file_list))
 	{
 	    genscore[[i]]=generic_file_list[i];
@@ -2650,12 +2666,13 @@ if ( is.null(args[['reload']]) ) {
 		     error = function(e) { warning(e) }
 		     );
 	    cat("\n\n");
-	    if ( prod(dim(genscore[[i]])) == 0 )
-	    {
+	    #we will continue even if we got empty table
+	    #if ( prod(dim(genscore[[i]])) == 0 )
+	    #{
 
-		args[['showGeneric']] <- FALSE;
-		print (paste("Empty generic table: ",names(genscore)[i],sep=""));
-	    }
+	    #    args[['showGeneric']] <- FALSE;
+	    #    print (paste("Empty generic table: ",names(genscore)[i],sep=""));
+	    #}
 	}
     } else
     {
@@ -2715,7 +2732,7 @@ if ( is.null(args[['reload']]) ) {
 	}
 	print(2674);
 	print(str(metal));
-	xyplotData=data.frame(metal[,xyplotcol]);
+	xyplotData = data.frame(apply(data.frame(metal[,xyplotcol]),2,as.numeric));
 	print(str(xyplotData));
 	colnames(xyplotData)=xyplotcol;#column names are not set automatically
 	for (i in 1:length(names(xyplotData)))

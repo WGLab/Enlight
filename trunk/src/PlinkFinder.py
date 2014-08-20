@@ -168,7 +168,7 @@ class PlinkFinder():
 
     bfile_path = os.path.join(self.settings.bim_path,"chr" + chrom);
 
-    com = "%s --bfile %s --chr %s --from-bp %s --to-bp %s --ld-snp %s --r2 --ld-window-r2 0 --ld-window 999999 --ld-window-kb 99999" % (
+    com = "%s --noweb --bfile %s --chr %s --from-bp %s --to-bp %s --ld-snp %s --r2 --ld-window-r2 0 --ld-window 999999 --ld-window-kb 99999" % (
       self.settings.plink_path,
       bfile_path,
       self.chr,
