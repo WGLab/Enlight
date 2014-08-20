@@ -205,23 +205,26 @@ if ($anno_toggle || $varAnno)
 #this part will be changed to XYplot soon
 if ($varAnno)
 {
-    #/home/yunfeiguo/projects/annoenlight/bin/locuszoom  --build hg18 --markercol dbSNP135 --source 1000G_Aug2009 --category wgEncodeBroadHmmHepg2HMM categoryKey=/home/yunfeiguo/projects/annoenlight/conf/chromHMM_legend.txt --generic wgEncodeAwgTfbsUwHelas3CtcfUniPk,wgEncodeOpenChromChipHepg2CtcfPk --pop YRI --flank 100kb --refsnp rs10318 --pvalcol p --metal tmp --delim whitespace --prefix hg18 --db /home/yunfeiguo/projects/annoenlight/data/database/enlight_hg18_20131130.db showAnnot=TRUE annotCol=eQTL annotPch='24,1' annotOrder='y,n' annotName='eQTL'
+    #~/projects/annoenlight/bin/locuszoom --pop EUR --source 1000G_Nov2010 --category wgEncodeBroadHmmHepg2HMM categoryKey=/home/yunfeiguo/projects/annoenlight/conf/chromHMM_legend.txt --generic wgEncodeRegTfbsClusteredV2 --flank 50kb --refsnp rs10318 --pvalcol p --metal rs10318.txt.hg19_multianno.txt --delim tab --db ~/projects/annoenlight/data/database/enlight_hg19.db --build hg19 xyplotCol=GTEX-140712-0019-17897.Brain_Cerebellum.ponly xyplotylab=p --markercol dbSNP135 --plotonly
 
     #in order to generate XYplot, we have to use p_only file instead
-    my $col="${varAnno}_existence"; #this database is solely used for marking variants (exist or not)
+    my $col="${varAnno}"; #this database is solely used for marking variants (exist or not)
     my $anno_table_cmd;
     my $tmp="/tmp/$$".rand($$).".varAnno.tmp";
 
-    $param.=" showAnnot=TRUE";
-    $param.=" annotPch='24,1'";
-    $param.=" annotOrder='y,n'"; #make sure 'varAnno' has 'y' in name field (4th column)
-    $param.=" annotName='$varAnno'";
-    $param.=" annotCol='$col'";
+    $param.=" xyplotCol=$varAnno";
+    if($varAnno =~ /chicago/i)
+    {
+	$param.=" xyplotylab='Score' xyplotlog='NO'";
+    } else
+    {
+	$param.=" xyplotylab='P' xyplotlog='MINUS'";
+    }
 
     $anno_table_cmd.="$anno_exe $filename $anno_dir";
     $anno_table_cmd.=" -protocol $col";
     $anno_table_cmd.=" -operation r";
-    $anno_table_cmd.=" -nastring n";
+    $anno_table_cmd.=" -nastring NA";
     $anno_table_cmd.=" -buildver $ref" if $ref;
     $anno_table_cmd.=" -remove";
     $anno_table_cmd.=" -otherinfo";
@@ -246,7 +249,12 @@ if ($anno_toggle)
     {
 	$operation{$_}='r';
     }
-    $operation{$varAnno}='r' if $varAnno;
+    if($varAnno)
+    {
+	#eqtl and gwas catalogue full annotation 
+	#(beyond score and p) has a suffix .all
+	$operation{"${varAnno}.all"}='r';
+    }
 
     $anno_table_cmd.="$anno_exe $filename ";
     $anno_table_cmd.=( %custom_table ? ".":$anno_dir);
@@ -337,8 +345,8 @@ if ($varAnno)
     #FIXME!!!!
     #change _existence to ponly column
     my $rmcol=File::Spec->catfile($RealBin,"..","bin","formatter")." rmcol";
-    push @command,"$rmcol $filename ${varAnno}_existence";
-    push @command,"$rmcol $filename.${ref}_multianno.txt ${varAnno}_existence" if $anno_toggle;
+    push @command,"$rmcol $filename ${varAnno}";
+    push @command,"$rmcol $filename.${ref}_multianno.txt ${varAnno}" if $anno_toggle;
 }
 
 
