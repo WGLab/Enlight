@@ -115,7 +115,7 @@ my $varAnno=$q->param('varAnno') eq 'NULL'? undef:$q->param('varAnno'); #eQTL db
 &process_region_spec(\%region_spec);
 
 #parameter ok, generate command
-my ($param,$lz_cmd,@unlink);
+my ($param,@unlink);
 my @command;
 
 
@@ -270,7 +270,7 @@ if ($anno_toggle)
 
 #locuszoom command generation is split into two parts: fixed, extensible
 {
-#fixed
+#fixed, this part has nothing to do with multiple plots
     $param.=" --metal $filename".($anno_toggle?".${ref}_multianno.txt":"");
     $param.=" --build $ref" if $ref;
     $param.=" --markercol $markercol" if $markercol;
@@ -286,24 +286,47 @@ if ($anno_toggle)
     $param.=" --delim tab"; #all delimiters have been converted to TAB
     $param.=" --plotonly";
     $param.=" --db $db";
-#extensible    
-=head
-for my $i(1..$region_spec->{count})
-{
+#extensible, this part determines how many plots will be generated
+    for my $i(0..$region_spec{count}-1)
+    {
 #generate locuszoom command
-    $param.=" --flank ${flank}kb" if $flank;
-    $param.=" --refsnp $refsnp" if $refsnp;
-    $param.=" --refgene $refgene" if $refgene;
-    $param.=" --chr $chr" if $chr;
-    $param.=" --start ".$start*1000000 if $start; #unit is MB
-    $param.=" --end ".$end*1000000 if $end;
-    $param.=" --write-ld-to LD_Rsquare" if $ld_toggle;
+	#there are 3 situations: single-region, multi-region, hitspec
+	#the first two will be dealt in the same fashion
+	my $region_param;
+	my $method = $region_spec{method}->[$i];
+	my $flank = $region_spec{detail}->[$i]->{flank};
+	my $snp = $region_spec{detail}->[$i]->{refsnp};
+	my $gene = $region_spec{detail}->[$i]->{refgene};
+	my $chr = $region_spec{detail}->[$i]->{chr};
+	my $start = $region_spec{detail}->[$i]->{start};
+	my $end = $region_spec{detail}->[$i]->{end};
+	my $hitspec = $region_spec{detail}->[$i]->{file};
+	#4 values in method: hitspec, snp, gene, chr
+	if($method eq 'hitspec')
+	{
+	    $region_param.=" --hitspec $hitspec" if $hitspec;
+	} elsif ($method eq 'snp')
+	{
+	    $region_param.=" --flank ${flank}kb" if $flank;
+	    $region_param.=" --refsnp $snp" if $snp;
+	} elsif ($method eq 'gene')
+	{
+	    $region_param.=" --refgene $gene" if $gene;
+	    $region_param.=" --flank ${flank}kb" if $flank;
+	    $region_param.=" --refsnp $snp" if $snp;
+	} elsif ($method eq 'chr')
+	{
+	    $region_param.=" --chr $chr" if $chr;
+	    $region_param.=" --start ".$start*1_000_000 if $start;
+	    $region_param.=" --end ".$end*1_000_000 if $end;
+	    $region_param.=" --refsnp $snp" if $snp;
+	} else
+	{
+	    &Utils::error("Unrecognized region specification method: $method",$log,$admin_email);
+	}
 
-    $lz_cmd="$lz_exe $param";
-
-    push @command,$lz_cmd;
-}
-=cut
+	push @command,"$lz_exe $param $region_param";
+    }
 }
 push @unlink,"ld_cache.db"; #locuszoom cache
 #locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 100kb --refsnp rs10318 --category wgEncodeBroadHmmGm12878HMM,wgEncodeBroadHmmH1hescHMM --pvalcol p --metal rs10318.txt  --prefix chrhmm categoryKey=~/projects/annoenlight/data/database/chromHMM_legend.txt --generic wgEncodeUwDnaseCaco2HotspotsRep1,wgEncodeRegTfbsClusteredV2
@@ -659,16 +682,26 @@ sub process_region_spec
 	    }
 	} elsif ( $multi_region_method eq 'region_file')#HITSPEC file?
 	{
-		&Utils::error("NOT IMPLEMENTED YET: region_file interpretation\n",$log,$admin_email);
+	    my $fh=$q->upload('region_file');
+	    if (!$fh && $q->cgi_error) 
+	    {
+		&Utils::error($q->cgi_error,$log,$admin_email);
+	    }
+	    my $hitspec=$q->tmpFileName($q->param('region_file'));
+	    $region_conf_ref->{count} = 1;
+	    push @{$region_conf_ref->{method}},"hitspec";
+	    push @{$region_conf_ref->{detail}},{file=>$hitspec};
 	}
     }
+    #report region info
+    #
     #&Utils::error("all params: ".join(" ",$q->param),$log,$admin_email);
-    &Utils::error("single or multi?: $single_multi_toggle<br>".
-    "what multi_region method: $multi_region_method<br>".
-    "count?: ".$region_conf_ref->{count}."<br>".
-    join(" ","method:",@{$region_conf_ref->{method}}).
-    join(" ","detail:",map{ join(" ",keys %$_,values %$_) }@{$region_conf_ref->{detail}})
-	,$log,$admin_email);
+#    &Utils::error("single or multi?: $single_multi_toggle<br>".
+#    "what multi_region method: $multi_region_method<br>".
+#    "count?: ".$region_conf_ref->{count}."<br>".
+#    join(" ","method:",@{$region_conf_ref->{method}}).
+#    join(" ","detail:",map{ join(" ",keys %$_,values %$_) }@{$region_conf_ref->{detail}})
+#	,$log,$admin_email);
 }
 sub opt_check
 {

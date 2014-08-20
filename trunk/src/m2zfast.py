@@ -333,7 +333,7 @@ def findCol(header_elements,col_name):
 
 def is_gzip(file):
   b = False;
-  
+
   try:
     f = gzip.open(file);
     f.read(1024);
@@ -343,7 +343,7 @@ def is_gzip(file):
     pass
   finally:
     f.close();
-  
+
   return b;
   
 def is_bz2(file):
@@ -1602,7 +1602,7 @@ def main():
       if opts.prefix != None:
         temp_dir += opts.prefix + "_";
       if not opts.no_date:
-        temp_dir += time.strftime("%y%m%d") + "_";
+        temp_dir += time.strftime("%y%m%d%H%M%S") + "_";
       temp_dir += str(entry[0]);
 
       # Setup the temporary directory.
@@ -1641,7 +1641,7 @@ def main():
             if opts.prefix != None:
               new_image_name += opts.prefix + "_";
             if not opts.no_date:
-              new_image_name += time.strftime("%y%m%d") + "_";
+              new_image_name += time.strftime("%y%m%d%H%M%S") + "_";
             new_image_name += windows_filename(str(entry[0]));
             new_image_name += ext;
 
