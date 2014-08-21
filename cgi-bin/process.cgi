@@ -201,8 +201,6 @@ if ($anno_toggle || $varAnno)
     push @command,"cp $input $filename";
 }
 
-#FIXME
-#this part will be changed to XYplot soon
 if ($varAnno)
 {
     #~/projects/annoenlight/bin/locuszoom --pop EUR --source 1000G_Nov2010 --category wgEncodeBroadHmmHepg2HMM categoryKey=/home/yunfeiguo/projects/annoenlight/conf/chromHMM_legend.txt --generic wgEncodeRegTfbsClusteredV2 --flank 50kb --refsnp rs10318 --pvalcol p --metal rs10318.txt.hg19_multianno.txt --delim tab --db ~/projects/annoenlight/data/database/enlight_hg19.db --build hg19 xyplotCol=GTEX-140712-0019-17897.Brain_Cerebellum.ponly xyplotylab=p --markercol dbSNP135 --plotonly
@@ -294,6 +292,30 @@ if ($anno_toggle)
     $param.=" --delim tab"; #all delimiters have been converted to TAB
     $param.=" --plotonly";
     $param.=" --db $db";
+    #hic interaction data
+    if ( $q->param('heatmap_toggle') eq 'on')
+    {
+	#fetch the correct data set based on type and cell selection
+	if ($q->param('interaction_type') eq 'interchromosomal')
+	{
+	    #there should be some templates
+	    #with proper substitution, get the correct file name
+	    #eg hic_celltype_resolution.BINnameconverted.txt
+	    #replace celltype with correct cell type
+	$q->param('interaction_cell_type') eq 'k562'
+	$q->param('interaction_cell_type') eq 'gm06690'
+
+	} elsif ( $q->param('interaction_type') eq 'intrachromosomal')
+	{
+
+	} else
+	{
+	    &Utils::error("Unrecognized interaction type, only interchromosomal and intrachromosomal allowed",
+		$log,$admin_email);
+	}
+	$q->param('interaction_chr') (1..22,X);
+
+    }
 #extensible, this part determines how many plots will be generated
     for my $i(0..$region_spec{count}-1)
     {

@@ -796,6 +796,8 @@ def getSettings():
   parser.add_option("--refgene",dest="refgene",help="Create region plot flanking a gene.");
   parser.add_option("--flank",dest="flank",help="Distance around refsnp to plot.");
   parser.add_option("--chr",dest="chr",help="Chromosome that refsnp is located on - this is only used for sanity checking, but it is good to include.");
+  parser.add_option("--chr2",dest="chr2",help="If specified, will generate interaction heatmap. If chr2 is same as chr, intrachromosomal o/w inter-chr");
+  parser.add_option("--interactionfile",dest="interactionfile",help="File for interaction heatmap, it is queried for the specified region");
   parser.add_option("--start",dest="start",help="Start position for interval near refsnp. Can be specified along with --end instead of using --flank.");
   parser.add_option("--end",dest="end",help="End position for interval near refsnp.");
   parser.add_option("--ld",dest="ld",help="Specify a user-defined LD file.");
@@ -855,6 +857,8 @@ def getSettings():
   global SQLITE_TRANS;
   global SQLITE_GENERIC;
   global SQLITE_CATEGORY;
+  global DB_INTERACTION;
+  global CHR_INTERACTION;
 
   SQLITE_SNP_POS = "snp_pos";
   SQLITE_REFFLAT = "refFlat";
@@ -862,6 +866,8 @@ def getSettings():
   SQLITE_VAR_ANNOT = "var_annot";
   SQLITE_RECOMB_RATE = "recomb_rate";
   SQLITE_TRANS = "refsnp_trans";
+  DB_INTERACTION = opts.interactionfile;
+  CHR_INTERACTION = opts.chr2;
   try:
       SQLITE_GENERIC = opts.generic.split(',');
   except AttributeError:
@@ -1282,6 +1288,40 @@ def windows_filename(name):
   
   return name;
 
+def runInteractionQuery(query,args):
+  hash = str(int(time.time())) + "_" + str(os.getpid());
+  if query.func_name=='interaction_in_region':
+      file ="%s_%s.txt" % (hash,args[0]);
+  else:
+      file = None;
+      return file;
+
+  try:
+    cur = query(*args);
+  except:
+    error_msg = str(sys.exc_info()[1]);
+    print >> sys.stderr, "Error: Interaction data query failed, error was: %s" % error_msg;
+    cur = None;
+    file = None;
+  
+  count = 0;
+  if cur != None:
+    try:
+      out = open(file,"w");
+      count = print_results(cur,"\t",out);
+      out.close();
+      
+      #we still examine the file in locuszoom.R even if it's empty
+      #in this case, just output an empty figure
+#      if count <= 0:
+#	  file = None;
+    except:
+      error_msg = str(sys.exc_info()[1]);
+      print >> sys.stderr, "Error: could not write interaction query to file. Exception was: %s" % error_msg;
+      file = None;
+
+  return file;
+
 def runQuery(query,args):
   hash = str(int(time.time())) + "_" + str(os.getpid());
   file = "%s_%s_%s.txt" % (query.func_name,hash,args[1]);
@@ -1332,6 +1372,8 @@ def runQueries(chr,start,stop,snpset,build,db_file):
       for i in SQLITE_CATEGORY:
 	  category_file_list.append (runQuery(category_in_region,[db,i,chr,start,stop,build]));
       results['category'] = ','.join(str(v) for v in category_file_list);
+  if DB_INTERACTION:
+      results['heatmapFile'] = runInteractionQuery(interaction_in_region,[DB_INTERACTION,chr,start,stop,CHR_INTERACTION]);
   results['annot'] = runQuery(snp_annot_in_region,[db,SQLITE_SNP_POS,SQLITE_VAR_ANNOT,chr,start,stop,build]);
   results['recomb'] = runQuery(recomb_in_region,[db,SQLITE_RECOMB_RATE,chr,start,stop,build]);
   results['snpsetFile'] = runQuery(snpset_in_region,[db,SQLITE_SNP_POS,SQLITE_SNP_SET,snpset,chr,start,stop,build]);
