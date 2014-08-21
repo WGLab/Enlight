@@ -242,12 +242,19 @@ sub query
     my $output=shift;
     my $region1=shift;
     my $region2=shift;
+    my $out; #output filehandle
     my $lines=0;
     warn "WARNING: position in region2 will be ignored!!!\n";
 
     die "ERROR: no index\n" unless -e $idx;
     open (my $in ,"<",$file) or die "$file: $!\n";
-    open (my $out,">",$output) or die "$output: $!\n";
+    if($output eq 'STDOUT')
+    {
+	$out=\*STDOUT;
+    } else
+    {
+	open ($out,">",$output) or die "$output: $!\n";
+    }
     $lines=&gen_query_output({in=>$in,out=>$out,idx=>$idx,region1=>$region1,region2=>$region2});
     close $in;
     close $out;

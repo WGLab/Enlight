@@ -19,6 +19,8 @@
 
 import sqlite3
 import sys
+import os
+import subprocess
 
 def chr2ucsc(c):
   c = int(c);
@@ -140,6 +142,29 @@ def refflat_in_region(db,refflat,chr,start,stop,build):
   """ % refflat;
 
   return db.execute(query,(chr2ucsc(chr),start,stop));
+
+def interaction_in_region(db,chr,start,stop,chr2)
+  exe = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),"convertHiCMatrix");
+
+  try:
+      #print subprocess.check_output("ls -l /dev/null",shell=True);
+          print subprocess.check_output("asdfksdl",shell=True);
+  except subprocess.CalledProcessError,e:
+      print e.output;
+
+  query = """
+  %s query %s STDOUT %s:%s-%s %s:1-2
+
+  """ % (exe, chr,start,stop,chr2);
+  return query;
+
+#query <file> <output file> <region1> <region2>
+#<region1> chr:pos-pos, chr is numerical
+#<region2> chr:pos-pos, chr is numerical
+#If only one region is specified, output interaction between entire genome and this region
+#Otherwise, output interaction that is involved between the two regions
+#20140816change: if two regions are specified, output the interaction between first region
+# and the chromosome defined by the second region, i.e. position will be ignored!!!
 
 def test():
   # Connect.  
