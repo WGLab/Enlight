@@ -2772,9 +2772,21 @@ if ( is.null(args[['reload']]) ) {
 	#1:1-1000	4.5	3.2
 	#1:1001-2000	4.5	3.2
 
+	print(2775);
+	print(str(heatmapRawData));
+	print(rownames(heatmapRawData));
 	#use start point for each region
+	#process rownames, they appear on x-axis,the first pos should be the start of first region, the last pos should be the end of last region
+	#grep starts of regions
 	rowpos1=regexpr(":[[:digit:]]+",rownames(heatmapRawData));
-	rownames(heatmapRawData)=substr(rownames(heatmapRawData),rowpos1+1,rowpos1+attr(rowpos1,"match.length")-1);
+	rowpos1=substr(rownames(heatmapRawData),rowpos1+1,rowpos1+attr(rowpos1,"match.length")-1);
+	#grep ends of regions
+	rowpos2=regexpr("-[[:digit:]]+",rownames(heatmapRawData));
+	rowpos2=substr(rownames(heatmapRawData),rowpos2+1,rowpos2+attr(rowpos2,"match.length")-1);
+	#use starts as coordinates except the last one
+	rownames(heatmapRawData)=rowpos1;
+	rownames(heatmapRawData)[length(rowpos2)] = rowpos2[length(rowpos2)];
+	#process colnames, they appear on y-axis
 	colname_reg=regexpr("(?<chr>[[:digit:]]+):(?<pos1>[[:digit:]]+)-(?<pos2>[[:digit:]]+)",colnames(heatmapRawData),perl=TRUE);
 	colpos1= substr(colnames(heatmapRawData),
 		     attr(colname_reg,"capture.start")[,"pos1"],

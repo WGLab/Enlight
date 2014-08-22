@@ -36,6 +36,10 @@ my $generic_table_max=$server_conf{'generic_table_max'} || 20;
 my $lz_exe=$server_conf{'locuszoom_exe'} || &Utils::error("No locuszoom executable path\n",$log,$admin_email);
 my $anno_dir=$server_conf{'annovar_dir'} || &Utils::error("No ANNOVAR database directory\n",$log,$admin_email);
 my $anno_exedir=$server_conf{'annovar_bin'} || &Utils::error("No ANNOVAR executable directory\n",$log,$admin_email);
+my $interchr_resolution=$server_conf{'interchr_resolution'} || &Utils::error("no interchr_resolution\n",$log,$admin_email);
+my $intrachr_resolution=$server_conf{'intrachr_resolution'} || &Utils::error("no intrachr_resolution\n",$log,$admin_email);
+my $interchr_template=$server_conf{'interchr_template'} || &Utils::error("no interchr_template\n",$log,$admin_email);
+my $intrachr_template=$server_conf{'intrachr_template'} || &Utils::error("no intrachr_template\n",$log,$admin_email);
 my $python_dir=$server_conf{'python_bin'};
 my $anno_exe=File::Spec->catfile($RealBin,"..","bin","table_annovar.pl"); #customized version of table_annovar.pl
 
@@ -295,25 +299,11 @@ if ($anno_toggle)
     #hic interaction data
     if ( $q->param('heatmap_toggle') eq 'on')
     {
-	#fetch the correct data set based on type and cell selection
-	if ($q->param('interaction_type') eq 'interchromosomal')
-	{
-	    #there should be some templates
-	    #with proper substitution, get the correct file name
-	    #eg hic_celltype_resolution.BINnameconverted.txt
-	    #replace celltype with correct cell type
-	$q->param('interaction_cell_type') eq 'k562'
-	$q->param('interaction_cell_type') eq 'gm06690'
-
-	} elsif ( $q->param('interaction_type') eq 'intrachromosomal')
-	{
-
-	} else
-	{
-	    &Utils::error("Unrecognized interaction type, only interchromosomal and intrachromosomal allowed",
-		$log,$admin_email);
-	}
-	$q->param('interaction_chr') (1..22,X);
+	$param.= &getInteractionConf(
+	    {   cell	=>	$q->param('interaction_cell_type'),
+		type	=>	$q->param('interaction_type'),
+		chr     =>	$q->param('interaction_chr'),
+	    });
 
     }
 #extensible, this part determines how many plots will be generated
@@ -360,7 +350,7 @@ if ($anno_toggle)
 }
 push @unlink,"ld_cache.db"; #locuszoom cache
 #locuszoom --build hg19 --markercol dbSNP135 --source 1000G_Nov2010 --pop EUR --flank 100kb --refsnp rs10318 --category wgEncodeBroadHmmGm12878HMM,wgEncodeBroadHmmH1hescHMM --pvalcol p --metal rs10318.txt  --prefix chrhmm categoryKey=~/projects/annoenlight/data/database/chromHMM_legend.txt --generic wgEncodeUwDnaseCaco2HotspotsRep1,wgEncodeRegTfbsClusteredV2
-#remove *_existence column
+#remove varanno column
 #-------------------------------------------------------------------------------------------
 if ($varAnno)
 {
@@ -751,4 +741,48 @@ sub opt_check
     &Utils::error ("No genome build or illegal genome build: $ref\n",$log,$admin_email) unless $ref=~/^hg1[89]$/;
     &Utils::error ("Either upload from local, or specify a file via URL. Cannot do both.\n",$log,$admin_email) if ($query_url && $filename);
     &Utils::error ("Illegal characters found in URL: \\,\' not allowed.\n",$log,$admin_email) if ($query_url && $query_url=~/[\\']/);
+}
+
+#generate correct parameters for interaction plot
+#this function is very specific and should be made more generalizable whenever possible
+sub getInteractionConf
+{
+    my $conf=shift;
+    my $interactionfile;
+    my $result;
+
+    &Utils::error("Chromosome must be specified when interchromosomal interaction is enabled",
+	$log,$admin_email) if $conf->{type} eq 'interchromosomal' && !$conf->{chr};
+    #intrachr example
+    #HIC_gm06690_chr10_chr10_100000_exp.txt.BINname_converted
+    #HIC_gm06690_chr10_chr10_100000_exp.txt.BINname_convertedhg19
+    #interchr example
+    #gm06690_HIC_1000000_exp.hg18.txt
+    #gm06690_HIC_1000000_exp.hg18.txthg19
+    if($conf->{type} eq 'interchromosomal')
+    {
+	$interactionfile = $interchr_template;
+	$resolution=$interchr_resolution;
+	$result .= " --chr2 $conf->{chr}";
+
+    } elsif ($conf->{type} eq 'intrachromosomal')
+    {
+	$interactionfile = $intrachr_template;
+	$resolution=$intrachr_resolution;
+	$result .= " --chr2 intrachr"; 
+	#m2zfast.py will figure out the correct file to use by replacing TARGETCHR with the chr where refsnp is located
+    } else
+    {
+	&Utils::error("Unrecognized interaction type, only interchromosomal and intrachromosomal allowed",
+	    $log,$admin_email);
+    }
+    for my $i("CELLTYPE","RESOLUTION","TARGETCHR")
+    {
+	&Utils::error("CELLTYPE,RESOLUTION,TARGETCHR are reserved, not allowed in interchrtemplate or intrachrtemplate",
+	    $log,$admin_email);
+    }
+    $interactionfile =~ s/CELLTYPE/$conf->{cell}/;
+    $interactionfile =~ s/RESOLUTION/$resolution/;
+    $interactionfile .= $ref if $ref eq 'hg19';
+    $result .= " --interactionfile $interactionfile";
 }

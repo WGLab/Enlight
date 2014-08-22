@@ -1,0 +1,20 @@
+#!/bin/sh
+set -e
+#prepare inter- and intra- chromosomal matrixes, 1M bp resolution
+#../convertHiCMatrix compile hg18 1000000 gm06690_HIC_1000000_exp ../raw/interaction_matrix/HIC_gm06690_chr*_chr*_1000000_exp.txt
+#../convertHiCMatrix compile hg18 1000000 gm06690_HIC_1000000_obs ../raw/interaction_matrix/HIC_gm06690_chr*_chr*_1000000_exp.txt
+#../convertHiCMatrix compile hg18 1000000 gm06690_HIC_1000000_obsexp ../raw/interaction_matrix/HIC_gm06690_chr*_chr*_1000000_exp.txt
+#../convertHiCMatrix compile hg18 1000000 k562_HIC_1000000_exp ../raw/interaction_matrix/HIC_k562_chr*_chr*_1000000_exp.txt
+#../convertHiCMatrix compile hg18 1000000 k562_HIC_1000000_obs ../raw/interaction_matrix/HIC_k562_chr*_chr*_1000000_exp.txt
+#../convertHiCMatrix compile hg18 1000000 k562_HIC_1000000_obsexp ../raw/interaction_matrix/HIC_k562_chr*_chr*_1000000_exp.txt
+#../any_hg_convert hg19 matrix numerical 0 gm06690_HIC_1000000_exp.hg18.txt gm06690_HIC_1000000_obs.hg18.txt gm06690_HIC_1000000_obsexp.hg18.txt k562_HIC_1000000_exp.hg18.txt k562_HIC_1000000_obs.hg18.txt k562_HIC_1000000_obsexp.hg18.txt
+#../convertHiCMatrix index *_HIC_1000000_*.txt *_HIC_1000000_*.txthg19
+
+#prepare intrachromosomal matrixes
+#cp ../raw/interaction_matrix/HIC*_100000_*.txt .
+#../convertHiCMatrix convert HIC*_100000_*.txt
+#../any_hg_convert hg19 matrix numerical 0 HIC*_100000_*.txt.BINname_converted
+#../convertHiCMatrix index HIC*_100000_*.txt.BINname_converted HIC*_100000_*.txt.BINname_convertedhg19
+
+#change chrX to chr23
+perl -e '@f=glob "*chrX*"; for $old(@f){$new=$old;$new=~s/chrX/chr23/g;!system("cp $old $new") or die;warn "$old to $new done\n"}'

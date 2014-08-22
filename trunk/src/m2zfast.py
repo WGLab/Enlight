@@ -796,7 +796,7 @@ def getSettings():
   parser.add_option("--refgene",dest="refgene",help="Create region plot flanking a gene.");
   parser.add_option("--flank",dest="flank",help="Distance around refsnp to plot.");
   parser.add_option("--chr",dest="chr",help="Chromosome that refsnp is located on - this is only used for sanity checking, but it is good to include.");
-  parser.add_option("--chr2",dest="chr2",help="If specified, will generate interaction heatmap. If chr2 is same as chr, intrachromosomal o/w inter-chr");
+  parser.add_option("--chr2",dest="chr2",help="If specified, will generate interaction heatmap. If chr2 is 'intrachr', output intrachromosomal interaction");
   parser.add_option("--interactionfile",dest="interactionfile",help="File for interaction heatmap, it is queried for the specified region");
   parser.add_option("--start",dest="start",help="Start position for interval near refsnp. Can be specified along with --end instead of using --flank.");
   parser.add_option("--end",dest="end",help="End position for interval near refsnp.");
@@ -866,7 +866,7 @@ def getSettings():
   SQLITE_VAR_ANNOT = "var_annot";
   SQLITE_RECOMB_RATE = "recomb_rate";
   SQLITE_TRANS = "refsnp_trans";
-  DB_INTERACTION = opts.interactionfile;
+  DB_INTERACTION = os.path.abspath(opts.interactionfile);
   CHR_INTERACTION = opts.chr2;
   try:
       SQLITE_GENERIC = opts.generic.split(',');
@@ -1127,6 +1127,17 @@ def getSettings():
   if opts.offline:
     print >> sys.stderr, "Warning: --offline no longer required, option will be ignored..";
 
+  #interaction info
+  if (opts.chr2 and not opts.interactionfile) or (not opts.chr2 and opts.interactionfile):
+    die("Error: both --interactionfile and --chr2 \n"
+	"must be specified together.\n");
+  if opts.chr2:
+      if not (opts.chr2 in ('intrachr','X','chrX','chromX','Y','chrY','chromY','XY','mito')):
+	  if not (int(opts.chr2) in range(1,23)):
+	      die("ERROR: illegal chromosome name\n"
+		  "EXPECT intrachr,1~22,X,chrX,chromX,Y,chrY,chromY,XY,mito\n");
+      opts.chr2 = chrom2chr(opts.chr2);
+
   return (opts,args);
 
 
@@ -1291,7 +1302,7 @@ def windows_filename(name):
 def runInteractionQuery(query,args):
   hash = str(int(time.time())) + "_" + str(os.getpid());
   if query.func_name=='interaction_in_region':
-      file ="%s_%s.txt" % (hash,args[0]);
+      file ="%s_interaction_in_region.txt" % hash;
   else:
       file = None;
       return file;
@@ -1308,7 +1319,7 @@ def runInteractionQuery(query,args):
   if cur != None:
     try:
       out = open(file,"w");
-      count = print_results(cur,"\t",out);
+      count = out.write("%s" % str(cur));
       out.close();
       
       #we still examine the file in locuszoom.R even if it's empty
@@ -1357,6 +1368,8 @@ def runQuery(query,args):
   return file;
 
 def runQueries(chr,start,stop,snpset,build,db_file):
+  global CHR_INTERACTION; #tell python interpreter we will not create another variable with same name
+  global DB_INTERACTION;
   results = {};
   generic_file_list=[];
   category_file_list=[];
@@ -1373,6 +1386,12 @@ def runQueries(chr,start,stop,snpset,build,db_file):
 	  category_file_list.append (runQuery(category_in_region,[db,i,chr,start,stop,build]));
       results['category'] = ','.join(str(v) for v in category_file_list);
   if DB_INTERACTION:
+      if CHR_INTERACTION == 'intrachr':
+	  CHR_INTERACTION = chr;
+	  DB_INTERACTION = re.sub(r'TARGETCHR',str(chr),DB_INTERACTION); 
+	  #replace all occurences of TARGETCHR by chr, chr is numerical here
+      #one additional argument for interaction plot: the 2nd chromosome name
+      results['chr2'] = CHR_INTERACTION;
       results['heatmapFile'] = runInteractionQuery(interaction_in_region,[DB_INTERACTION,chr,start,stop,CHR_INTERACTION]);
   results['annot'] = runQuery(snp_annot_in_region,[db,SQLITE_SNP_POS,SQLITE_VAR_ANNOT,chr,start,stop,build]);
   results['recomb'] = runQuery(recomb_in_region,[db,SQLITE_RECOMB_RATE,chr,start,stop,build]);

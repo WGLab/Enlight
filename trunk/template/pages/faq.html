@@ -76,13 +76,18 @@ ddsmoothmenu.init({
 	<p>All ENCODE data sets come from UCSC genome browser. Wherever there are replicates, only the first one is selected. All data sets are in BED format. The score column is extracted for plotting and annotation.</p>
 	<br>
 	<h3 id='q3'>Where does the interaction data come from? How is it compiled?</h3>
-	<p>The interaction matrix data comes from the data published in the following paper: <a href="http://www.sciencemag.org/content/326/5950/289">Liberman-Aiden et al, Science, 2009</a>. The values are based on 100KB windows.</p>
+	<p>The interaction matrix data comes from the data published in the original HiC method paper: <a href="http://www.sciencemag.org/content/326/5950/289">Liberman-Aiden et al, Science, 2009</a>. The resolution is 100 Kbp for intrachromosomal interaction and 1 Mbp for interchromosomal interaction. The ratio of Observed/Expected is reported for each region in the heatmap plot. The original genome build is hg18, UCSC liftover tool was applied to convert it to hg19.
+	</p>
 	<br>
 	<h3 id='q4'>How to generate multiple plots quickly</h3>
 	<p>If you want to plot over multiple regions, just open the dialogue for multiple region specification on the submission page. If you want to try different combinations of, say, ENCODE data tracks, you can simply change your settings and submit multiple requests.</p>
 	<br>
 	<h3 id='q5'>What are the files with suffix '.invalid_input'?</h3>
 	<p>The query file uploaded by user will first be annotated by ANNOVAR. If any record is not accepted by ANNOVAR, it will go into a file ending with '.invalid_input'. To understand what is the standard ANNOVAR format, please go <a href='http://www.openbioinformatics.org/annovar/annovar_input.html#standard'>here</a>.</p>
+	<br>
+	<h3 id='q6'>What does score mean in the UChicago eQTL plot?</h3>
+	<p>The score is potentially different for each study. Mostly it is a -log10 P-value, but sometimes it can be a posterior probability or log10 Bayes Factor.  It really depends on what study is reported for that eQTL. Enlight does not differentiate among different studies used by UChicago eQTL browser. Please check out the text annotation and look at <a href='http://eqtl.uchicago.edu/cgi-bin/gbrowse/eqtl/?help=citations#Veyrieras_Pvalue'>here</a> to figure out which study is reported and what the score means.
+	</p>
 	<br>
 
     </div> <!-- end of main -->
