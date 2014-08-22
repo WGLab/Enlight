@@ -1880,7 +1880,7 @@ print(names(genscore[genscore_index]));
 		  col.regions=colorRampPalette(unlist(strsplit(args[['heatmapColor']],',')))(100),
 		  xlab=paste("chr",args[['chr']],unit2char(args[['unit']])),
 		  ylab=paste("chr",args[['chr2']],unit2char(args[['unit']])),
-		  main=paste("chr",args[['chr']],"chr",args[['chr2']],"interaction")
+		  main=paste("chr",args[['chr']],"chr",args[['chr2']],"interaction\n",args[['heatmapTitlePlus']])
 		  );
 	print(heatmapObj,newpage=FALSE,more=TRUE);
 	upViewport(1);
@@ -2285,6 +2285,7 @@ default.args <- list(
 		     heatmapFile=NULL,			   #file containing matrix for heatmap plotting
 		     					   #path must be ABSOLUTE!!!!!
 		     heatmapColor='blue,white,red',	   #low range to high range color
+		     heatmapTitlePlus=NULL,		   #additional title text
 
 		     theme = NULL,                         # select a theme (collection of settings) for plot
 		     experimental = FALSE,                 # try some experimental features?
