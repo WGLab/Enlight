@@ -440,7 +440,7 @@ function check_before_submission()
     //check datatracks
     var generic_toggle=document.getElementById('generic_toggle_id').checked;
     var anno_toggle=document.getElementById('anno_toggle_id').checked;
-    var datatrack=document.getElementsByName('generic_table');
+    var datatrack=\$('[name=\"generic_table\"]').filter(':checked');
     var custom_table=document.getElementsByName('custom_table');
     var custom_table_count=0;
     \$(custom_table).each(function(){

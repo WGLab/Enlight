@@ -119,7 +119,7 @@ sub jobRun()
 	    IPC::System::Simple::system("$cmd 1>&2"); #use this to avoid zombies. It dies upon failures
 	    alarm 0;
 	};
-	$error.="CMD:$cmd\nERR:$@\n" and last if $@; #capture eval block message, exit at first error
+	$error.="CMD:$cmd\nERR:$@\nJOBID:$id\nPLEASE SEND JOBID TO ADMINISTER FOR ASSISTANCE.\n" and last if $@; #capture eval block message, exit at first error
     }
 
     chdir $outdir;
@@ -151,7 +151,7 @@ sub runError
     my $dbh=$self->{'dbh'};
 
     $dbh->do("UPDATE $tablename SET status = 'e' WHERE id = $id");
-    die ("Failed to run.\n$msg");
+    die ("Failed during execution.\n$msg");
 }
 
 sub jobClean
