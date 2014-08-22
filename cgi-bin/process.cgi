@@ -313,8 +313,8 @@ if ($anno_toggle)
 		type	=>	$q->param('interaction_type'),
 		chr     =>	$q->param('interaction_chr'),
 	    });
-
     }
+    $param.=" --write-ld-to LD_Rsquare" if $ld_toggle && $q->param('region_multi_single_hidden') eq 'multi'; #write ld for single region mode
 #extensible, this part determines how many plots will be generated
     for my $i(0..$region_spec{count}-1)
     {

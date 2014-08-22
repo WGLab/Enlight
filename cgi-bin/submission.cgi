@@ -718,21 +718,22 @@ $page.= $q->table( {-class=>'noborder'},
 	    "</span>"
 	),
     ),
+    #LD output function temporily disabled because there could be multiple regions
     $q->Tr(
-	$q->td( ["Advanced options",
-		'<label>
-		<input type="radio" name="detail_toggle" value="show" onclick="showDetail()">show
-		</label>
-		<input type="radio" name="detail_toggle" value="hide" onclick="hideDetail()" checked="checked">hide
-		</label>'
-	    ]
-	),
+        $q->td( ["Advanced options",
+        	'<label>
+        	<input type="radio" name="detail_toggle" value="show" onclick="showDetail()">show
+        	</label>
+        	<input type="radio" name="detail_toggle" value="hide" onclick="hideDetail()" checked="checked">hide
+        	</label>'
+            ]
+        ),
     ),
 );
 $page.= $q->table({-class=>'advanced',-id=>'option_detail_id',-style=>'display:none'},
     $q->Tr(
 	[$q->td(
-	    $q->checkbox(-name=>'ld_toggle',-id=>'ld_toggle_id',-checked=>1,-label=>'Output linkage disequilibrium information (written in input file)')
+	    $q->checkbox(-name=>'ld_toggle',-id=>'ld_toggle_id',-checked=>1,-label=>'Output linkage disequilibrium (only works with SINGLE region, written in input file)')
 	),
 	#$q->td(
 	#	"<p>LD breakdown in summary plot (separated by comma, mininum 0, maximum 1)</p>
