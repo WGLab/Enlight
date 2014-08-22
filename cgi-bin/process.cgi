@@ -750,6 +750,7 @@ sub getInteractionConf
     my $conf=shift;
     my $interactionfile;
     my $result;
+    my $resolution;
 
     &Utils::error("Chromosome must be specified when interchromosomal interaction is enabled",
 	$log,$admin_email) if $conf->{type} eq 'interchromosomal' && !$conf->{chr};
@@ -785,4 +786,5 @@ sub getInteractionConf
     $interactionfile =~ s/RESOLUTION/$resolution/;
     $interactionfile .= $ref if $ref eq 'hg19';
     $result .= " --interactionfile $interactionfile";
+    $result .= " heatmapTitlePlus='cellline:$conf->{cell}'";
 }
