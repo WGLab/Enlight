@@ -22,7 +22,7 @@ if ($op eq 'subset')
 #-------------------------------------------------------------------------
 sub subset
 {
-    die "$PROGRAM subset <olddb> <newdb> <table1 table2 ...>\n" unless @ARGV>=3;
+    die "$PROGRAM subset <mindb> <olddb> <newdb> <table1 table2 ...>\n" unless @ARGV>=3;
     my $in=shift;
     my $out=shift;
     my @table=@_;
