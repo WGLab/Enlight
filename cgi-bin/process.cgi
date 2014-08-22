@@ -141,7 +141,8 @@ if (%custom_table)
     #min_db contains recomb_rate refFlat refsnp_trans snp_pos, it's the basis
     #expand it by tables from db
     #save new db at tmpdb
-    push @command,"$subset_exe $mindb $db $tmpdb @generic_table";
+    #push @command,"$subset_exe $mindb $db $tmpdb @generic_table";
+    push @command,"cp $db $tmpdb"; #do not use dump, because it's much slower than copy
     push @unlink,$tmpdb;
     $db=$tmpdb;
 
