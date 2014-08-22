@@ -50,6 +50,8 @@ my $num_manual_select=$server_conf{'num_manual_region_select'} || &Utils::error(
 #read database file settings
 my $hg19db=$server_conf{'hg19db'} || &Utils::error("No hg19 database\n",$log,$admin_email);
 my $hg18db=$server_conf{'hg18db'} || &Utils::error("No hg18 database\n",$log,$admin_email);
+my $hg19mindb=$server_conf{'hg19mindb'} || &Utils::error("No hg19 min database\n",$log,$admin_email);
+my $hg18mindb=$server_conf{'hg18mindb'} || &Utils::error("No hg18 min database\n",$log,$admin_email);
 my $hg19rs=$server_conf{'hg19rs'} || &Utils::error("No hg19 rsID database\n",$log,$admin_email);
 my $hg18rs=$server_conf{'hg18rs'} || &Utils::error("No hg18 rsID database\n",$log,$admin_email);
 my $hmmLegend=$server_conf{'hmmLegend'} || &Utils::error("No chromHMM legend\n",$log,$admin_email);
@@ -135,7 +137,10 @@ if (%custom_table)
     my $subset_exe=File::Spec->catfile($RealBin,"..","bin","manipulateDB")." subset";
     my $insert_cmd;
 
-    push @command,"$subset_exe $db $tmpdb @generic_table recomb_rate refFlat refsnp_trans snp_pos";
+    #min_db contains recomb_rate refFlat refsnp_trans snp_pos, it's the basis
+    #expand it by tables from db
+    #save new db at tmpdb
+    push @command,"$subset_exe $min_db $db $tmpdb @generic_table recomb_rate refFlat refsnp_trans snp_pos";
     push @unlink,$tmpdb;
     $db=$tmpdb;
 
