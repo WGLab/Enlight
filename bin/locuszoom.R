@@ -2242,6 +2242,7 @@ getAnnoForPlot=function(args,metal,anno)
     if (length(names(anno)) > 0)
     {
 	annoNames=names(anno);
+	#grid.summary relies on ANNOVAR output to generate summary figures
 	annoNames=annoNames[annoNames %in% names(metal)];
     }
     return(annoNames);
