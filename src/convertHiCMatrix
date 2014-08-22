@@ -246,7 +246,7 @@ sub query
     my $lines=0;
     warn "WARNING: position in region2 will be ignored!!!\n";
 
-    die "ERROR: no index\n" unless -e $idx;
+    die "ERROR: no index (expect $idx)\n" unless -e $idx;
     open (my $in ,"<",$file) or die "$file: $!\n";
     if($output eq 'STDOUT')
     {
@@ -289,12 +289,12 @@ sub gen_query_output
 	#{
 	#    if($local_pos1 <= $pos2)
 	#    {
-	if($local_chr eq $chr)
+	if($local_chr eq $chr && $local_pos1 <= $pos2 && $local_pos2 >= $pos1)
 	{
 	    #note: when filehandle is a hash value, you have to deference it before printing to it
 	    print {$config->{out}} join ("\t",@f[@col_needed]),"\n";
 	    $lines++;
-	} elsif($local_chr > $chr)
+	} elsif ($local_chr > $chr || $local_pos1 > $pos2)
 	{#suppose records are sorted based on position, same chromosome records are grouped
 	    last;
 	}
@@ -329,17 +329,13 @@ sub find_col_needed
 	{
 	    die "ERROR: failed to parse column name\n" unless $f[$i]=~/^(.*?):(\d+)-(\d+)/;
 	    my ($local_chr,$local_pos1,$local_pos2)=($1,$2,$3);
-	    #if($local_chr eq $chr && $local_pos2 >= $pos1)
-	    #{
-	    #if($local_pos1 <= $pos2)
-	    if($local_chr eq $chr)
+	    if($local_chr) #pos1 and pos2 are ignored HERE!!!
 	    {
 		push @return,$i;
 	    } elsif ($local_chr > $chr)
 	    {#suppose records are sorted based on position, same chromosome records are grouped
 		last;
 	    }
-	    #}
 	}
     }
     else

@@ -143,20 +143,23 @@ def refflat_in_region(db,refflat,chr,start,stop,build):
 
   return db.execute(query,(chr2ucsc(chr),start,stop));
 
-def interaction_in_region(db,chr,start,stop,chr2)
+def interaction_in_region(db,chr,start,stop,chr2):
   exe = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),"convertHiCMatrix");
 
+  if chr2 == chr: #intrachromosomal
+    query = "%s querysingle %s STDOUT %s:%s-%s" % (exe,db,chr,start,stop);
+  else:
+    query = " %s query %s STDOUT %s:%s-%s %s:1-2 " % (exe,db,chr,start,stop,chr2);
+  result = None;
+
+  print(query);
   try:
-      #print subprocess.check_output("ls -l /dev/null",shell=True);
-          print subprocess.check_output("asdfksdl",shell=True);
+    result = subprocess.check_output(query,shell=True);
   except subprocess.CalledProcessError,e:
-      print e.output;
+    print e.output;
+    result = None;
 
-  query = """
-  %s query %s STDOUT %s:%s-%s %s:1-2
-
-  """ % (exe, chr,start,stop,chr2);
-  return query;
+  return result;
 
 #query <file> <output file> <region1> <region2>
 #<region1> chr:pos-pos, chr is numerical
