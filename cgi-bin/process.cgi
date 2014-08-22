@@ -779,8 +779,9 @@ sub getInteractionConf
     }
     for my $i("CELLTYPE","RESOLUTION","TARGETCHR")
     {
+	my @match = $interactionfile =~ /$i/g;
 	&Utils::error("CELLTYPE,RESOLUTION,TARGETCHR are reserved, not allowed in interchrtemplate or intrachrtemplate",
-	    $log,$admin_email);
+	    $log,$admin_email) if @match > 1;
     }
     $interactionfile =~ s/CELLTYPE/$conf->{cell}/;
     $interactionfile =~ s/RESOLUTION/$resolution/;
