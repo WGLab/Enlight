@@ -23,10 +23,12 @@ if ($op eq 'subset')
 sub subset
 {
     die "$PROGRAM subset <mindb> <olddb> <newdb> <table1 table2 ...>\n" unless @ARGV>=3;
+    my $min=shift;
     my $in=shift;
     my $out=shift;
     my @table=@_;
 
+    !system("cp $min $out") or die "Failed to copy: $!\n";
     for my $i(@table)
     {
         !system("sqlite3 $in '.dump $i' | sqlite3 $out" ) or die "ERROR: Failed to extract tables: $!\n";

@@ -99,6 +99,7 @@ my @generic_table=$q->param('generic_table');
 my @category_table; #process later, since @generic_table determine how many tracks to be plotted
 my $nastring=$q->param('nastring');
 my $db=($ref eq 'hg19'? $hg19db:$hg18db);
+my $mindb=($ref eq 'hg19'? $hg19mindb:$hg18mindb);
 
 my $generic_toggle=1 if (defined $q->param('generic_toggle') && $q->param('generic_toggle') eq 'on');
 my $anno_toggle=1 if (defined $q->param('anno_toggle') && $q->param('anno_toggle') eq 'on');
@@ -140,7 +141,7 @@ if (%custom_table)
     #min_db contains recomb_rate refFlat refsnp_trans snp_pos, it's the basis
     #expand it by tables from db
     #save new db at tmpdb
-    push @command,"$subset_exe $min_db $db $tmpdb @generic_table recomb_rate refFlat refsnp_trans snp_pos";
+    push @command,"$subset_exe $mindb $db $tmpdb @generic_table";
     push @unlink,$tmpdb;
     $db=$tmpdb;
 
