@@ -2735,7 +2735,7 @@ if ( is.null(args[['reload']]) ) {
 	print(2674);
 	print(str(metal));
 	#annovar will use comma to separate multiple annotations for the same loci
-	xyplotData = data.frame(apply(data.frame(metal[,xyplotcol]),2,
+	xyplotData = data.frame(apply(data.frame(as.character(metal[,xyplotcol])),2,
 				      function(col){
 					  unlist(lapply( strsplit(col,","),
 							function(elem)
