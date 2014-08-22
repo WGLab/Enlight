@@ -1391,7 +1391,6 @@ def runQueries(chr,start,stop,snpset,build,db_file):
 	  DB_INTERACTION = re.sub(r'TARGETCHR',str(chr),DB_INTERACTION); 
 	  #replace all occurences of TARGETCHR by chr, chr is numerical here
       #one additional argument for interaction plot: the 2nd chromosome name
-      results['chr2'] = CHR_INTERACTION;
       results['heatmapFile'] = runInteractionQuery(interaction_in_region,[DB_INTERACTION,chr,start,stop,CHR_INTERACTION]);
   results['annot'] = runQuery(snp_annot_in_region,[db,SQLITE_SNP_POS,SQLITE_VAR_ANNOT,chr,start,stop,build]);
   results['recomb'] = runQuery(recomb_in_region,[db,SQLITE_RECOMB_RATE,chr,start,stop,build]);
@@ -1590,6 +1589,8 @@ def runAll(metal_file,refsnp,chr,start,end,opts,args):
     else:
       args += " %s=NULL" % m2zarg;
 
+  if CHR_INTERACTION:
+      args += " chr2=%s" % CHR_INTERACTION;
 
   ld_file = opts.ld if opts.ld != None else ld_temp;
   #write LD to metal if okay
