@@ -1,0 +1,35 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+my $PROGRAM="manipulateDB";
+my $usage=
+"Usage: $PROGRAM 
+	subset 		copy certain tables from old db to new db
+	";
+die $usage if @ARGV<1;
+my $op=shift @ARGV;
+
+if ($op eq 'subset')
+{
+    &subset(@ARGV);
+}else
+{
+    die $usage;
+}
+
+#-------------------------------------------------------------------------
+sub subset
+{
+    die "$PROGRAM subset <olddb> <newdb> <table1 table2 ...>\n" unless @ARGV>=3;
+    my $in=shift;
+    my $out=shift;
+    my @table=@_;
+
+    for my $i(@table)
+    {
+        !system("sqlite3 $in '.dump $i' | sqlite3 $out" ) or die "ERROR: Failed to extract tables: $!\n";
+    }
+    warn "NOTICE: ",scalar @table," tables written to $out.\n";
+}

@@ -132,9 +132,10 @@ if (%custom_table)
     my $tmpdb="locuszoom.tmp.$ref.db";
     my $annodb_exe=File::Spec->catfile($RealBin,"..","bin","annodb_admin");
     my $addbin_exe=File::Spec->catfile($RealBin,"..","bin","formatter")." addbin";
+    my $subset_exe=File::Spec->catfile($RealBin,"..","bin","manipulateDB")." subset";
     my $insert_cmd;
 
-    push @command,"cp $db $tmpdb";
+    push @command,"$subset_exe $db $tmpdb @generic_table recomb_rate refFlat refsnp_trans snp_pos";
     push @unlink,$tmpdb;
     $db=$tmpdb;
 
@@ -154,7 +155,8 @@ if (%custom_table)
 
 	#copy mandatory annovar db files
 	my @db_name=(@generic_table,"refGene","ALL.sites.2012_04");
-	push @db_name,$varAnno if $varAnno;
+	push @db_name,$varAnno if $varAnno; #score or ponly annotation of eqtl and gwas
+	push @db_name,"$varAnno.all" if $varAnno; #full annotation of eqtl and gwas
 	my @anno_db_file=map { "${ref}_$_.txt" } @db_name;
 	push @anno_db_file,"${ref}_ALL.sites.2012_04.txt.idx","${ref}_refGeneMrna.fa";
 	my @target=map { File::Spec->catfile($anno_dir,$_) } @anno_db_file;
@@ -621,15 +623,15 @@ sub individual_region_proc
 	    $q->param('refgene'.$idx) , 
 	    $q->param('refsnp_for_gene'.$idx));
 
-	&Utils::error ("$gene not FOUND in database (NOTE: gene name is case-sensitive)\n",
-	    $log,$admin_email) if ($gene and ! &geneINDB($gene,$db));
-
 	$detail = { 
 	    flank => $flank,
 	    refgene => $gene ,
 	    refsnp => $snp ,
 	};
 	return 0 unless $flank && $gene; #none of required fields can be empty
+	&Utils::error ("$gene not FOUND in database (NOTE: gene name is case-sensitive)\n",
+	    $log,$admin_email) if ($gene and ! &geneINDB($gene,$db));
+
     } elsif ($method eq 'chr')
     {
 	my ($start,$end,$chr,$snp) = (
@@ -650,7 +652,7 @@ sub individual_region_proc
     }
 
     &Utils::error ($detail->{refsnp}." not FOUND in database (NOTE: snp name is case-sensitive)\n",
-	$log,$admin_email) if (defined $detail->{refsnp} and ! &snpINDB($detail->{refsnp},$db));
+	$log,$admin_email) if ($detail->{refsnp} and ! &snpINDB($detail->{refsnp},$db));
 
     #remove weird char
     for my $i(keys %$detail)
