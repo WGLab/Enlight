@@ -2734,7 +2734,15 @@ if ( is.null(args[['reload']]) ) {
 	}
 	print(2674);
 	print(str(metal));
-	xyplotData = data.frame(apply(data.frame(metal[,xyplotcol]),2,as.numeric));
+	#annovar will use comma to separate multiple annotations for the same loci
+	xyplotData = data.frame(apply(data.frame(metal[,xyplotcol]),2,
+				      function(col){
+					  unlist(lapply( strsplit(col,","),
+							function(elem)
+							{max(elem)}
+							)
+					  )}
+				      ));
 	print(str(xyplotData));
 	colnames(xyplotData)=xyplotcol;#column names are not set automatically
 	for (i in 1:length(names(xyplotData)))
