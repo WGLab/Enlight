@@ -2301,7 +2301,7 @@ default.args <- list(
 		     markerCol="MarkerName",               # name for MarkerName column in metal file
 		     weightCol="Weight",                   # name for weights column in metal file
 		     ymin=0,                               # min for p-value range (expanded to fit all p-vals if needed)
-		     ymax=100,                              # max for p-value range (expanded to fit all p-vals if needed)
+		     ymax=200,                              # max for p-value range (expanded to fit all p-vals if needed)
 		     yat=NULL,                             # values for y-axis ticks
 		     xat=NULL,                             # values for x-axis ticks
 		     xnsmall=NULL,                         # number of digits after decimal point on x-axis labels
