@@ -323,6 +323,7 @@ function loadExampleSetting()
     \$('#interaction_cell_type_k562_id').prop('checked',true);
     \$('#interaction_cell_type_gm06690_id').prop('checked',false);
     \$('#interaction_type_intra_id').prop('checked',true);
+    \$('#interaction_type_intra_id').trigger('click');
     \$('#interaction_type_inter_id').prop('checked',false);
     \$('[name=\"heatmap_toggle\"]').prop('checked',true);
 
