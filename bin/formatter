@@ -175,6 +175,10 @@ sub rs2avinput
 			my ($id)= $dbf[5]=~/rs(\d+)/; #no check for number of fields  or matching
 			if ($id == $in_id)
 			{
+			    if($dbf[4] =~ /,/)
+			    {#when multiple alleles are available, output 0
+				$dbf[4] = 0;
+			    }
 			    $varidx_pos{$i}=join("\t",@dbf[0..4]);
 			    $start_pos=$last_pos;
 			    last;
