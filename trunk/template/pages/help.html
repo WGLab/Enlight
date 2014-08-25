@@ -54,6 +54,12 @@ ddsmoothmenu.init({
             <li><a href="help.html" class="selected">Help</a></li>
             <li><a href="pipeline.html">Pipeline</a> </li>
             <li><a href="faq.html">FAQ</a></li>
+	    <li><a href="#">Example</a>
+	    <ul>
+		<li><a href="example/exampleinput.html">Example Input</a></li>
+		<li><a href="example/exampleoutput/index.html">Example Output</a></li>
+	    </ul>
+	    </li>
             </ul>
         <br style="clear: left" />
     </div> <!-- end of menu -->
@@ -66,17 +72,17 @@ ddsmoothmenu.init({
     </script>
     
     <div id="templatemo_main"><br class="cleaner" />
-	<h2>Example Input</h2>
+	<h2 id="exampleinput">Example Input</h2>
 	<img width=600 height=340 src="../images/enlight_example_input.png" class='center'>
-	<h2>Example Output (plot)</h2>
+	<h2 id="exampleoutput_plot">Example Output (plot)</h2>
 	<p><b>An example plot showing 1MB and 100KB region around rs10318, which is a known variant showing genome-wide significant association with colorectal cancer. After zooming in, DNase Hypersensitivity Sites (DHS) can be visually identified near some variants that are in high LD with the index SNP. These SNPs might be good candidates for causal variants. Plot summary and legend (not shown here) can be found on the second page of your result PDF file. The rest of the pages are summary plots showing number of variants in each LD interval, chromHMM category, or the variant count within different LD interval for each annotation dat track.</b></p>
 	<br />
 	<img width=900 height=1400 src="../images/enlight_example_output.png" class='center'>
 	<img width=900 height=700 src="../images/enlight_example_output_summary.png" class='center'>
-	<h2>Example Text Annotation</h2>
-	<p><b>If you opt to output ANNOVAR annotation, you will get a '*.hg19_multianno.txt' on result page. This is the text annotation for each variant in the input file. ANNOVAR will output gene annotation, minor allele frequency (MAF) from 1000 Genomes project as well as selected UCSC datatracks and other annotation info (eg custome BED file, eQTL etc). If your input file does not have the 5 columns required by ANNOVAR (chr,start,end,alt,ref), Enlight will first convert rsIDs to chromosomal positions according to dbSNP137, and then run annotation.  Sometimes, you will see *.invalid_input files on result page, they contain lines that can't by recognized by ANNOVAR, e.g. lines that don't have chr/start/end.</b></p>
+	<h2 id="exampleoutput_text">Example Text Annotation</h2>
+	<p><b>If you opt to output ANNOVAR annotation, you will get a '*.hg19_multianno.html' on result page. This is the text annotation for each variant in the input file. ANNOVAR will output gene annotation, minor allele frequency (MAF) from 1000 Genomes project as well as selected UCSC datatracks and other annotation info (eg custome BED file, eQTL etc). If your input file does not have the 5 columns required by ANNOVAR (chr,start,end,alt,ref), Enlight will first convert rsIDs to chromosomal positions according to dbSNP137, and then run annotation.  Sometimes, you will see *.invalid_input files on result page, they contain lines that can't by recognized by ANNOVAR, e.g. lines that don't have chr/start/end.</b></p>
 	<br />
-	<img width=900 height=300 src="../images/enlight_example_text_output.png" class='center'>
+	<img  width=900 height=300 src="../images/enlight_example_text_output.png" class='center'>
 	<p>NOTE: The above output has been adjusted for display purposes. Actual results will differ.</p>
 	<br /><br />
 
