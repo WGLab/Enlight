@@ -320,9 +320,10 @@ function loadExampleSetting()
     document.getElementById('ld_toggle_id').checked=true;
 
     //set interaction options
-    var datatrack=\$('[name=\"generic_table\"]').filter(':checked');
-    \$('[name=\"interaction_cell_type\"]').value('k562');
-    \$('[name=\"interaction_type\"]').value('intrachromosomal');
+    \$('#interaction_cell_type_k562_id').prop('checked',true);
+    \$('#interaction_cell_type_gm06690_id').prop('checked',false);
+    \$('#interaction_type_intra_id').prop('checked',true);
+    \$('#interaction_type_inter_id').prop('checked',false);
     \$('[name=\"heatmap_toggle\"]').prop('checked',true);
 
 
@@ -683,9 +684,9 @@ $page.= $q->table( {-border=>1},
     $q->Tr(
 	$q->td( ["Interaction type (resolution)",
 		'<label>
-		<input type="radio" name="interaction_type" value="interchromosomal" '."onclick=\"\$('#interaction_chr_tr_id').show();\"".' >INTERchromosomal(1Mb)
+		<input type="radio" name="interaction_type" id="interaction_type_inter_id" value="interchromosomal" '."onclick=\"\$('#interaction_chr_tr_id').show();\"".' >INTERchromosomal(1Mb)
 		</label><br>
-		<input type="radio" name="interaction_type" value="intrachromosomal" '."onclick=\"\$('#interaction_chr_tr_id').hide();\"".' checked="checked">INTRAchromosomal(100Kb)
+		<input type="radio" id="interaction_type_intra_id" name="interaction_type" value="intrachromosomal" '."onclick=\"\$('#interaction_chr_tr_id').hide();\"".' checked="checked">INTRAchromosomal(100Kb)
 		</label>'
 	    ]
 	),
@@ -693,9 +694,9 @@ $page.= $q->table( {-border=>1},
     $q->Tr(
 	$q->td( ["Cell lines",
 		'<label>
-		<input type="radio" name="interaction_cell_type" value="k562" >K562
+		<input type="radio" name="interaction_cell_type" id="interaction_cell_type_k562_id" value="k562" >K562
 		</label>
-		<input type="radio" name="interaction_cell_type" value="gm06690" checked="checked">GM06690
+		<input type="radio" name="interaction_cell_type" id="interaction_cell_type_gm06690_id" value="gm06690" checked="checked">GM06690
 		</label>'
 	    ]
 	),
