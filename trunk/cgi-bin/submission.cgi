@@ -319,6 +319,13 @@ function loadExampleSetting()
     //set advanced options
     document.getElementById('ld_toggle_id').checked=true;
 
+    //set interaction options
+    var datatrack=\$('[name=\"generic_table\"]').filter(':checked');
+    \$('[name=\"interaction_cell_type\"]').value('k562');
+    \$('[name=\"interaction_type\"]').value('intrachromosomal');
+    \$('[name=\"heatmap_toggle\"]').prop('checked',true);
+
+
     //clear data track selection
     clear_datatrack_selection();
     document.getElementById('HSMM').checked=true;	
@@ -326,9 +333,10 @@ function loadExampleSetting()
     document.getElementById('HepG2').checked=true;	
     document.getElementById('GM12878').checked=true;	
     document.getElementById('None').checked=true;	
-    document.getElementById('tfbsConsSites').checked=true;
+
+    document.getElementById('TFBS Conservation').checked=true;
     document.getElementById('chromHMM').checked=true;
-    document.getElementById('wgEncodeRegTfbsClusteredV3').checked=true;
+    document.getElementById('TFBS Region').checked=true;
     changeTracks();
 
     alert('Example settings loaded.');
