@@ -76,6 +76,7 @@ sub delim2tab
 	while (<IN>)
 	{
 	    s/[\n\r]+/\n/g;
+	    s/^[\t ]+//; #remove leading whitespace
 	    s/[\t ]+/\t/g;
 	    print OUT;
 	}
