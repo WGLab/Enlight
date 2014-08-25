@@ -5,9 +5,9 @@
 <title>Enlight</title>
 <meta name="keywords" content="green jelly, theme, free templates, nivo image slider, website, templatemo, CSS, HTML" />
 <meta name="description" content="Green Jelly Theme, free CSS template provided by templatemo.com" />
-<link href="../css/templatemo_style.css" rel="stylesheet" type="text/css" />
+<link href="../../../css/templatemo_style.css" rel="stylesheet" type="text/css" />
 
-<link rel="stylesheet" href="../css/nivo-slider.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="../../../css/nivo-slider.css" type="text/css" media="screen" />
 
 <script language="javascript" type="text/javascript">
 function clearText(field)
@@ -17,10 +17,10 @@ function clearText(field)
 }
 </script>
 
-<link rel="stylesheet" type="text/css" href="../css/ddsmoothmenu.css" />
+<link rel="stylesheet" type="text/css" href="../../../css/ddsmoothmenu.css" />
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<script type="text/javascript" src="../js/ddsmoothmenu.js">
+<script type="text/javascript" src="../../../js/ddsmoothmenu.js">
 
 /***********************************************
 * Smooth Navigational Menu- (c) Dynamic Drive DHTML code library (www.dynamicdrive.com)
@@ -49,18 +49,18 @@ ddsmoothmenu.init({
 	<div id="templatemo_header"></div> <!-- end of header -->
       <div id="templatemo_menu" class="ddsmoothmenu">
         <ul>
-            <li><a href="../index.html">Home</a></li>
-            <li><a href="tutorial.html">Tutorial</a></li>
-            <li><a href="help.html">Help</a></li>
-            <li><a href="pipeline.html" class="selected">Pipeline</a> </li>
-            <li><a href="faq.html">FAQ</a></li>
-	    <li><a href="#">Example</a>
+            <li><a href="../../../index.html" >Home</a></li>
+            <li><a href="../../tutorial.html">Tutorial</a></li>
+            <li><a href="../../help.html">Help</a></li>
+            <li><a href="../../pipeline.html">Pipeline</a> </li>
+            <li><a href="../../faq.html">FAQ</a></li>
+	    <li><a href="#" class="selected">Example</a>
 	    <ul>
-		<li><a href="example/exampleinput.html">Example Input</a></li>
-		<li><a href="example/exampleoutput/index.html">Example Output</a></li>
+		<li><a href="../exampleinput.html">Example Input</a></li>
+		<li><a href="index.html">Example Output</a></li>
 	    </ul>
 	    </li>
-            </ul>
+        </ul>
         <br style="clear: left" />
     </div> <!-- end of menu -->
     
@@ -71,7 +71,7 @@ ddsmoothmenu.init({
     
     </div>
     
-    <script type="text/javascript" src="../js/jquery.nivo.slider.js"></script>
+    <script type="text/javascript" src="../../../js/jquery.nivo.slider.js"></script>
     <script type="text/javascript">
     $(window).load(function() {
     $('#slider').nivoSlider();
@@ -79,16 +79,15 @@ ddsmoothmenu.init({
     </script>
     
     <div id="templatemo_main"><br class="cleaner" />
-
-
-	    <h1>Server Architecture</h1>
-	    <img class='center' src="../images/server_architecture.png" width=670 height=460>
-	    <br /><br />
-	    <p>
-Enlight takes at least two columns of input, the SNP name and P value. After submission, a job will be scheduled in MySQL database. Unpon execution, a modified version of LocusZoom will output regional plots and annotation plots; meanwhile, ANNOVAR outputs text annotation for each variant.
-	    </p>
-
-
+	<p><a href="../../help.html#exampleoutput_text">Help</a> for TEXT ANNOTATION.</p>
+	<p><a href="../../help.html#exampleoutput_plot">Help</a> for PLOT.</p>
+<table><tr><td>
+	    <p><a href="exampleoutput.pdf">exampleoutput.pdf</a></p></td></tr>
+    <tr><td><p><a href="exampleinput.txt">exampleinput.txt</a></p></td></tr>
+    <tr><td><p><a href="exampleinput.txt.hg19_multianno.txt">exampleinput.txt.hg19_multianno.txt</a></p></td></tr>
+    <tr><td><p><a href="exampleinput.txt.invalid_input">exampleinput.txt.invalid_input</a></p></td></tr>
+    <tr><td><p><a href="exampleinput.txt.refGene.invalid_input">exampleinput.txt.refGene.invalid_input</a></p>
+</td></tr></table>
     </div> <!-- end of main -->
     
     <div id="templatemo_footer">
@@ -103,6 +102,6 @@ Enlight takes at least two columns of input, the SNP name and P value. After sub
 </div>
 
 
-<script type='text/javascript' src='../js/logging.js'></script>
+<script type='text/javascript' src='../../../js/logging.js'></script>
 </body>
 </html>

@@ -54,6 +54,12 @@ ddsmoothmenu.init({
             <li><a href="help.html">Help</a></li>
             <li><a href="pipeline.html">Pipeline</a> </li>
             <li><a href="faq.html" class="selected">FAQ</a></li>
+	    <li><a href="#">Example</a>
+	    <ul>
+		<li><a href="example/exampleinput.html">Example Input</a></li>
+		<li><a href="example/exampleoutput/index.html">Example Output</a></li>
+	    </ul>
+	    </li>
             </ul>
         <br style="clear: left" />
     </div> <!-- end of menu -->
@@ -70,7 +76,7 @@ ddsmoothmenu.init({
 	<div id="table-of-content"></div>
 
 	<h3 id='q1'>Where does the eQTL data come from? How is it compiled?</h3>
-	<p>The eQTL data sets come from two sources. The first one is the <a href="http://eqtl.uchicago.edu/cgi-bin/gbrowse/eqtl/">eQTL browser</a> of Pritchard Lab at University of Chicago, the other one is the <a href="http://www.ncbi.nlm.nih.gov/projects/gap/eqtl/index.cgi">GTEx project</a>. The GTEx eQTL data is split into different subsets based on analysis IDs. Analysis IDs usually represent different tissues. However, sometimes they merely represent different methods for expression quantification. The name of a data set can tell you the tissue and analysis assay. Tissue-specific information is unavailable for data from University of Chicago as no such meta-data is provided.</p>
+	<p>The eQTL data sets come from two sources. The first one is the <a href="http://eqtl.uchicago.edu/cgi-bin/gbrowse/eqtl/">eQTL browser</a> of Pritchard Lab at University of Chicago, the other one is the <a href="http://www.ncbi.nlm.nih.gov/projects/gap/eqtl/index.cgi">GTEx project</a>. The GTEx eQTL data is split into different subsets based on analysis IDs. Analysis IDs usually represent different tissues. However, sometimes they merely represent different measurements for expression. The name of a data set can tell you the tissue and analysis assay. Tissue-specific information is unavailable for data from University of Chicago as no such meta-data is provided.</p>
 	<br>
 	<h3 id='q2'>Where does the ENCODE data come from? How is it compiled?</h3>
 	<p>All ENCODE data sets come from UCSC genome browser. Wherever there are replicates, only the first one is selected. All data sets are in BED format. The score column is extracted for plotting and annotation.</p>
@@ -88,6 +94,9 @@ ddsmoothmenu.init({
 	<h3 id='q6'>What does score mean in the UChicago eQTL plot?</h3>
 	<p>The score is potentially different for each study. Mostly it is a -log10 P-value, but sometimes it can be a posterior probability or log10 Bayes Factor.  It really depends on what study is reported for that eQTL. Enlight does not differentiate among different studies used by UChicago eQTL browser. Please check out the text annotation and look at <a href='http://eqtl.uchicago.edu/cgi-bin/gbrowse/eqtl/?help=citations#Veyrieras_Pvalue'>here</a> to figure out which study is reported and what the score means.
 	</p>
+	<br>
+	<h3 id='q7'>What if multiple p values or scores are available for the same locus?</h3>
+	<p>Under such circumstances, the highest score (smallest p value) will be plotted.</p>
 	<br>
 
     </div> <!-- end of main -->
