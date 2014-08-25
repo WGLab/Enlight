@@ -21,8 +21,8 @@ chdir File::Spec->catdir($RealBin,"..") or &Utils::error ("Cannot enter installa
 my %server_conf=&Utils::readServConf(File::Spec->catfile($RealBin,"../conf/enlight_server.conf"))
     or &Utils::error ("Reading server configuration file failed!\n");
 
-my $EXAMPLE_LOC="example/rs10318.txt";
-my $EXAMPLE_NAME="rs10318.txt";
+my $EXAMPLE_LOC="example/exampleinput.txt";
+my $EXAMPLE_NAME="exampleinput.txt";
 $CGI::POST_MAX = 1024 * 1024 * ($server_conf{'maxupload'}||200);
 #all paths should be FULL path
 my $log=$server_conf{'serverlog'} || File::Spec->catfile($RealBin,"..","serverlog");

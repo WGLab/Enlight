@@ -301,15 +301,15 @@ function loadExampleSetting()
 {
     document.getElementById('qformat_whitespace').checked=true;
     document.getElementById('markercol_id').value='dbSNP135';
-    document.getElementById('pvalcol_id').value='p';
-    document.getElementById('varAnno_id').value='GTEx_eQTL_11162013';
+    document.getElementById('pvalcol_id').value='P';
+    document.getElementById('varAnno_id').value='UChicago_eQTL';
     document.getElementById('source_ref_pop_id').value='1000G_March2012,hg19,EUR';	
 
     \$(\"#region_multi_single_hidden_id\").val(\"single\");
     \$(\"#region_multi_single_button_id\").trigger(\"click\");
 
-    \$(\"td.region_detail_area input[name='snpflank']\").val(\"50\");
-    \$(\"td.region_detail_area input[name='refsnp']\").val(\"rs10318\");
+    \$(\"td.region_detail_area input[name='snpflank']\").val(\"20\");
+    \$(\"td.region_detail_area input[name='refsnp']\").val(\"rsrs2071278\");
 
     document.getElementById('generic_toggle_id').checked=true;
     document.getElementById('anno_toggle_id').checked=true;
@@ -321,11 +321,14 @@ function loadExampleSetting()
 
     //clear data track selection
     clear_datatrack_selection();
-    document.getElementById('Caco-2').checked=true;	
-    document.getElementById('HCT116').checked=true;	
+    document.getElementById('HSMM').checked=true;	
+    document.getElementById('K562').checked=true;	
     document.getElementById('HepG2').checked=true;	
-    document.getElementById('DNase-seq').checked=true;
+    document.getElementById('GM12878').checked=true;	
+    document.getElementById('None').checked=true;	
+    document.getElementById('tfbsConsSites').checked=true;
     document.getElementById('chromHMM').checked=true;
+    document.getElementById('wgEncodeRegTfbsClusteredV3').checked=true;
     changeTracks();
 
     alert('Example settings loaded.');
