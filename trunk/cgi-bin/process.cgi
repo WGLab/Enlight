@@ -796,5 +796,5 @@ sub getInteractionConf
     $interactionfile =~ s/RESOLUTION/$resolution/;
     $interactionfile .= $ref if $ref eq 'hg19';
     $result .= " --interactionfile $interactionfile";
-    $result .= " heatmapTitlePlus='cell line:$conf->{cell}'";
+    $result .= " heatmapTitlePlus='cell_line:$conf->{cell}'";
 }
