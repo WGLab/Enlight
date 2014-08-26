@@ -2188,7 +2188,7 @@ grid.summary=function(args,metal,genscore,category_anno)
 	    name=genericNames[1];
 	    ldgroup=genLD_Slice(args,metal);
 
-	    annotation=metal[[name]];
+	    annotation=as.character(metal[[name]]);
 	    #pay attention to the order of the following two assignments
 	    annotation[!is.na(annotation)]='Has annotation';
 	    annotation[is.na(annotation)]='No annotation';

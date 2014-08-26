@@ -97,7 +97,6 @@ my $pvalcol=$q->param('pvalcol');
 my $ref=$q->param("ref");
 my @generic_table=$q->param('generic_table');
 my @category_table; #process later, since @generic_table determine how many tracks to be plotted
-my $nastring=$q->param('nastring');
 my $db=($ref eq 'hg19'? $hg19db:$hg18db);
 my $mindb=($ref eq 'hg19'? $hg19mindb:$hg18mindb);
 
@@ -272,7 +271,7 @@ if ($anno_toggle)
     $anno_table_cmd.=( %custom_table ? ".":$anno_dir);
     $anno_table_cmd.=" -protocol ".join(',',"refGene","1000g2012apr_all",map {$_} sort keys %operation);
     $anno_table_cmd.=" -operation g,f".(%operation? ",":"").join(',',map {$operation{$_}} sort keys %operation);
-    $anno_table_cmd.=" -nastring $nastring" if $nastring;
+    $anno_table_cmd.=" -nastring NA";
     $anno_table_cmd.=" -buildver $ref" if $ref;
     $anno_table_cmd.=" -remove";
     $anno_table_cmd.=" -otherinfo";
