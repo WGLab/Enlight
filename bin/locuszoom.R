@@ -245,6 +245,7 @@ ryan.theme <- function(args) {
 		       refsnpTextSize=1.5,
 		       axisTextSize=1.45,
 		       legendSize=1,
+		       legendScale=1.1,
 		       legendFrameAlpha=0,
 		       legendAlpha=0,
 		       axisSize=1.45,
@@ -384,7 +385,7 @@ AdjustModesOfArgs <- function(args) {
 		      c('legendAlpha', 'width','height',
 			'frameAlpha','hiAlpha','rugAlpha',
 			'refsnpLineAlpha', 'recombFillAlpha','recombLineAlpha', 'refsnpTextAlpha',
-			'ymin','ymax','legendSize','refsnpTextSize','axisSize','axisTextSize','geneFontSize','categoryFontSize','smallDot',
+			'ymin','ymax','legendSize','legendScale','refsnpTextSize','axisSize','axisTextSize','geneFontSize','categoryFontSize','smallDot',
 			'largeDot','refDot'),
 		      as.numeric);
     #generic mark
@@ -1502,7 +1503,7 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
     rl <- ribbonLegend(
 		       breaks=breaks,
 		       cols=cols[2:(1+nb)],
-		       gp=gpar(cex=args[['legendSize']],col=args[['frameColor']],alpha=args[['frameAlapha']])
+		       gp=gpar(cex=args[['legendSize']]*args[['legendScale']],col=args[['frameColor']],alpha=args[['frameAlapha']])
 		       );
 
     if (args[['legend']] == 'auto') { 
@@ -1514,8 +1515,8 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
 			      x=if (args[['legend']] == 'left') unit(2.5,"char") else unit(1,'npc') - unit(2.5,'char'),
 			      y=unit(1,'npc') - unit(.5,'char'),
 			      just=c('center','top'),
-			      width=unit(4,'char'),
-			      height=unit(8,'lines')
+			      width=unit(4*args[['legendScale']],'char'),
+			      height=unit(8*args[['legendScale']],'lines')
 			      ));
 	grid.rect(gp=gpar(col='transparent',fill='white',alpha=args[['legendAlpha']]));
 	grid.rect(gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
@@ -1523,8 +1524,8 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
 	pushViewport(viewport(name='ribbonLegend',
 			      y=0,
 			      just=c('center','bottom'),
-			      width=unit(4,'char'),
-			      height=unit(7,'lines')
+			      width=unit(4*args[['legendScale']],'char'),
+			      height=unit(7*args[['legendScale']],'lines')
 			      ))
 	grid.draw(rl);
 	upViewport(1);
@@ -1532,12 +1533,12 @@ zplot <- function(metal,ld=NULL,recrate=NULL,genscore=NULL,category_anno=NULL,re
 	pushViewport(viewport(name='LDTitle',
 			      clip="off", 
 			      #x=unit(2.5,"char"),
-			      width=unit(4,"char"),
-			      y=unit(1,'npc') - unit(.25,'char'),
+			      width=unit(4*args[['legendScale']],"char"),
+			      y=unit(1,'npc') - unit(.25*args[['legendScale']],'char'),
 			      just=c('center','top'),
-			      height=unit(1,'lines')
+			      height=unit(1*args[['legendScale']],'lines')
 			      ))
-	grid.text(args[['LDTitle']], gp=gpar(col=args[['frameColor']],alpha=args[['frameAlpha']]));
+	grid.text(args[['LDTitle']], gp=gpar(cex=1*args[['legendScale']],col=args[['frameColor']],alpha=args[['frameAlpha']]));
 	upViewport(1);
 
 	upViewport(1);
@@ -2377,7 +2378,8 @@ default.args <- list(
 		     recombLineAlpha=0.8,                  # recomb line/text alpha
 		     frameColor='gray30',                  # frame color for plots
 		     frameAlpha=1,                         # frame alpha for plots
-		     legendSize=.8,                        # scaling factor of legend
+		     legendSize=.8,                        # scaling factor of legend font
+		     legendScale=1,			   # scaling factor of legend drawing
 		     legendAlpha=1,                        # transparency of legend background
 		     legendColor='black',                  # color for legend labels
 		     legendMissing=TRUE,                   # show 'missing' as category in legend?
