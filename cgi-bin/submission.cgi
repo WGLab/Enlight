@@ -309,7 +309,7 @@ function loadExampleSetting()
     \$(\"#region_multi_single_button_id\").trigger(\"click\");
 
     \$(\"td.region_detail_area input[name='snpflank']\").val(\"20\");
-    \$(\"td.region_detail_area input[name='refsnp']\").val(\"rsrs2071278\");
+    \$(\"td.region_detail_area input[name='refsnp']\").val(\"rs2071278\");
 
     document.getElementById('generic_toggle_id').checked=true;
     document.getElementById('anno_toggle_id').checked=true;
