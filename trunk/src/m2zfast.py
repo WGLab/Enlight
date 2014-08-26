@@ -866,7 +866,10 @@ def getSettings():
   SQLITE_VAR_ANNOT = "var_annot";
   SQLITE_RECOMB_RATE = "recomb_rate";
   SQLITE_TRANS = "refsnp_trans";
-  DB_INTERACTION = os.path.abspath(opts.interactionfile);
+  if opts.interactionfile:
+      DB_INTERACTION = os.path.abspath(opts.interactionfile);
+  else:
+      DB_INTERACTION = False;
   CHR_INTERACTION = opts.chr2;
   try:
       SQLITE_GENERIC = opts.generic.split(',');

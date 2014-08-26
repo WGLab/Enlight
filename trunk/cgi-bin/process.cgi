@@ -181,6 +181,7 @@ if (%custom_table)
     }
 }
 
+$param.=" legendScale=".(1-0.03*@generic_table);#decrease LD legend as number of generic plots increases
 @category_table=grep { /HMM/ } @generic_table;
 @generic_table=grep { !/HMM/ } @generic_table;#remove category tracks from generic table
 #----------------------------------------------------------------------------------------------------
