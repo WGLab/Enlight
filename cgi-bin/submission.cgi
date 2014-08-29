@@ -396,7 +396,7 @@ function check_before_submission()
     {
     //when multiple regions are specified, the job will take a while
     //user should provide email
-        if(\$(\"#region_multi_single_button_single_id\").prop('checked'))
+        if(\$(\"#region_multi_single_button_multi_id\").prop('checked'))
         {
             alert('Email must be provided when multiple regions are to be plotted');
             return false;
