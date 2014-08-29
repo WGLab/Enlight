@@ -270,6 +270,8 @@ def findGeneInfo(gene,db_file):
     else:
       if abs(row['txEnd']-row['txStart']) < abs(d['txEnd']-d['txStart']):
         row = d;
+    if (None == chrom2chr(row['chrom'][3:])):
+      row = None; #if chromosome is not supported, ignore this row
 
   # Fix chromosome if possible.
   if row != None:
