@@ -268,13 +268,13 @@ function toggle_single_multi_region(caller)
 {
     var single_container=\$(\"#region_specification_div_id\");
     var multi_container=\$(\"#multi_region_specification_div_id\");
-    if(\$('#region_multi_single_button_single_id').checked)
+    if(\$('#region_multi_single_button_single_id').prop('checked'))
     {
 	\$(multi_container).hide();
         \$(single_container).show();
 	\$(single_container).find(\"td.region_method_area input\").first().trigger(\"click\");
     }
-    else if (\$('#region_multi_single_button_multi_id').checked)
+    else if (\$('#region_multi_single_button_multi_id').prop('checked'))
     {
 	\$(single_container).hide();
         \$(multi_container).show();
@@ -666,7 +666,7 @@ $page.= $q->div($q->table({-class=>'noborder'},
 		'<label>
 		<input type="radio" name="region_multi_single_button" id="region_multi_single_button_multi_id" value="multi" onclick="toggle_single_multi_region();" >multiple
 		</label>
-		<input type="radio" name="region_multi_single_button" id="region_multi_single_button_single_id" value="single" onclick="toggle_single_multi_region();" >single
+		<input type="radio" name="region_multi_single_button" id="region_multi_single_button_single_id" checked="checked" value="single" onclick="toggle_single_multi_region();" >single
 		</label>'),
 			      ),
 			$q->Tr($q->td(
