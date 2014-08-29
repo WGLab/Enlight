@@ -602,179 +602,208 @@ $jscode
 # </script>
 #RECAPTCHA
 $page.= $q->noscript($q->h1("Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight."));
-$page.= $q->start_form(-name=>'main',-action=>"/cgi-bin/process.cgi",-method=>"post",-onSubmit=>"return check_before_submission();");
+$page.= $q->start_form(-name=>'main',-class=>"form-horizontal",-action=>"/cgi-bin/process.cgi",-method=>"post",-onSubmit=>"return check_before_submission();");
 $page.= $q->h2("Input");
-$page.= $q->table(
-    {-border=>0},
-    $q->Tr(
-	$q->td("DEMO<br>
-	        <a href='pages/example/exampleinput.html'>(example input)</a><br>
-		<a href='pages/example/exampleoutput/index.html'>(example output)</a>"),
-	$q->td("<button type='button' onclick='loadExampleSetting()'>Load settings for example input</button>
-	    <br>
-	    <button type='button' onclick='loadExampleInput()'>Load example input</button>"),
-    ),
-    $q->Tr(
-	$q->td("<span title='receive result link'>Email (mandatory for multi-region)</span>"),
-	$q->td("<input name='email' id='email_id' type='email' onclick=\"this.value=''\" />"),
-    ),
-    $q->Tr(
-	$q->td("Input file (1st line is header; .gz okay)"),
-	$q->td({-id=>'query_cell_id'},
-		$q->div({id=>'query_file_div_id'},
-			$q->filefield(-id=>"query_file_id",-name=>"query"),
-			"</br>or paste URL","<input name='query_URL' type='url' id='query_URL_id' />"
-		       ),
-		"<input id='query_hidden_id' type='hidden' name='example_upload' value=''/>",
-		"<div id='query_example_label_div_id' style='display:none'><label id='query_example_label'>Example input loaded</label></div>"
-	      ),
-    ),
-    $q->Tr(
-	$q->td("Field delimiter"),
-	$q->td($q->radio_group(-name=>"qformat",-id=>"qformat_whitespace",-values=>\@qformat,-labels=>\%qformat_label,-default=>$qformat_default)),
-    ),
-    $q->Tr(
-	$q->td("<span title='this columns contains rsID'>Marker Column (case sensitive)</span>"),
-	$q->td($q->textfield(-name=>'markercol',-id=>'markercol_id',-default=>'', -onclick=>"this.value=''")),
-    ),
-    $q->Tr(
-	$q->td("P value column (case-sensitive)"),
-	$q->td($q->textfield(-name=>"pvalcol",-id=>'pvalcol_id',-default=>'', -onclick=>"this.value=''")),
-    ),
-    $q->Tr(
-	$q->td(	["Genome Build",
+$page.= 
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"DEMO"),
+    $q->div({-class=>"col-sm-7"},
+	$q->button({-class=>"btn btn-info",-onclick=>'loadExampleSetting()'},
+	    "Load settings for example input"),
+	$q->button({-class=>"btn btn-info",-onclick=>'loadExampleInput()'},
+	    "Load example input"),
+    ));
+$page.= 
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Email (mandatory for multi-region)"),
+    $q->div({-class=>"col-sm-7"},
+	$q->input({-name=>"email",id=>'email_id',-type=>'email',-placeholder=>"Enter email to receive result link",
+		-class=>"form-control"}),
+    ));
+$page.= 
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Input file (header required; .gz okay)"),
+    $q->div({-class=>"col-sm-7"},
+	$q->div({-id=>"query_file_div_id"},
+	    $q->input({-name=>"query",id=>'query_file_id',-type=>'file',-class=>"form-control"}),
+	    $q->strong("OR"),
+	    $q->input({-name=>"query_URL",id=>'query_URL_id',-type=>'url',-placeholder=>"Paste URL here",
+		    -class=>"form-control"}),
+	),
+	$q->div({-id=>"query_example_label_div_id" -style=>'display:none'},
+	    $q->input({-class=>"form-control",-id=>"query_hidden_id",-type=>"hidden",-name=>"example_upload",value=>""}),
+	    $q->span({-id=>"query_example_label"},"Example input loaded"),
+	),
+    ));
+$page.=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Field delimiter"),
+    $q->div({-class=>"col-sm-7"},
+	$q->div({-class=>'radio'},
+	    $q->radio_group(-name=>"qformat",-id=>"qformat_whitespace",-values=>\@qformat,-labels=>\%qformat_label,-default=>$qformat_default)
+	),
+    ));
+$page.=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Marker column (case-sensitive)"),
+    $q->div({-class=>"col-sm-7"},
+	    $q->textfield(-class=>"form-control",-name=>'markercol',-id=>'markercol_id',-default=>'',-placeholder=>"Enter marker column name here")
+    ));
+$page.=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"P value column (case-sensitive)"),
+    $q->div({-class=>"col-sm-7"},
+	    $q->textfield(-class=>"form-control",-name=>'pvalcol',-id=>'pvalcol_id',-default=>'',-placeholder=>"Enter marker column name here")
+    ));
+$page.=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Genome build"),
+    $q->div({-class=>"col-sm-7"},
+	$q->div({-class=>"radio"},
                 '<label>
 		<input type="radio" name="ref" value="hg18">hg18
 		</label>
 		<label>
 		<input type="radio" name="ref" id="ref_hg19" value="hg19" checked="checked">hg19
-		</label>']
+		</label>'
 	),
-    ),
-    $q->Tr(
-	$q->td("<span title='choose data set for computing Linkage Disequilibrium'>Genome Build/LD source/Population</span>"),
-	$q->td(
-	    $q->popup_menu(-name=>'source_ref_pop',-id=>'source_ref_pop_id',-values=> \@source_ref_pop,-labels=>\%source_ref_pop_label,-default=>[$default_source_ref_pop])
-	),
-    ),
-    $q->Tr(
-	$q->td("<span title='show if a variant appears in a particular database'>Mark variants in database: </span>"),
-	$q->td(
-	    $q->popup_menu(-name=>'varAnno',-id=>'varAnno_id',-values=> \@varAnno,-labels=>\%varAnno_label,-default=>['NULL'])
-	),
-    ),
-);
-
+    ));
+$page.=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Genome build/LD source/Population"),
+    $q->div({-class=>"col-sm-7"},
+	    $q->popup_menu(-class=>'form-control',-name=>'source_ref_pop',-id=>'source_ref_pop_id',
+		-values=> \@source_ref_pop,-labels=>\%source_ref_pop_label,-default=>[$default_source_ref_pop]),
+    ));
+$page.=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Mark variants in database:"),
+    $q->div({-class=>"col-sm-7"},
+	    $q->popup_menu(-class=>'form-control',-name=>'varAnno',-id=>'varAnno_id',
+		-values=> \@varAnno,-labels=>\%varAnno_label,-default=>['NULL']),
+    ));
+$page.="\n<hr>";
 
 #########################START OF REGION SPECIFICATION SECTION#########################################
-$page.="<br> <br>\n";
 $page.= $q->h2("<span title='plot region'>Specify a region</span>");
-$page.= $q->div($q->table({-class=>'noborder'},
-			$q->Tr($q->td(
-		'<label>
-		<input type="radio" name="region_multi_single_button" id="region_multi_single_button_multi_id" value="multi" onclick="toggle_single_multi_region();" >multiple
-		</label>
-		<input type="radio" name="region_multi_single_button" id="region_multi_single_button_single_id" checked="checked" value="single" onclick="toggle_single_multi_region();" >single
-		</label>'),
-			      ),
-			$q->Tr($q->td(
-					"<div id='region_specification_div_id' style='display:none'>$single_region_spec</div><div style='display:none' id='multi_region_specification_div_id'> $multi_region_spec</div>"),
-			      ),
-			));
+$page.= 
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"How many regions?"),
+    $q->div({-class=>'col-sm-7'},
+	$q->div({-class=>'radio'},
+	    '<label>
+	    <input type="radio" name="region_multi_single_button" id="region_multi_single_button_multi_id" value="multi" onclick="toggle_single_multi_region();" >multiple
+	    </label>
+	    <input type="radio" name="region_multi_single_button" id="region_multi_single_button_single_id" checked="checked" value="single" onclick="toggle_single_multi_region();" >single
+	    </label>'),
+    ));
+$page.= $q->div({-id=>'region_specification_div_id',-style=>'display:none'},
+    $single_region_spec);
+$page.= $q->div({-style=>'display:none',-id=>'multi_region_specification_div_id'},
+    $multi_region_spec);
+$page.="\n<hr>";
 ##############################END OF REGION SPECIFICATION SECTION####################################
-$page.="<br> <br>\n";
 $page.= $q->h2("<span title='Plot HiC interaction heatmap'>HiC interaction plot</span>");
-$page.= $q->table( {-border=>1},
-    $q->Tr(
-	$q->td( {-colspan=>2},
-	    "<span title='Do you want an HiC interaction heatmap plot?'>".
-	    $q->checkbox(-name=>'heatmap_toggle',-id=>'heatmap_toggle_id',-checked=>1,-label=>'Output interaction heatmap?').
-	    "</span>"
-	), #return 'on' if checked
-    ),
-    $q->Tr(
-	$q->td( ["Interaction type (resolution)",
-		'<label>
-		<input type="radio" name="interaction_type" id="interaction_type_inter_id" value="interchromosomal" '."onclick=\"\$('#interaction_chr_tr_id').show();\"".' >INTERchromosomal(1Mb)
-		</label><br>
-		<input type="radio" id="interaction_type_intra_id" name="interaction_type" value="intrachromosomal" '."onclick=\"\$('#interaction_chr_tr_id').hide();\"".' checked="checked">INTRAchromosomal(100Kb)
-		</label>'
-	    ]
+$page.= 
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Plot HiC interaction heatmap?"),
+    $q->div({-class=>'col-sm-7'},
+	$q->div({-class=>'checkbox'},
+	    '<input type="checkbox" name="heatmap_toggle" id="heatmap_toggle_id" checked="checked" >'
 	),
-    ),
-    $q->Tr(
-	$q->td( ["Cell lines",
+    ));
+$page.= 
+$q->div({-class=>"form-group"},
+$q->label({-class=>"col-sm-3 control-label"},"Interaction type (resolution)"),
+$q->div({-class=>'col-sm-7'},
+$q->div({-class=>'radio'}, 
+"<label>
+<input type=\"radio\" name=\"interaction_type\" id=\"interaction_type_inter_id\" value=\"interchromosomal\" onclick=\"\$('#interaction_chr_tr_id).show();\" >INTERchromosomal(1Mb)
+</label>
+<input type=\"radio\" name=\"interaction_type\" id=\"interaction_type_intra_id\" value=\"intrachromosomal\" onclick=\"\$('#interaction_chr_tr_id).hide();\" >INTRAchromosomal(100Kb)
+</label>"),
+    ));
+$page.=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Cell line"),
+    $q->div({-class=>'col-sm-7'},
+	$q->div({-class=>'radio'},
 		'<label>
 		<input type="radio" name="interaction_cell_type" id="interaction_cell_type_k562_id" value="k562" >K562
 		</label>
 		<input type="radio" name="interaction_cell_type" id="interaction_cell_type_gm06690_id" value="gm06690" checked="checked">GM06690
-		</label>'
-	    ]
-	),
-    ),
-    $q->Tr({id=>'interaction_chr_tr_id',style=>'display:none'},
-	$q->td(["Chromosome","<select name='interaction_chr' >".
-		join ("\n",map { "<option value='$_'>$_</option>" } @chr)
-		."</select>"]),
-    ),
-);
+		</label>'),
+    ));
+$page.=
+$q->div({-id=>'interaction_chr_tr_id',-style=>'display:none'},
+    $q->div({-class=>"form-group"},
+	$q->label({-class=>"col-sm-3 control-label"},"Chromosome"),
+	$q->div({-class=>'col-sm-7'},
+	    "<select class=\"form-control\" name='interaction_chr' >".
+	    join ("\n",map { "<option value='$_'>$_</option>" } @chr)
+	    ."</select>"),
+    ));
 
-$page.="<br> <br>\n";
+$page.="\n<hr>";
+###########################GENERIC PLOT#####################################################
 $page.= $q->h2("<span title='show signal strengths in regions'>Generic plot (using UCSC BED tables)</span>");
-$page.= $q->table( {-class=>'noborder'},
-    $q->Tr(
-	$q->td( {-colspan=>2},
-	    "<span title='Do you want a generic (annotation) plot?'>".
-	    $q->checkbox(-name=>'generic_toggle',-id=>'generic_toggle_id',-checked=>1,-label=>'Generic plot?').
-	    "</span>"
+$page.= 
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Generic (annotation) plot?"),
+    $q->div({-class=>'col-sm-7'},
+	$q->div({-class=>"checkbox"},
+	    $q->checkbox(-name=>'generic_toggle',-id=>'generic_toggle_id',-checked=>1)
 	), #return 'on' if checked
-    ),
-    $q->Tr(
-	$q->td({-colspan=>2},"<span title='Do you want text annotation?'>".
-	    $q->checkbox(-name=>'anno_toggle',-id=>'anno_toggle_id',-checked=>0,-label=>'Output ANNOVAR annotation?').
-	    "</span>"
-	),
-    ),
-    $q->Tr(
-	$q->td({-colspan=>2},"<span title='First 5 columns correspond to chromosome,start,end,alternative allele,reference allele'>".
-	    $q->checkbox(-name=>'avinput',-id=>'avinput_id',-checked=>0,-label=>'Input file in ANNOVAR format?').
-	    "</span>"
-	),
-    ),
-    #LD output function temporily disabled because there could be multiple regions
-    $q->Tr(
-        $q->td( ["Advanced options",
+    ));
+$page.=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Text annotation?"),
+    $q->div({-class=>'col-sm-7'},
+	$q->div({-class=>"checkbox"},
+	    $q->checkbox(-name=>'anno_toggle',-id=>'anno_toggle_id',-checked=>0)
+	), #return 'on' if checked
+    ));
+$page.=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Input file in ANNOVAR format?"),
+    $q->div({-class=>'col-sm-7'},
+	$q->div({-class=>"checkbox"},
+	    $q->checkbox(-name=>'avinput',-id=>'avinput_id',-checked=>0)
+	), #return 'on' if checked
+    ));
+$page.=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Advanced options"),
+    $q->div({-class=>'col-sm-7'},
+	$q->div({-class=>"radio"},
         	'<label>
         	<input type="radio" name="detail_toggle" value="show" onclick="showDetail()">show
         	</label>
         	<input type="radio" name="detail_toggle" value="hide" onclick="hideDetail()" checked="checked">hide
         	</label>'
-            ]
-        ),
+	), #return 'on' if checked
+    ));
+$page.=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Advanced options"),
+    $q->div({-class=>'col-sm-7'},
+	$q->div({-class=>"radio"},
+	    '<label>
+	    <input type="radio" name="detail_toggle" value="show" onclick="showDetail()">show
+	    </label>
+	    <input type="radio" name="detail_toggle" value="hide" onclick="hideDetail()" checked="checked">hide
+	    </label>'
+	), #return 'on' if checked
     ),
-);
-$page.= $q->table({-class=>'advanced',-id=>'option_detail_id',-style=>'display:none'},
-    $q->Tr(
-	[$q->td(
+    $q->div({-class=>'col-sm-7 bg-info',-id=>'option_detail_id',-style=>'display:none'},
+	$q->div({-class=>"checkbox"},
 	    $q->checkbox(-name=>'ld_toggle',-id=>'ld_toggle_id',-checked=>1,-label=>'Output linkage disequilibrium (only works with SINGLE region, written in input file)')
-	),
-	#$q->td(
-	#	"<p>LD breakdown in summary plot (separated by comma, mininum 0, maximum 1)</p>
-	#	<input type='text' name='ld_breakdown' id='ld_breakdown_id' value='/>
-	#	"
-	#),
-	#$q->td(
-
-	#),
-	#$q->td(
-
-	#),
-	]
-    ),
+	), #return 'on' if checked
+    )
 );
-$page.= "</br></br>";
-$page.= $q->p({-class=>'center'},"<b>Please upload your own files <b style=\"color:red\">AFTER</b> selecting data tracks.</b><br>");
-$page.= $q->table(
+$page.= "\n</br></br>";
+$page.= $q->strong("Please upload your own files <b style=\"color:red\">AFTER</b> selecting data tracks.</b><br>");
+$page.= $q->table({-class=>"table-bordered"},
     $q->Tr(
 	$q->th(["Cell Line",
 	    "Experiment Type",
@@ -811,17 +840,11 @@ $page.= $q->table(
     ),
 );
 
-$page.= $q->table( {-class=>'noborder'},
-    $q->Tr(
-	$q->td(
-	    $q->p($q->submit("Submit"),$q->reset())
-	),
-    ),
-);
+$page.= $q->p($q->submit({-class=>"btn btn-primary"},"Submit"),$q->reset(-class=>"btn btn-primary"));
 
 #print $c->get_html($public_key);
 $page.= $q->end_form();
-$page.= $q->p("Please send questions or comments to <strong>$admin_email</strong>") if $admin_email;
+$page.= $q->h4("Please send questions or comments to <strong>$admin_email</strong>") if $admin_email;
 
 &template2real($page);
 #--------------SUBROUTINE-----------------
