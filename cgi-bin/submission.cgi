@@ -481,11 +481,11 @@ function check_before_submission()
     var at_least_one=false;
     
     //when toggled to multi view, the value of toggler is single and vice versa
-    if (\$('#region_multi_single_hidden_id').val()=='single')
+    if (\$('#region_multi_single_button_multi_id').prop('checked'))
     {
     	region_method=\$('#multi_region_specification_div_id').find(\"input[name^='region_method']:checked\");//select input elements with name starting with region_method
     }
-    else if (\$('#region_multi_single_hidden_id').val()=='multi')
+    else if (\$('#region_multi_single_button_single_id').prop('checked'))
     {
     	region_method=\$('#region_specification_div_id').find(\"input[name^='region_method']:checked\");//select input elements with name starting with region_method
     }
