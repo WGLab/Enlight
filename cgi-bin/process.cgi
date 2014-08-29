@@ -314,7 +314,7 @@ if ($anno_toggle)
 		chr     =>	$q->param('interaction_chr'),
 	    });
     }
-    $param.=" --write-ld-to LD_Rsquare" if $ld_toggle && $q->param('region_multi_single_hidden') eq 'multi'; #write ld for single region mode
+    $param.=" --write-ld-to LD_Rsquare" if $ld_toggle && $q->param('region_multi_single_button') eq 'single'; #write ld for single region mode
 #extensible, this part determines how many plots will be generated
     for my $i(0..$region_spec{count}-1)
     {
@@ -677,10 +677,10 @@ sub process_region_spec
 {
     my $region_conf_ref = shift;
     #first let's figure out which way does the user enter region specification
-    my $single_multi_toggle = $q->param('region_multi_single_hidden');
+    my $single_multi_toggle = $q->param('region_multi_single_button');
     my $multi_region_method = $q->param('multi_region_method');
     #single region?
-    if($single_multi_toggle eq 'multi') 
+    if($single_multi_toggle eq 'single') 
     #because this is a toggle button,
     #multi indicates current status of single, vice versa
     {
@@ -691,7 +691,7 @@ sub process_region_spec
 	{
 	    &Utils::error("At least one region must be specified\n",$log,$admin_email);
 	}
-    } elsif ($single_multi_toggle eq 'single')
+    } elsif ($single_multi_toggle eq 'multi')
     {
 	#manual multi-region?
 	if ($multi_region_method eq 'multi_region')
