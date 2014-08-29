@@ -584,12 +584,13 @@ sub geneINDB
     my $gene=shift;
     my $db=shift;
 
-    open IN,'-|',"sqlite3 $db 'select geneName from refFlat' " or
+    $gene=~s/>|<|\*|\?|\[|\]|`|\$|\||;|&|\(|\)|\#|'|"//g; #remove illegal characters
+    open IN,'-|',"sqlite3 $db 'select chrom from refFlat where geneName=\"$gene\"' " or
     &Utils::error("Failed to read refFlat: $!\n",$log,$admin_email);
 
     while (<IN>)
     {
-	close IN and return 1 if /^$gene\s/;
+	close IN and return 1 if /^chr([\dXYM]+|mito|mt)/i;
     }
     close IN;
     return undef;
@@ -599,6 +600,7 @@ sub snpINDB
     my $snp=shift;
     my $db=shift;
 
+    $snp=~s/>|<|\*|\?|\[|\]|`|\$|\||;|&|\(|\)|\#|'|"//g; #remove illegal characters
     open IN,'-|',"sqlite3 $db 'select snp from snp_pos where snp=\"$snp\"' " or
     &Utils::error("Failed to read snp_pos: $!\n",$log,$admin_email);
 
