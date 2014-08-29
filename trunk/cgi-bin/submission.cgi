@@ -11,7 +11,17 @@ use Utils;
 use File::Spec;
 
 
-my $intro="Enlight draws regional plots for GWAS results, and overlays epigenetic modification, DNase sensitivity site, transcription factor binding annotation onto it. The combined plot will help identify causal variants. Users can also upload custom annotation, obtain text annotation for each SNP.";
+#the generated webpage uses bootstrap framework
+my $intro="
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class=\"jumbotron\">
+<div class=\"container\">
+<h1>Enlight<br><small>integrating GWAS results with biological annotations</small></h1>
+<p>Enlight draws regional plots for GWAS results, and overlays epigenetic modification, DNase sensitivity site, transcription factor binding annotation onto it. The combined plot will help identify causal variants. Users can also upload custom annotation, obtain text annotation for each SNP.
+</p>
+<p><a class=\"btn btn-primary btn-lg\" role=\"button\" href=\"pages/help.html\">Learn more &raquo;</a></p>
+</div>
+</div>";
 #read global configurations
 my %server_conf=&Utils::readServConf(File::Spec->catfile($RealBin,"../conf/enlight_server.conf"))
     or die "Reading server configuration file failed!\n";
@@ -592,8 +602,6 @@ $jscode
 # </script>
 #RECAPTCHA
 $page.= $q->noscript($q->h1("Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight."));
-$page.= $q->h2("Introduction");
-$page.= $q->p("$intro<br><br>");
 $page.= $q->start_form(-name=>'main',-action=>"/cgi-bin/process.cgi",-method=>"post",-onSubmit=>"return check_before_submission();");
 $page.= $q->h2("Input");
 $page.= $q->table(
@@ -865,13 +873,14 @@ sub template2real
 	{
 	    print OUT "<body onload=\"changeTracks();toggle_single_multi_region();\">\n";
 
+	} elsif (/container_for_main/)
+	{
+	    print OUT $intro,"\n";
+	    print OUT $_;
+	    print OUT $content,"\n";
 	} else
 	{
 	    print OUT "$_\n";
-	}
-	if (/templatemo_main/)
-	{
-	    print OUT $content,"\n";
 	}
     }
     close OUT;
