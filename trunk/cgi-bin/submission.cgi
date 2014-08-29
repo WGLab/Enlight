@@ -268,16 +268,14 @@ function toggle_single_multi_region(caller)
 {
     var single_container=\$(\"#region_specification_div_id\");
     var multi_container=\$(\"#multi_region_specification_div_id\");
-    if(\$('#region_multi_single_hidden_id').val()=='single')
+    if(\$('#region_multi_single_button_single_id').checked)
     {
-        \$('#region_multi_single_hidden_id').val('multi');
 	\$(multi_container).hide();
         \$(single_container).show();
 	\$(single_container).find(\"td.region_method_area input\").first().trigger(\"click\");
     }
-    else if (\$('#region_multi_single_hidden_id').val()=='multi')
+    else if (\$('#region_multi_single_button_multi_id').checked)
     {
-        \$('#region_multi_single_hidden_id').val('single');
 	\$(single_container).hide();
         \$(multi_container).show();
 	\$(multi_container).find(\"td.multi_region_method_area input\").first().trigger(\"click\");
@@ -305,8 +303,9 @@ function loadExampleSetting()
     document.getElementById('varAnno_id').value='UChicago_eQTL';
     document.getElementById('source_ref_pop_id').value='1000G_March2012,hg19,EUR';	
 
-    \$(\"#region_multi_single_hidden_id\").val(\"single\");
-    \$(\"#region_multi_single_button_id\").trigger(\"click\");
+    \$(\"#region_multi_single_button_single_id\").prop('checked',true);
+    \$(\"#region_multi_single_button_multi_id\").prop('checked',false);
+    toggle_single_multi_region();
 
     \$(\"td.region_detail_area input[name='snpflank']\").val(\"20\");
     \$(\"td.region_detail_area input[name='refsnp']\").val(\"rs2071278\");
@@ -664,8 +663,11 @@ $page.="<br> <br>\n";
 $page.= $q->h2("<span title='plot region'>Specify a region</span>");
 $page.= $q->div($q->table({-class=>'noborder'},
 			$q->Tr($q->td(
-					"<button style='margin-left:auto;margin-right:auto' type='button' id='region_multi_single_button_id' onclick='toggle_single_multi_region(this);'>Toggle to Select Single or Multiple Regions</button>
-					<input type='hidden' id='region_multi_single_hidden_id' name='region_multi_single_hidden' value='single'></input>"),
+		'<label>
+		<input type="radio" name="region_multi_single_button" id="region_multi_single_button_multi_id" value="multi" onclick="toggle_single_multi_region();" >multiple
+		</label>
+		<input type="radio" name="region_multi_single_button" id="region_multi_single_button_single_id" value="single" onclick="toggle_single_multi_region();" >single
+		</label>'),
 			      ),
 			$q->Tr($q->td(
 					"<div id='region_specification_div_id' style='display:none'>$single_region_spec</div><div style='display:none' id='multi_region_specification_div_id'> $multi_region_spec</div>"),
@@ -861,7 +863,7 @@ sub template2real
     {
 	if (/<body>/)
 	{
-	    print OUT "<body onload=\"changeTracks();toggle_single_multi_region(\$('#region_multi_single_button_id'));\">\n";
+	    print OUT "<body onload=\"changeTracks();toggle_single_multi_region();\">\n";
 
 	} else
 	{
