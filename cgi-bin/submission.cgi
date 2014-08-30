@@ -65,23 +65,27 @@ my $q=new CGI::Pretty;
 
 ##################REGION SPECIFICATION HTML CODE##############################
 #HTML code for single region specification
-my $file_region_spec="<table class='noborder'>
-		<tr>
-		<td colspan=2>HitSpec format is supported (<a href='http://genome.sph.umich.edu/wiki/LocusZoom#Generating_a_Hit_Spec_File'>help</a>), <br>BUT 7th column and beyond are IGNORED
-</td>
-<td>
-		<input type='file' name='region_file' size=15 />
-</td> </tr>
-</table>";
-my $snp_region_spec="<table class='snp_region_spec'><tr>
-		<td>Index SNP</td>
-		<td><input type='text' name='refsnp' size=15 /></td>
-		</tr>
-
-		<tr>
-		<td>Flanking region (kb)</td>
-		<td><input type='text' name='snpflank' size=15 value=''/></td>
-		</tr></table>";
+my $file_region_spec=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},
+	"<a href='http://genome.sph.umich.edu/wiki/LocusZoom#Generating_a_Hit_Spec_File'>HitSpec</a> format supported"),
+    $q->div({-class=>"col-sm-7"},
+	$q->input({-type=>'file',-name=>'region_file',-class=>"form-control"}
+	),
+	$q->small("7th column and beyond are IGNORED"),
+    ));
+my $snp_region_spec=
+    $q->div({-class=>'snp_region_spec form-group'},
+	$q->label({-class=>"col-sm-3 control-label"},"Index SNP"),
+	$q->div({-class=>'col-sm-7'},
+		$q->input({-type=>"text",-name=>"refsnp",-class=>"form-control",-value=>'',-placeholder=>"Enter SNP name"}),
+    ));
+$snp_region_spec.=
+    $q->div({-class=>'snp_region_spec form-group'},
+	$q->label({-class=>"col-sm-3 control-label"},"Flanking region (Kb)"),
+	$q->div({-class=>'col-sm-7'},
+		$q->input({-type=>"text",-name=>"snpflank",-class=>"form-control",-value=>'',-placeholder=>"Enter flanking size"}),
+    ));
 my $gene_region_spec= "<table class='gene_region_spec'>
                 <tr>
 		<td>Reference Gene</td>
@@ -112,17 +116,20 @@ my $chr_region_spec= "<table class='chr_region_spec'>
 		<td><input type='text' name='refsnp_for_chr' size=15 /></td>
 		</tr>
 </table>";
-my $single_region_spec = "<table border=1 class='single_region_spec_head left_aln'>
-<tr>
-	<td class='region_method_area'>
-	    <input type='radio' name='region_method' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP<br>
-	     <input type='radio' name='region_method' onclick='response_to_select_region(this)' value='gene'>Reference Gene<br>
-	     <input type='radio' name='region_method' onclick='response_to_select_region(this)' value='chr'>Chromosomal Region<br>
-	    </td>
-</tr>
-<tr>
-<td class='region_detail_area'>$snp_region_spec $gene_region_spec $chr_region_spec </td>
-</tr></table>";
+my $single_region_spec =
+$q->div({-class=>'single_region_spec_head'},
+    $q->div({-class=>'region_method_area form-group'},
+	$q->label({-class=>"col-sm-3 control-label"},"Specification method"),
+	$q->div({-class=>'col-sm-7'},
+	    $q->div({-class=>'checkbox'},[
+		"<input type='radio' name='region_method' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP",
+		"<input type='radio' name='region_method' onclick='response_to_select_region(this)' value='gene'>Reference Gene",
+		"<input type='radio' name='region_method' onclick='response_to_select_region(this)' value='chr'>Chromosomal Region",
+		]),
+	)
+    ));
+$single_region_spec.=
+$q->div({-class=>'region_detail_area'},$snp_region_spec,$gene_region_spec,$chr_region_spec);
 my $multi_region_spec="<table class='noborder'>
 <tr>
 <td class='multi_region_method_area'>
@@ -608,16 +615,16 @@ $page.=
 $q->div({-class=>"form-group"},
     $q->label({-class=>"col-sm-3 control-label"},"DEMO"),
     $q->div({-class=>"col-sm-7"},
-	$q->button({-class=>"btn btn-info",-onclick=>'loadExampleSetting()'},
-	    "Load settings for example input"),
-	$q->button({-class=>"btn btn-info",-onclick=>'loadExampleInput()'},
-	    "Load example input"),
+	$q->button({-class=>"btn btn-info",-onclick=>'loadExampleSetting()',
+	    -label=>"Load settings for example input"}),
+	$q->button({-class=>"btn btn-info",-onclick=>'loadExampleInput()',
+	    -label=>"Load example input"}),
     ));
 $page.= 
 $q->div({-class=>"form-group"},
     $q->label({-class=>"col-sm-3 control-label"},"Email (mandatory for multi-region)"),
     $q->div({-class=>"col-sm-7"},
-	$q->input({-name=>"email",id=>'email_id',-type=>'email',-placeholder=>"Enter email to receive result link",
+	$q->input({-name=>"email",-id=>'email_id',-type=>'email',-placeholder=>"Enter email to receive result link",
 		-class=>"form-control"}),
     ));
 $page.= 
@@ -630,7 +637,7 @@ $q->div({-class=>"form-group"},
 	    $q->input({-name=>"query_URL",id=>'query_URL_id',-type=>'url',-placeholder=>"Paste URL here",
 		    -class=>"form-control"}),
 	),
-	$q->div({-id=>"query_example_label_div_id" -style=>'display:none'},
+	$q->div({-id=>"query_example_label_div_id",-style=>'display:none'},
 	    $q->input({-class=>"form-control",-id=>"query_hidden_id",-type=>"hidden",-name=>"example_upload",value=>""}),
 	    $q->span({-id=>"query_example_label"},"Example input loaded"),
 	),
@@ -694,6 +701,7 @@ $q->div({-class=>"form-group"},
 	    '<label>
 	    <input type="radio" name="region_multi_single_button" id="region_multi_single_button_multi_id" value="multi" onclick="toggle_single_multi_region();" >multiple
 	    </label>
+	    <label>
 	    <input type="radio" name="region_multi_single_button" id="region_multi_single_button_single_id" checked="checked" value="single" onclick="toggle_single_multi_region();" >single
 	    </label>'),
     ));
@@ -709,7 +717,7 @@ $q->div({-class=>"form-group"},
     $q->label({-class=>"col-sm-3 control-label"},"Plot HiC interaction heatmap?"),
     $q->div({-class=>'col-sm-7'},
 	$q->div({-class=>'checkbox'},
-	    '<input type="checkbox" name="heatmap_toggle" id="heatmap_toggle_id" checked="checked" >'
+	    $q->checkbox(-name=>'heatmap_toggle',-id=>'heatmap_toggle_id',-checked=>1),
 	),
     ));
 $page.= 
@@ -720,6 +728,7 @@ $q->div({-class=>'radio'},
 "<label>
 <input type=\"radio\" name=\"interaction_type\" id=\"interaction_type_inter_id\" value=\"interchromosomal\" onclick=\"\$('#interaction_chr_tr_id).show();\" >INTERchromosomal(1Mb)
 </label>
+<label>
 <input type=\"radio\" name=\"interaction_type\" id=\"interaction_type_intra_id\" value=\"intrachromosomal\" onclick=\"\$('#interaction_chr_tr_id).hide();\" >INTRAchromosomal(100Kb)
 </label>"),
     ));
@@ -731,6 +740,7 @@ $q->div({-class=>"form-group"},
 		'<label>
 		<input type="radio" name="interaction_cell_type" id="interaction_cell_type_k562_id" value="k562" >K562
 		</label>
+		<label>
 		<input type="radio" name="interaction_cell_type" id="interaction_cell_type_gm06690_id" value="gm06690" checked="checked">GM06690
 		</label>'),
     ));
@@ -779,6 +789,7 @@ $q->div({-class=>"form-group"},
         	'<label>
         	<input type="radio" name="detail_toggle" value="show" onclick="showDetail()">show
         	</label>
+		<label>
         	<input type="radio" name="detail_toggle" value="hide" onclick="hideDetail()" checked="checked">hide
         	</label>'
 	), #return 'on' if checked
@@ -791,6 +802,7 @@ $q->div({-class=>"form-group"},
 	    '<label>
 	    <input type="radio" name="detail_toggle" value="show" onclick="showDetail()">show
 	    </label>
+	    <label>
 	    <input type="radio" name="detail_toggle" value="hide" onclick="hideDetail()" checked="checked">hide
 	    </label>'
 	), #return 'on' if checked
@@ -803,7 +815,7 @@ $q->div({-class=>"form-group"},
 );
 $page.= "\n</br></br>";
 $page.= $q->strong("Please upload your own files <b style=\"color:red\">AFTER</b> selecting data tracks.</b><br>");
-$page.= $q->table({-class=>"table-bordered"},
+$page.= $q->table({-class=>"center-block"},
     $q->Tr(
 	$q->th(["Cell Line",
 	    "Experiment Type",
@@ -811,7 +823,7 @@ $page.= $q->table({-class=>"table-bordered"},
     ),
     $q->Tr(
 	$q->td( {-class=>'table_align'},
-	    $q->table( {-class=>'noborder left_aln'},
+	    $q->table( {-class=>''},
 		$q->Tr([
 		    map { 
 
@@ -823,7 +835,7 @@ $page.= $q->table({-class=>"table-bordered"},
 	    )
 	),
 	$q->td( {-class=>'table_align'},
-	    $q->table( {-class=>'noborder left_aln'},
+	    $q->table( {-class=>''},
 		$q->Tr([
 		    map { 
 
@@ -834,7 +846,7 @@ $page.= $q->table({-class=>"table-bordered"},
 		    ]),
 	    )
 	),
-	$q->td( {-class=>'table_align'},
+	$q->td( {-class=>''},
 	    $q->table( {-class=>'noborder left_aln',-id=>'dataTrackHere'}, $q->p("")),
 	),
     ),
