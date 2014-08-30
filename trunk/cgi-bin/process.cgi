@@ -590,7 +590,7 @@ sub geneINDB
 
     while (<IN>)
     {
-	close IN and return 1 if /^chr([\dXYM]+|mito|mt)/i;
+	close IN and return 1 if /^chr([\dXYM]+|mito|mt)\s/i;
     }
     close IN;
     return undef;
