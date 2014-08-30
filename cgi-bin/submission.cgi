@@ -75,47 +75,63 @@ $q->div({-class=>"form-group"},
 	$q->small("7th column and beyond are IGNORED"),
     ));
 my $snp_region_spec=
-    $q->div({-class=>'snp_region_spec form-group'},
+$q->div({-class=>'snp_region_spec'},
+    $q->div({-class=>'form-group'},
 	$q->label({-class=>"col-sm-3 control-label"},"Index SNP"),
 	$q->div({-class=>'col-sm-7'},
 		$q->input({-type=>"text",-name=>"refsnp",-class=>"form-control",-value=>'',-placeholder=>"Enter SNP name"}),
-    ));
-$snp_region_spec.=
-    $q->div({-class=>'snp_region_spec form-group'},
+    )),
+    $q->div({-class=>'form-group'},
 	$q->label({-class=>"col-sm-3 control-label"},"Flanking region (Kb)"),
 	$q->div({-class=>'col-sm-7'},
 		$q->input({-type=>"text",-name=>"snpflank",-class=>"form-control",-value=>'',-placeholder=>"Enter flanking size"}),
-    ));
-my $gene_region_spec= "<table class='gene_region_spec'>
-                <tr>
-		<td>Reference Gene</td>
-		<td><input type='text' name='refgene' size=15 /></td>
-		</tr>
-		<tr>
-		<td>Flanking region (kb)</td>
-		<td><input type='text' name='geneflank' size=15 value='' /></td>
-		<tr>
-		<td>Optional Index SNP (default is SNP with lowest P value)</td>
-		<td><input type='text' name='refsnp_for_gene' size=15 /></td>
-		</tr></table>";
-my $chr_region_spec= "<table class='chr_region_spec'>
-		<tr>
-		<td>Chromosome</td>
-		<td><select name='chr' >".
+    )),
+);
+my $gene_region_spec=
+$q->div({-class=>"gene_region_spec"},
+    $q->div({-class=>'form-group'},
+	$q->label({-class=>"col-sm-3 control-label"},"Reference Gene"),
+	$q->div({-class=>'col-sm-7'},
+		$q->input({-type=>"text",-name=>"refgene",-class=>"form-control",-value=>'',-placeholder=>"Enter reference gene"}),
+    )),
+    $q->div({-class=>'form-group'},
+	$q->label({-class=>"col-sm-3 control-label"},"Flanking region (Kb)"),
+	$q->div({-class=>'col-sm-7'},
+		$q->input({-type=>"text",-name=>"geneflank",-class=>"form-control",-value=>'',-placeholder=>"Enter flanking size"}),
+    )),
+    $q->div({-class=>'form-group'},
+	$q->label({-class=>"col-sm-3 control-label"},"Optional index SNP"),
+	$q->div({-class=>'col-sm-7'},
+		$q->input({-type=>"text",-name=>"refsnp_for_gene",-class=>"form-control",-value=>'',-placeholder=>"Enter SNP name"}),
+		$q->small("Default is the SNP with smallest P value"),
+    )),
+);
+my $chr_region_spec=
+$q->div({-class=>"chr_region_spec"},
+    $q->div({-class=>'form-group'},
+	$q->label({-class=>"col-sm-3 control-label"},"Chromosome"),
+	$q->div({-class=>'col-sm-7'},
+		"<select class=\"form-control\" name='chr' >".
 		join ("\n",map { "<option value='$_'>$_</option>" } @chr)
-		."</select></td>
-		</tr>
-		<tr>
-		<td>Start (Mb)</td>
-		<td><input type='text' name='start' size=15 /></td>
-		<tr>
-		<td>End (Mb)</td>
-		<td><input type='text' name='end' size=15 /></td>
-		<tr>
-		<td>Optional Index SNP (default is SNP with lowest P value)</td>
-		<td><input type='text' name='refsnp_for_chr' size=15 /></td>
-		</tr>
-</table>";
+		."</select>"
+    )),
+    $q->div({-class=>'form-group'},
+	$q->label({-class=>"col-sm-3 control-label"},"Start (Mb)"),
+	$q->div({-class=>'col-sm-7'},
+		$q->input({-type=>"text",-name=>"start",-class=>"form-control",-value=>'',-placeholder=>"Enter start position"}),
+    )),
+    $q->div({-class=>'form-group'},
+	$q->label({-class=>"col-sm-3 control-label"},"End (Mb)"),
+	$q->div({-class=>'col-sm-7'},
+		$q->input({-type=>"text",-name=>"end",-class=>"form-control",-value=>'',-placeholder=>"Enter end position"}),
+    )),
+    $q->div({-class=>'form-group'},
+	$q->label({-class=>"col-sm-3 control-label"},"Optional index SNP"),
+	$q->div({-class=>'col-sm-7'},
+		$q->input({-type=>"text",-name=>"refsnp_for_chr",-class=>"form-control",-value=>'',-placeholder=>"Enter SNP name"}),
+		$q->small("Default is the SNP with smallest P value"),
+    )),
+);
 my $single_region_spec =
 $q->div({-class=>'single_region_spec_head'},
     $q->div({-class=>'region_method_area form-group'},
@@ -130,14 +146,23 @@ $q->div({-class=>'single_region_spec_head'},
     ));
 $single_region_spec.=
 $q->div({-class=>'region_detail_area'},$snp_region_spec,$gene_region_spec,$chr_region_spec);
-my $multi_region_spec="<table class='noborder'>
-<tr>
-<td class='multi_region_method_area'>
-<input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='multi_region'>Manually Specify multi-region<br>
-<input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='region_file'>Region Spefication File<br>
-<tr>
-<td class='multi_region_detail_area'><div id='file_region_specification_div_id'>$file_region_spec</div> <div id='multi_manual_region_specification_div_id'><table border=1>".(&gen_multi_manual_select_code($num_manual_select,$single_region_spec))."</table></div></td>
-</tr></table>";
+my $multi_region_spec=
+$q->div({-class=>'multi_region_method_area'},
+    $q->div({-class=>'form-group'},
+	$q->div({-class=>'radio'},
+["<input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='multi_region'>Manually Specify multi-region",
+"<input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='region_file'>Region Spefication File"
+],
+)
+));
+$multi_region_spec.=
+$q->div({-class=>'multi_region_detail_area'},
+    $q->div({-id=>'file_region_specification_div_id'},
+	$file_region_spec),
+    $q->div({-id=>'multi_manual_region_specification_div_id'},
+	$q->div(&gen_multi_manual_select_code($num_manual_select,$single_region_spec))
+    ),
+);
 ###############################END OF REGION SPECIFICATION CODE#######################################	    
 
 my $jscode="
@@ -813,27 +838,32 @@ $q->div({-class=>"form-group"},
 	), #return 'on' if checked
     )
 );
-$page.= "\n</br></br>";
-$page.= $q->strong("Please upload your own files <b style=\"color:red\">AFTER</b> selecting data tracks.</b><br>");
-$page.= $q->table({-class=>"center-block"},
-    $q->Tr(
-	$q->th(["Cell Line",
-	    "Experiment Type",
-	    "Data Tracks (max: $generic_table_max; <a class='button' href=\"/example/example.bed\"><strong>BED Example</strong></a>)"]),
-    ),
-    $q->Tr(
-	$q->td( {-class=>'table_align'},
-	    $q->table( {-class=>''},
-		$q->Tr([
-		    map { 
+$page.= $q->h4({-class=>"center-block"},"Please upload your own files <b style=\"color:red\">AFTER</b> selecting data tracks.</b><br>");
+$page.= 
+$q->div({-class=>"row"},
+    $q->label({-class=>"col-md-3 "},"Cell line"),
+    $q->label({-class=>"col-md-3 "},"Experiment type"),
+    $q->label({-class=>"col-md-6 "},
+	"Data Tracks (max: $generic_table_max; <a class='button' href=\"/example/example.bed\">BED Example</a>)"),
+);
+$page.=
+$q->div({-class=>"row"},
+    $q->div({-class=>"col-md-3"},
+	$q->div({-class=>"row"},
+	    [
+	    map { 
 
-			$q->td("<span title='$cell_desc{$_}'>". 
-			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
-			); 
-		    } sort keys %cell
-		    ]),
-	    )
-	),
+		$q->div("<span title='$cell_desc{$_}'>". 
+		    $q->div({-class=>"checkbox"},
+			$q->checkbox( {-id=>$_,-class=>'cell',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
+		    )
+		); 
+	    } sort keys %cell
+	    ]),
+    )
+);
+$page.=
+	$q->Tr(
 	$q->td( {-class=>'table_align'},
 	    $q->table( {-class=>''},
 		$q->Tr([
@@ -849,8 +879,7 @@ $page.= $q->table({-class=>"center-block"},
 	$q->td( {-class=>''},
 	    $q->table( {-class=>'noborder left_aln',-id=>'dataTrackHere'}, $q->p("")),
 	),
-    ),
-);
+    );
 
 $page.= $q->p($q->submit({-class=>"btn btn-primary"},"Submit"),$q->reset(-class=>"btn btn-primary"));
 
