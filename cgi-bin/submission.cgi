@@ -247,7 +247,7 @@ function changeTracks()
 	var label=document.createElement('label');
 	var upload=document.createElement('input');
 	span.title='Drag or use Ctrl, Shift to select multiple files';
-	label.innerHTML='Custom track (BED format;.gz okay)';
+	label.innerHTML='';
 	upload.type='file';
 	upload.name='custom_table';
 	upload.multiple='multiple';
@@ -714,6 +714,11 @@ $q->div({-class=>"form-group"},
 	    $q->popup_menu(-class=>'form-control',-name=>'varAnno',-id=>'varAnno_id',
 		-values=> \@varAnno,-labels=>\%varAnno_label,-default=>['NULL']),
     ));
+$page.= $q->div( {-class=>"form-group"},
+    $q->div({-class=>"col-sm-offset-3"},
+	$q->submit({-class=>"btn btn-primary"},"Submit"),
+    ),
+);
 $page.="\n<hr>";
 
 #########################START OF REGION SPECIFICATION SECTION#########################################
@@ -734,6 +739,11 @@ $page.= $q->div({-id=>'region_specification_div_id',-style=>'display:none'},
     $single_region_spec);
 $page.= $q->div({-style=>'display:none',-id=>'multi_region_specification_div_id'},
     $multi_region_spec);
+$page.= $q->div( {-class=>"form-group"},
+    $q->div({-class=>"col-sm-offset-3"},
+	$q->submit({-class=>"btn btn-primary"},"Submit"),
+    ),
+);
 $page.="\n<hr>";
 ##############################END OF REGION SPECIFICATION SECTION####################################
 $page.= $q->h2("<span title='Plot HiC interaction heatmap'>HiC interaction plot</span>");
@@ -779,6 +789,11 @@ $q->div({-id=>'interaction_chr_tr_id',-style=>'display:none'},
 	    ."</select>"),
     ));
 
+$page.= $q->div( {-class=>"form-group"},
+    $q->div({-class=>"col-sm-offset-3"},
+	$q->submit({-class=>"btn btn-primary"},"Submit"),
+    ),
+);
 $page.="\n<hr>";
 ###########################GENERIC PLOT#####################################################
 $page.= $q->h2("<span title='show signal strengths in regions'>Generic plot (using UCSC BED tables)</span>");
@@ -811,19 +826,6 @@ $q->div({-class=>"form-group"},
     $q->label({-class=>"col-sm-3 control-label"},"Advanced options"),
     $q->div({-class=>'col-sm-7'},
 	$q->div({-class=>"radio"},
-        	'<label>
-        	<input type="radio" name="detail_toggle" value="show" onclick="showDetail()">show
-        	</label>
-		<label>
-        	<input type="radio" name="detail_toggle" value="hide" onclick="hideDetail()" checked="checked">hide
-        	</label>'
-	), #return 'on' if checked
-    ));
-$page.=
-$q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Advanced options"),
-    $q->div({-class=>'col-sm-7'},
-	$q->div({-class=>"radio"},
 	    '<label>
 	    <input type="radio" name="detail_toggle" value="show" onclick="showDetail()">show
 	    </label>
@@ -832,60 +834,71 @@ $q->div({-class=>"form-group"},
 	    </label>'
 	), #return 'on' if checked
     ),
-    $q->div({-class=>'col-sm-7 bg-info',-id=>'option_detail_id',-style=>'display:none'},
+);
+$page.=
+$q->div({-class=>"form-group"},
+    $q->div({-class=>'col-sm-offset-3 col-sm-7 bg-info',-id=>'option_detail_id',-style=>'display:none'},
 	$q->div({-class=>"checkbox"},
 	    $q->checkbox(-name=>'ld_toggle',-id=>'ld_toggle_id',-checked=>1,-label=>'Output linkage disequilibrium (only works with SINGLE region, written in input file)')
 	), #return 'on' if checked
     )
 );
-$page.= $q->h4({-class=>"center-block"},"Please upload your own files <b style=\"color:red\">AFTER</b> selecting data tracks.</b><br>");
+$page.= 
+$q->div({-class=>"form-group"},
+    $q->div({-class=>'col-sm-offset-2'},
+	$q->h4("Please upload your own files <b style=\"color:red\">AFTER</b> selecting data tracks.</b><br>"),
+    ),
+);
 $page.= 
 $q->div({-class=>"row"},
-    $q->label({-class=>"col-md-3 "},"Cell line"),
-    $q->label({-class=>"col-md-3 "},"Experiment type"),
-    $q->label({-class=>"col-md-6 "},
-	"Data Tracks (max: $generic_table_max; <a class='button' href=\"/example/example.bed\">BED Example</a>)"),
+    $q->label({-class=>"col-sm-offset-1 col-sm-2 "},"Cell line"),
+    $q->label({-class=>"col-sm-2 "},"Experiment type"),
+    $q->label({-class=>"col-sm-5 "},
+	"Custom or predefined data Tracks (max: $generic_table_max; <a class='button' href=\"/example/example.bed\">BED Example</a>)"),
 );
 $page.=
-$q->div({-class=>"row"},
-    $q->div({-class=>"col-md-3"},
-	$q->div({-class=>"row"},
-	    [
-	    map { 
+$q->div({-class=>"form-group"},
+    $q->div({-class=>"row"},
+	$q->div({-class=>"col-sm-offset-1 col-sm-2"},
+	    $q->div({-class=>"row"},
+		[
+		map { 
 
-		$q->div("<span title='$cell_desc{$_}'>". 
-		    $q->div({-class=>"checkbox"},
-			$q->checkbox( {-id=>$_,-class=>'cell',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
-		    )
-		); 
-	    } sort keys %cell
-	    ]),
-    )
-);
-$page.=
-	$q->Tr(
-	$q->td( {-class=>'table_align'},
-	    $q->table( {-class=>''},
-		$q->Tr([
-		    map { 
-
-			$q->td("<span title='$exp_desc{$_}'>".
+		    $q->div("<span title='$cell_desc{$_}'>". 
+			$q->div({-class=>"checkbox"},
+			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
+			)
+		    ); 
+		} sort keys %cell
+		]),
+	),
+	$q->div({-class=>"col-sm-2"},
+	    $q->div({-class=>"row"},
+		[
+		map { 
+		    $q->div("<span title='$exp_desc{$_}'>".
+			$q->div({-class=>'checkbox'},
 			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
-			);
-		    } sort keys %experiment
-		    ]),
-	    )
+			)),
+		} sort keys %experiment
+		]),
 	),
-	$q->td( {-class=>''},
-	    $q->table( {-class=>'noborder left_aln',-id=>'dataTrackHere'}, $q->p("")),
+	$q->div({-class=>"col-sm-5"},
+	    $q->div({-id=>'dataTrackHere'})
 	),
-    );
+    ));
 
-$page.= $q->p($q->submit({-class=>"btn btn-primary"},"Submit"),$q->reset(-class=>"btn btn-primary"));
+$page.="\n<br><br>";
+$page.= $q->div( {-class=>"form-group"},
+    $q->div({-class=>"col-sm-offset-3"},
+	$q->submit({-class=>"btn btn-lg btn-primary"},"Submit"),
+	$q->reset(-class=>"col-sm-offset-1 btn btn-lg btn-primary"),
+    ),
+);
 
 #print $c->get_html($public_key);
 $page.= $q->end_form();
-$page.= $q->h4("Please send questions or comments to <strong>$admin_email</strong>") if $admin_email;
+$page.= $q->h4("Please send questions or comments to <a href=\"mailto:$admin_email\">$admin_email</a>") if $admin_email;
 
 &template2real($page);
 #--------------SUBROUTINE-----------------
