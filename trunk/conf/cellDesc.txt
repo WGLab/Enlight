@@ -9,4 +9,8 @@ A549	Human lung carcinoma cell line
 HeLa-S3	Human cervical cancer cell line
 HepG2	Human hepatoma cell line
 HUVEC	Human umbilical vein endothelial cell
+HMEC	Human Mammary Epithelial Cell
+HSMM	Human Skeletal Muscle Myoblasts
+NHEK	Normal Human Epidermal Keratinocytes
+NHLF	Normal human lung fibroblasts
 None	Not a specific cell line. Used for non-cell-specific tracks, such as TFBS region
