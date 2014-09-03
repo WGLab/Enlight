@@ -22,6 +22,8 @@ my $intro="
 <p><a class=\"btn btn-primary btn-lg\" role=\"button\" href=\"pages/help.html\">Learn more &raquo;</a></p>
 </div>
 </div>";
+my $k562_desc="Established from pleural effusion of 53 year old female with chronic myelogenous leukaemia in terminal blast crisis. Population highly undifferentiated and of the granulocytic series. Can be used as a highly sensitive target for the in vitro natural killer assay. Recent studies have shown the K562 blasts are multipotential, hematopoietic malignant cells that spontaneously differentiate into recognisable progenitors of the erythrocyte, granulocyte and monocytic series.--SigmaAldrich";
+my $gm06690_desc="EBV-transformed lymphoblastoid cell line";
 #read global configurations
 my %server_conf=&Utils::readServConf(File::Spec->catfile($RealBin,"../conf/enlight_server.conf"))
     or die "Reading server configuration file failed!\n";
@@ -68,7 +70,11 @@ my $q=new CGI::Pretty;
 my $file_region_spec=
 $q->div({-class=>"form-group"},
     $q->label({-class=>"col-sm-3 control-label"},
-	"<a href='http://genome.sph.umich.edu/wiki/LocusZoom#Generating_a_Hit_Spec_File'>HitSpec</a> format supported"),
+	"<a href='http://genome.sph.umich.edu/wiki/LocusZoom#Generating_a_Hit_Spec_File'>HitSpec</a> format supported",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"HitSpec is a whitespace-delimited file, meaning multiple continuous spaces/tabs will be considered as just one delimiter. Only first 6 columns are useful. The rest will be ignored. Chromosome names must be numerical (no chr prefix) except for X chromosome.\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>",
+    ),
     $q->div({-class=>"col-sm-7"},
 	$q->input({-type=>'file',-name=>'region_file',-class=>"form-control"}
 	),
@@ -111,9 +117,11 @@ $q->div({-class=>"chr_region_spec"},
     $q->div({-class=>'form-group'},
 	$q->label({-class=>"col-sm-3 control-label"},"Chromosome"),
 	$q->div({-class=>'col-sm-7'},
-		"<select class=\"form-control\" name='chr' >".
-		join ("\n",map { "<option value='$_'>$_</option>" } @chr)
-		."</select>"
+	    $q->popup_menu( -class=>'form-control',
+		            -name => 'chr', 
+			    -values => [@chr], 
+			    -default => '1', 
+			    -labels => {map { ($_=>$_) } @chr}),
     )),
     $q->div({-class=>'form-group'},
 	$q->label({-class=>"col-sm-3 control-label"},"Start (Mb)"),
@@ -137,24 +145,33 @@ $q->div({-class=>'single_region_spec_head'},
     $q->div({-class=>'region_method_area form-group'},
 	$q->label({-class=>"col-sm-3 control-label"},"Specification method"),
 	$q->div({-class=>'col-sm-7'},
-	    $q->div({-class=>'checkbox'},[
-		"<input type='radio' name='region_method' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP",
-		"<input type='radio' name='region_method' onclick='response_to_select_region(this)' value='gene'>Reference Gene",
-		"<input type='radio' name='region_method' onclick='response_to_select_region(this)' value='chr'>Chromosomal Region",
+	    $q->div({-class=>'radio'},[
+		"<label><input type='radio' name='region_method' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP</label>",
+		"<label><input type='radio' name='region_method' onclick='response_to_select_region(this)' value='gene'>Reference Gene</label>",
+		"<label><input type='radio' name='region_method' onclick='response_to_select_region(this)' value='chr'> Chromosomal Region</label>",
 		]),
 	)
-    ));
-$single_region_spec.=
-$q->div({-class=>'region_detail_area'},$snp_region_spec,$gene_region_spec,$chr_region_spec);
+    ),
+    $q->div({-class=>'region_detail_area'},
+	$snp_region_spec,$gene_region_spec,$chr_region_spec
+    ),
+);
 my $multi_region_spec=
 $q->div({-class=>'multi_region_method_area'},
     $q->div({-class=>'form-group'},
-	$q->div({-class=>'radio'},
-["<input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='multi_region'>Manually Specify multi-region",
-"<input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='region_file'>Region Spefication File"
-],
-)
-));
+	$q->label({-class=>"col-sm-3 control-label"},"How to select multiple regions?",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"You can select multiple regions for plotting either by entering regions one by one, or by uploading a HitSpec file.\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>",
+	),
+	$q->div({-class=>'col-sm-7'},
+	    $q->div({-class=>'radio'},
+		["<label><input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' checked value='multi_region'>Manually Specify multi-region</label>",
+		"<label><input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='region_file'>Region Spefication File</label>"
+		],
+	    )
+	)
+    ));
 $multi_region_spec.=
 $q->div({-class=>'multi_region_detail_area'},
     $q->div({-id=>'file_region_specification_div_id'},
@@ -166,6 +183,9 @@ $q->div({-class=>'multi_region_detail_area'},
 ###############################END OF REGION SPECIFICATION CODE#######################################	    
 
 my $jscode="
+\$(document).ready(function() {
+	\$('a.mypopover').popover({html:true});
+});
 function changeTracks()
 {
     var insertPos=document.getElementById('dataTrackHere');
@@ -222,10 +242,12 @@ function changeTracks()
 	    alert('At most $generic_table_max tracks can be selected.');
 	    break;
 	}
-	var newrow=document.createElement('tr');
-	var col=document.createElement('td');
+	var newrow=document.createElement('div');//for new row
+	var col=document.createElement('div');//for new checkbox container
 	var label=document.createElement('label');
 	var checkbox=document.createElement('input');
+	newrow.class='row';
+	col.class='checkbox';
 	label.innerHTML=tracks[i];
 	checkbox.type='checkbox';
 	checkbox.value=tracks[i];
@@ -241,11 +263,13 @@ function changeTracks()
     //add custom tracks upload fields
     for (var i=0;i<$generic_table_max-tracks.length;i++)
     {
-	var newrow=document.createElement('tr');
-	var col=document.createElement('td');
+	var newrow=document.createElement('div');
+	var col=document.createElement('div');
 	var span=document.createElement('span');
 	var label=document.createElement('label');
 	var upload=document.createElement('input');
+	newrow.class='row';
+	col.class='';
 	span.title='Drag or use Ctrl, Shift to select multiple files';
 	label.innerHTML='';
 	upload.type='file';
@@ -262,21 +286,21 @@ function changeTracks()
 
 function response_to_select_region(caller)
 {
-    var region_spec_container=\$(caller).parentsUntil(\"table.single_region_spec_head\").find(\"td.region_detail_area\");
+    var region_spec_container=\$(caller).parentsUntil(\"div.single_region_spec_head\").siblings().filter(\"div.region_detail_area\");
     if(\$(caller).val()=='snp')
     {
-	\$(region_spec_container).find('table.snp_region_spec').show();
-	\$(region_spec_container).find('table').not('.snp_region_spec').hide();
+	\$(region_spec_container).find('div.snp_region_spec').show();
+	\$(region_spec_container).children().not('.snp_region_spec').hide();
     }
     else if (\$(caller).val()=='gene')
     {
-	\$(region_spec_container).find('table.gene_region_spec').show();
-	\$(region_spec_container).find('table').not('.gene_region_spec').hide();
+	\$(region_spec_container).find('div.gene_region_spec').show();
+	\$(region_spec_container).children().not('.gene_region_spec').hide();
     }
     else if(\$(caller).val()=='chr')
     {
-	\$(region_spec_container).find('table.chr_region_spec').show();
-	\$(region_spec_container).find('table').not('.chr_region_spec').hide();
+	\$(region_spec_container).find('div.chr_region_spec').show();
+	\$(region_spec_container).children().not('.chr_region_spec').hide();
     }
 }
 
@@ -294,12 +318,11 @@ function response_to_multi_select_region(caller)
     {
 	\$(manual_region_spec_container).show();
 	\$(file_region_spec_container).hide();
-	\$(manual_region_spec_container).find(\"table.single_region_spec_head\").each(
+	\$(manual_region_spec_container).find(\"div.single_region_spec_head\").each(
 		function()
 		{
-		  var i=\$(this).find(\"td.region_method_area input\").first()
+		  var i=\$(this).find(\"div.region_method_area input:checked\");
                       i.trigger(\"click\");
-		      i.prop('checked',true);
 		}
 	);
     }
@@ -314,13 +337,13 @@ function toggle_single_multi_region(caller)
     {
 	\$(multi_container).hide();
         \$(single_container).show();
-	\$(single_container).find(\"td.region_method_area input\").first().trigger(\"click\");
+	\$(single_container).find(\"div.region_method_area input:checked\").trigger(\"click\");
     }
     else if (\$('#region_multi_single_button_multi_id').prop('checked'))
     {
 	\$(single_container).hide();
         \$(multi_container).show();
-	\$(multi_container).find(\"td.multi_region_method_area input\").first().trigger(\"click\");
+	\$(multi_container).find(\"div.multi_region_method_area input:checked\").trigger(\"click\");
     }
 }
 
@@ -349,8 +372,21 @@ function loadExampleSetting()
     \$(\"#region_multi_single_button_multi_id\").prop('checked',false);
     toggle_single_multi_region();
 
-    \$(\"td.region_detail_area input[name='snpflank']\").val(\"20\");
-    \$(\"td.region_detail_area input[name='refsnp']\").val(\"rs2071278\");
+    //set snp and flanking, check SNP method, trigger SNP click event
+    \$(\"div.region_detail_area input[name='snpflank']\").val(\"20\");
+    \$(\"div.region_detail_area input[name='refsnp']\").val(\"rs2071278\");
+    \$(\"div.region_detail_area input[name='snpflank']\").
+    parentsUntil(\"div.single_region_spec_head\").
+    siblings().
+    filter(\"div.region_method_area\").
+    find(\"input[value='snp']\").
+    trigger(\"click\");
+    \$(\"div.region_detail_area input[name='snpflank']\").
+    parentsUntil(\"div.single_region_spec_head\").
+    siblings().
+    filter(\"div.region_method_area\").
+    find(\"input[value='snp']\").
+    prop('checked',true);
 
     document.getElementById('generic_toggle_id').checked=true;
     document.getElementById('anno_toggle_id').checked=true;
@@ -399,7 +435,7 @@ function hideDetail()
 }
 function showDetail()
 {
-    document.getElementById('option_detail_id').style.display='table';
+    document.getElementById('option_detail_id').style.display='block';
 }
 function check_before_submission()
 {
@@ -539,7 +575,7 @@ function check_before_submission()
 	{
 		\$(region_method).each(
 				function() {
-				var region_spec_container=\$(this).parentsUntil(\"table.single_region_spec_head\").find(\"td.region_detail_area\");
+				var region_spec_container=\$(this).parentsUntil(\"div.single_region_spec_head\").siblings().filter(\"div.region_detail_area\");
 				var refsnp=\$(region_spec_container).find(\"input[name^='refsnp']\").val();
 				var snpflank=\$(region_spec_container).find(\"input[name^='snpflank']\").val();
 				var refgene=\$(region_spec_container).find(\"input[name^='refgene']\").val();
@@ -555,11 +591,13 @@ function check_before_submission()
 						if ( (refsnp.length!=0 && snpflank.length==0) || (refsnp.length==0 && snpflank.length!=0) )
 						{
 							alert('Both reference SNP and flanking region must be supplied.');
+							region_spec_container.addClass('has-error');
 							return_value=false;
 							return false;//stop each iteration
 						} else if (region_pat.test(refsnp) || region_pat.test(snpflank))
 						{
 							alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
+							region_spec_container.addClass('has-error');
 							return_value=false;
 							return false;
 						}	
@@ -572,11 +610,13 @@ function check_before_submission()
 						if ( (refgene.length!=0 && geneflank.length==0) || (refgene.length==0 && geneflank.length!=0) )
 						{
 							alert('Both reference gene and flanking region must be supplied.');
+							region_spec_container.addClass('has-error');
 							return_value=false;
 							return false;
 						} else if (region_pat.test(refgene) || region_pat.test(geneflank) || region_pat.test(generefsnp))
 						{
 							alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
+							region_spec_container.addClass('has-error');
 							return_value=false;
 							return false;
 						}	
@@ -589,11 +629,13 @@ function check_before_submission()
 						if ( (start.length!=0 && end.length==0) || (start.length==0 && end.length!=0) )
 						{
 							alert('Both chromosome start and end must be supplied');
+							region_spec_container.addClass('has-error');
 							return_value=false;
 							return false;
 						} else if (region_pat.test(chr) || region_pat.test(start) || region_pat.test(end) || region_pat.test(chrrefsnp))
 						{
 							alert(\"Illegal characters found in reference SNP or flanking regin\\nPlease remove \$ \' \\\" \{ \} \[ \] \\\\ \> \< \: \; \, \* \| and tab, space, newline.\");
+							region_spec_container.addClass('has-error');
 							return_value=false;
 							return false;
 						}	
@@ -604,6 +646,12 @@ function check_before_submission()
 					}
 			}
 		);
+                \$(document).ready( function() {
+                    //clear has-error status when this field gets focus
+                    \$(document).find(\"div.region_detail_area input\").focus( function() {
+                    	   \$(document).find(\"div.region_detail_area\").removeClass(\"has-error\");
+                         });
+                 });
 		if(!at_least_one && return_value)
 		{
 			//when return_value is false, an alert has been issued, no need to give more alerts
@@ -634,7 +682,7 @@ $jscode
 # </script>
 #RECAPTCHA
 $page.= $q->noscript($q->h1("Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight."));
-$page.= $q->start_form(-name=>'main',-class=>"form-horizontal",-action=>"/cgi-bin/process.cgi",-method=>"post",-onSubmit=>"return check_before_submission();");
+$page.= $q->start_form(-name=>'main',-class=>"form-horizontal",-action=>"/cgi-bin/process2.cgi",-method=>"post",-onSubmit=>"return check_before_submission();");
 $page.= $q->h2("Input");
 $page.= 
 $q->div({-class=>"form-group"},
@@ -647,14 +695,22 @@ $q->div({-class=>"form-group"},
     ));
 $page.= 
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Email (mandatory for multi-region)"),
+    $q->label({-class=>"col-sm-3 control-label"},"Email (mandatory for multi-region)",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content='Used to receive result link'>".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>",
+    ),
     $q->div({-class=>"col-sm-7"},
 	$q->input({-name=>"email",-id=>'email_id',-type=>'email',-placeholder=>"Enter email to receive result link",
 		-class=>"form-control"}),
     ));
 $page.= 
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Input file (header required; .gz okay)"),
+    $q->label({-class=>"col-sm-3 control-label"},"Input (header required; .gz ok)",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"1st line is header; gzipped format is accepted; for details please read help.\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>",
+    ),
     $q->div({-class=>"col-sm-7"},
 	$q->div({-id=>"query_file_div_id"},
 	    $q->input({-name=>"query",id=>'query_file_id',-type=>'file',-class=>"form-control"}),
@@ -683,7 +739,11 @@ $q->div({-class=>"form-group"},
     ));
 $page.=
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"P value column (case-sensitive)"),
+    $q->label({-class=>"col-sm-3 control-label"},"P value column (case-sensitive)",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"P value can be written either as decimal numbers or in scientific notation\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>",
+    ),
     $q->div({-class=>"col-sm-7"},
 	    $q->textfield(-class=>"form-control",-name=>'pvalcol',-id=>'pvalcol_id',-default=>'',-placeholder=>"Enter marker column name here")
     ));
@@ -702,14 +762,22 @@ $q->div({-class=>"form-group"},
     ));
 $page.=
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Genome build/LD source/Population"),
+    $q->label({-class=>"col-sm-3 control-label"},"LD source/Population",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"This option determines the population data used towards calculation of Linkage Disequilibrium (LD). The genome version must match the genome build you specified earlier.\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>",
+    ),
     $q->div({-class=>"col-sm-7"},
 	    $q->popup_menu(-class=>'form-control',-name=>'source_ref_pop',-id=>'source_ref_pop_id',
 		-values=> \@source_ref_pop,-labels=>\%source_ref_pop_label,-default=>[$default_source_ref_pop]),
     ));
 $page.=
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Mark variants in database:"),
+    $q->label({-class=>"col-sm-3 control-label"},"Mark variants in database:",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"A XY-plot will be drawn indicating the strength of association for a SNP if it appears in the database you selected.\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>",
+    ),
     $q->div({-class=>"col-sm-7"},
 	    $q->popup_menu(-class=>'form-control',-name=>'varAnno',-id=>'varAnno_id',
 		-values=> \@varAnno,-labels=>\%varAnno_label,-default=>['NULL']),
@@ -749,22 +817,30 @@ $page.="\n<hr>";
 $page.= $q->h2("<span title='Plot HiC interaction heatmap'>HiC interaction plot</span>");
 $page.= 
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Plot HiC interaction heatmap?"),
+    $q->label({-class=>"col-sm-3 control-label"},"Plot HiC interaction heatmap?",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"For details about data source, please go to <a href='pages/faq.html#q3'>FAQ</a>\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>",
+    ),
     $q->div({-class=>'col-sm-7'},
 	$q->div({-class=>'checkbox'},
-	    $q->checkbox(-name=>'heatmap_toggle',-id=>'heatmap_toggle_id',-checked=>1),
+	    $q->checkbox(-name=>'heatmap_toggle',-label=>"check for yes",-id=>'heatmap_toggle_id',-checked=>1),
 	),
     ));
 $page.= 
 $q->div({-class=>"form-group"},
-$q->label({-class=>"col-sm-3 control-label"},"Interaction type (resolution)"),
+$q->label({-class=>"col-sm-3 control-label"},"Interaction type (resolution)",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"You can plot with either interchromosomal or intrachromosomal data. The number in parentheses indicate the resolution of data.\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>",
+),
 $q->div({-class=>'col-sm-7'},
 $q->div({-class=>'radio'}, 
 "<label>
-<input type=\"radio\" name=\"interaction_type\" id=\"interaction_type_inter_id\" value=\"interchromosomal\" onclick=\"\$('#interaction_chr_tr_id).show();\" >INTERchromosomal(1Mb)
+<input type=\"radio\" name=\"interaction_type\" id=\"interaction_type_inter_id\" value=\"interchromosomal\" onclick=\"\$('#interaction_chr_tr_id').show();\" >INTERchromosomal(1Mb)
 </label>
 <label>
-<input type=\"radio\" name=\"interaction_type\" id=\"interaction_type_intra_id\" value=\"intrachromosomal\" onclick=\"\$('#interaction_chr_tr_id).hide();\" >INTRAchromosomal(100Kb)
+<input type=\"radio\" name=\"interaction_type\" id=\"interaction_type_intra_id\" value=\"intrachromosomal\" onclick=\"\$('#interaction_chr_tr_id').hide();\" >INTRAchromosomal(100Kb)
 </label>"),
     ));
 $page.=
@@ -773,11 +849,17 @@ $q->div({-class=>"form-group"},
     $q->div({-class=>'col-sm-7'},
 	$q->div({-class=>'radio'},
 		'<label>
-		<input type="radio" name="interaction_cell_type" id="interaction_cell_type_k562_id" value="k562" >K562
-		</label>
+		<input type="radio" name="interaction_cell_type" id="interaction_cell_type_k562_id" value="k562" >K562</label>'.
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"$k562_desc\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>".
+		'
 		<label>
-		<input type="radio" name="interaction_cell_type" id="interaction_cell_type_gm06690_id" value="gm06690" checked="checked">GM06690
-		</label>'),
+		<input type="radio" name="interaction_cell_type" id="interaction_cell_type_gm06690_id" value="gm06690" checked="checked">GM06690</label>'.
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"$gm06690_desc\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>"
+		),
     ));
 $page.=
 $q->div({-id=>'interaction_chr_tr_id',-style=>'display:none'},
@@ -802,7 +884,7 @@ $q->div({-class=>"form-group"},
     $q->label({-class=>"col-sm-3 control-label"},"Generic (annotation) plot?"),
     $q->div({-class=>'col-sm-7'},
 	$q->div({-class=>"checkbox"},
-	    $q->checkbox(-name=>'generic_toggle',-id=>'generic_toggle_id',-checked=>1)
+	    $q->checkbox(-name=>'generic_toggle',-label=>'check for yes',-id=>'generic_toggle_id',-checked=>1)
 	), #return 'on' if checked
     ));
 $page.=
@@ -810,7 +892,7 @@ $q->div({-class=>"form-group"},
     $q->label({-class=>"col-sm-3 control-label"},"Text annotation?"),
     $q->div({-class=>'col-sm-7'},
 	$q->div({-class=>"checkbox"},
-	    $q->checkbox(-name=>'anno_toggle',-id=>'anno_toggle_id',-checked=>0)
+	    $q->checkbox(-name=>'anno_toggle',-label=>'check for yes',-id=>'anno_toggle_id',-checked=>0)
 	), #return 'on' if checked
     ));
 $page.=
@@ -818,7 +900,7 @@ $q->div({-class=>"form-group"},
     $q->label({-class=>"col-sm-3 control-label"},"Input file in ANNOVAR format?"),
     $q->div({-class=>'col-sm-7'},
 	$q->div({-class=>"checkbox"},
-	    $q->checkbox(-name=>'avinput',-id=>'avinput_id',-checked=>0)
+	    $q->checkbox(-name=>'avinput',-id=>'avinput_id',-label=>'check for yes',-checked=>0)
 	), #return 'on' if checked
     ));
 $page.=
@@ -854,7 +936,7 @@ $q->div({-class=>"row"},
     $q->label({-class=>"col-sm-offset-1 col-sm-2 "},"Cell line"),
     $q->label({-class=>"col-sm-2 "},"Experiment type"),
     $q->label({-class=>"col-sm-5 "},
-	"Custom or predefined data Tracks (max: $generic_table_max; <a class='button' href=\"/example/example.bed\">BED Example</a>)"),
+	"<p>Data Tracks (BED format[<a class='button' href=\"/example/example.bed\">example</a>]; gzipped ok; max: $generic_table_max)"),
 );
 $page.=
 $q->div({-class=>"form-group"},
@@ -990,16 +1072,16 @@ sub gen_multi_manual_select_code
     my $i=0;
     my $num_button_group=3;
     my $j=$num_button_group; #number of buttons per group, buttons within same group have identical name
-    $s.=("<tr>".("<td>$unit</td>"x$cell_per_line)."</tr>")x$lines if $lines>0;
-    $s.="<tr>".("<td>$unit</td>"x$cells)."</tr>" if $cells>0;
+    $s.=("<div>".("<div>$unit</div>"x$cell_per_line)."</div>")x$lines if $lines>0;
+    $s.="<div>".("<div>$unit</div>"x$cells)."</div>" if $cells>0;
 
     #make some elements used in post-processing distinguishable by name
     $s=~s/\bregion_method\b/"region_method".($j==1? ($j=$num_button_group,$i++):($j--,$i))/eg;
     for my $item("refsnp","snpflank","refgene","geneflank","refsnp_for_gene","chr","start","end","refsnp_for_chr")
     {
-	$j=$num_button_group;
-	$i=0;
-	$s=~s/name='$item\b/"name='$item".($i++)/eg;
+        $i=0;
+	#substitutions will occur many times
+	$s=~s/name=\"$item\"/"name=\"$item".($i++)."\""/eg;
     }
     return $s;
 }
