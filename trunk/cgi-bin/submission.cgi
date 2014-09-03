@@ -682,7 +682,7 @@ $jscode
 # </script>
 #RECAPTCHA
 $page.= $q->noscript($q->h1("Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight."));
-$page.= $q->start_form(-name=>'main',-class=>"form-horizontal",-action=>"/cgi-bin/process2.cgi",-method=>"post",-onSubmit=>"return check_before_submission();");
+$page.= $q->start_form(-name=>'main',-class=>"form-horizontal",-action=>"/cgi-bin/process.cgi",-method=>"post",-onSubmit=>"return check_before_submission();");
 $page.= $q->h2("Input");
 $page.= 
 $q->div({-class=>"form-group"},
