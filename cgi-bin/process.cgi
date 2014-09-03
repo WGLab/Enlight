@@ -1,4 +1,4 @@
-#!/home/yunfeiguo/localperl/bin/perl
+#!/usr/bin/env perl
 
 use strict;
 use warnings;
@@ -13,7 +13,7 @@ use Control;
 
 BEGIN
 {
-    $ENV{PERL5LIB}=($ENV{PERL5LIB} ? $ENV{PERL5LIB}:"")."/home/yunfeiguo/localperl/lib/5.18.1:/home/yunfeiguo/localperl/lib/site_perl/5.18.1";
+        $ENV{PERL5LIB}=($ENV{PERL5LIB} ? $ENV{PERL5LIB}:"")."/path/to/perllib";
 }
 
 chdir File::Spec->catdir($RealBin,"..") or &Utils::error ("Cannot enter installation directory\n"); #go to installation dir for safety
