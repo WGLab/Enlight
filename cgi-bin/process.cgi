@@ -163,6 +163,7 @@ if (%custom_table)
 	my @db_name=(@generic_table,"refGene","ALL.sites.2012_04");
 	push @db_name,$varAnno if $varAnno; #score or ponly annotation of eqtl and gwas
 	push @db_name,"$varAnno.all" if $varAnno; #full annotation of eqtl and gwas
+	push @db_name,"$varAnno.all" if $varAnno;
 	my @anno_db_file=map { "${ref}_$_.txt" } @db_name;
 	push @anno_db_file,"${ref}_ALL.sites.2012_04.txt.idx","${ref}_refGeneMrna.fa";
 	my @target=map { File::Spec->catfile($anno_dir,$_) } @anno_db_file;
@@ -619,7 +620,10 @@ sub individual_region_proc
 
     if ($method eq 'snp')
     {
-	my ($flank,$snp)=($q->param('snpflank'.$idx) ,$q->param('refsnp'.$idx));
+	#do not use my ($var1,$var2)=($q->param('var1'),$q->param('var2'));
+	#because param may return list unexpectedly
+	my $flank =$q->param('snpflank'.$idx);
+	my $snp=$q->param('refsnp'.$idx);
 	$detail = { 
 	    flank => $flank ,
 	    refsnp => $snp,
@@ -627,10 +631,9 @@ sub individual_region_proc
 	return 0 unless $flank && $snp; #none of required fields can be empty
     } elsif ($method eq 'gene')
     {
-	my ($flank,$gene,$snp) = (
-	    $q->param('geneflank'.$idx) , 
-	    $q->param('refgene'.$idx) , 
-	    $q->param('refsnp_for_gene'.$idx));
+	my $flank =$q->param('geneflank'.$idx);
+	my $snp=$q->param('refsnp_for_gene'.$idx);
+	my $gene=$q->param('refgene'.$idx);
 
 	$detail = { 
 	    flank => $flank,
@@ -643,11 +646,10 @@ sub individual_region_proc
 
     } elsif ($method eq 'chr')
     {
-	my ($start,$end,$chr,$snp) = (
-	    $q->param('start'.$idx) ,
-	    $q->param('end'.$idx) ,
-	    $q->param('chr'.$idx) ,
-	    $q->param('refsnp_for_chr'.$idx));
+	my $start = $q->param('start'.$idx);
+	my $end = $q->param('end'.$idx);
+	my $chr = $q->param('chr'.$idx);
+	my $snp = $q->param('refsnp_for_chr'.$idx);
 	$detail = { 
 	    start => $start,
 	    end => $end ,
@@ -718,7 +720,8 @@ sub process_region_spec
 	    {
 		&Utils::error($q->cgi_error,$log,$admin_email);
 	    }
-	    my $hitspec=$q->tmpFileName($q->param('region_file'));
+	    my $hitspec = $q->tmpFileName($q->param('region_file'));
+	    $hitspec = &proc_hitspec($hitspec);#remove 7th column and beyond
 	    $region_conf_ref->{count} = 1;
 	    push @{$region_conf_ref->{method}},"hitspec";
 	    push @{$region_conf_ref->{detail}},{file=>$hitspec};
@@ -799,4 +802,22 @@ sub getInteractionConf
     $interactionfile .= $ref if $ref eq 'hg19';
     $result .= " --interactionfile $interactionfile";
     $result .= " heatmapTitlePlus='cell_line:$conf->{cell}'";
+}
+sub proc_hitspec
+{#remove 7th column and beyond
+    #file is whitespace delimited
+    my $in=shift;
+    my $tmp="/tmp/$$".rand($$).".no7";
+    open OUT,'>',$tmp or &Utils::error("Cannot write to $tmp",$log,$admin_email);
+    open IN,'<',$in or &Utils::error("Cannot read $in",$log,$admin_email);
+    while(<IN>)
+    {
+	s/[\r\n]+$//;
+	my @f=split;
+	print OUT join(" ",@f[0..5]),"\n";
+    }
+    close IN;
+    close OUT;
+
+    return $tmp;
 }

@@ -1000,7 +1000,7 @@ print(end);
 	warning("Generic file must have equal columns each row!");
     }
 
-    if(length(start)*length(end)*length(score) != 0)
+    if(length(start) != 0 && length(end) != 0 && length(score) != 0)
     {#grid.rect doesn't work when input length is zero
     plot_grob=grid.rect(x=start,y=0,width=end-start,height=score,gp=gpar(fill=color,col=color),default.units='native',just=c('left','bottom'));
     }
