@@ -848,18 +848,18 @@ $q->div({-class=>"form-group"},
     $q->label({-class=>"col-sm-3 control-label"},"Cell line"),
     $q->div({-class=>'col-sm-7'},
 	$q->div({-class=>'radio'},
-		'<label>
-		<input type="radio" name="interaction_cell_type" id="interaction_cell_type_k562_id" value="k562" >K562</label>'.
-	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"$k562_desc\">".
-	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
-	"</a>".
-		'
-		<label>
-		<input type="radio" name="interaction_cell_type" id="interaction_cell_type_gm06690_id" value="gm06690" checked="checked">GM06690</label>'.
-	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"$gm06690_desc\">".
-	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
-	"</a>"
-		),
+	    '<label>
+	    <input type="radio" name="interaction_cell_type" id="interaction_cell_type_k562_id" value="k562" >K562</label>'.
+	    "<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"$k562_desc\">".
+	    $q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	    "</a>".
+	    '
+	    <label>
+	    <input type="radio" name="interaction_cell_type" id="interaction_cell_type_gm06690_id" value="gm06690" checked="checked">GM06690</label>'.
+	    "<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"$gm06690_desc\">".
+	    $q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	    "</a>"
+	),
     ));
 $page.=
 $q->div({-id=>'interaction_chr_tr_id',-style=>'display:none'},
@@ -878,10 +878,14 @@ $page.= $q->div( {-class=>"form-group"},
 );
 $page.="\n<hr>";
 ###########################GENERIC PLOT#####################################################
-$page.= $q->h2("<span title='show signal strengths in regions'>Generic plot (using UCSC BED tables)</span>");
+$page.= $q->h2("Generic plot (using UCSC BED tables)");
 $page.= 
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Generic (annotation) plot?"),
+    $q->label({-class=>"col-sm-3 control-label"},"Generic (annotation) plot?",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"Histogram underneath the conventional GWAS regional displaying normalized scores. Data comes from UCSC genome browser. See <a href='pages/help.html#exampleoutput_plot'>here</a> for an example. See <a href='pages/faq.html#q2'>here</a> for data source.\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>"
+    ),
     $q->div({-class=>'col-sm-7'},
 	$q->div({-class=>"checkbox"},
 	    $q->checkbox(-name=>'generic_toggle',-label=>'check for yes',-id=>'generic_toggle_id',-checked=>1)
@@ -889,7 +893,11 @@ $q->div({-class=>"form-group"},
     ));
 $page.=
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Text annotation?"),
+    $q->label({-class=>"col-sm-3 control-label"},"Text annotation?",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"Region-based annotation from ANNOVAR is added for each variant. The annotation includes all data tracks used for generic plot plus 1000 genome MAF (minor allele frequency), overlapping genes, possible amino acid changes etc. See <a href='pages/help.html#exampleout_text'>example</a>.\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>"
+    ),
     $q->div({-class=>'col-sm-7'},
 	$q->div({-class=>"checkbox"},
 	    $q->checkbox(-name=>'anno_toggle',-label=>'check for yes',-id=>'anno_toggle_id',-checked=>0)
@@ -897,7 +905,11 @@ $q->div({-class=>"form-group"},
     ));
 $page.=
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Input file in ANNOVAR format?"),
+    $q->label({-class=>"col-sm-3 control-label"},"Input file in ANNOVAR format?",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"If your input file conforms to ANNOVAR format, i.e., has chromosome, start, end, reference allele, alternative allele as the first 5 columns, check the box.\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>"
+    ),
     $q->div({-class=>'col-sm-7'},
 	$q->div({-class=>"checkbox"},
 	    $q->checkbox(-name=>'avinput',-id=>'avinput_id',-label=>'check for yes',-checked=>0)
@@ -905,7 +917,11 @@ $q->div({-class=>"form-group"},
     ));
 $page.=
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Advanced options"),
+    $q->label({-class=>"col-sm-3 control-label"},"More options (output LD)",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"Show advanced options, such as whether to output linkage disequilibrium between each variant and the reference SNP. You can use this feature as a convenient LD calculator. LD is calculated by PLINK.\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>"
+    ),
     $q->div({-class=>'col-sm-7'},
 	$q->div({-class=>"radio"},
 	    '<label>
@@ -934,7 +950,7 @@ $q->div({-class=>"form-group"},
 $page.= 
 $q->div({-class=>"row"},
     $q->label({-class=>"col-sm-offset-1 col-sm-2 "},"Cell line"),
-    $q->label({-class=>"col-sm-2 "},"Experiment type"),
+    $q->label({-class=>"col-sm-3 "},"Experiment type"),
     $q->label({-class=>"col-sm-5 "},
 	"<p>Data Tracks (BED format[<a class='button' href=\"/example/example.bed\">example</a>]; gzipped ok; max: $generic_table_max)"),
 );
@@ -946,22 +962,27 @@ $q->div({-class=>"form-group"},
 		[
 		map { 
 
-		    $q->div("<span title='$cell_desc{$_}'>". 
-			$q->div({-class=>"checkbox"},
-			    $q->checkbox( {-id=>$_,-class=>'cell',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
-			)
-		    ); 
+		    $q->div({-class=>"checkbox"},
+			"<div class='col-sm-7'><label><input type='checkbox' id='$_' class= 'cell' value='$_' onchange='changeTracks()'/>$_</label></div>",
+			"<div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content=\"$cell_desc{$_}\">".
+			$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+			"</a></div>");
 		} sort keys %cell
 		]),
 	),
-	$q->div({-class=>"col-sm-2"},
+	$q->div({-class=>"col-sm-3"},
 	    $q->div({-class=>"row"},
 		[
-		map { 
-		    $q->div("<span title='$exp_desc{$_}'>".
-			$q->div({-class=>'checkbox'},
-			    $q->checkbox( {-id=>$_,-class=>'experiment',-label=>$_,-checked=>0,-value=>$_,-onchange=>'changeTracks()',} )."</span>"
-			)),
+		map {
+		    $q->div({-class=>"checkbox"},
+			"<div class='col-sm-8'><label><input type='checkbox' id='$_' class= 'experiment' value='$_' onchange='changeTracks()'/>$_</label></div>",
+			"<div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content=\"$exp_desc{$_}\">".
+			$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+			"</a></div>");
 		} sort keys %experiment
 		]),
 	),
