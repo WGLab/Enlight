@@ -1,0 +1,5 @@
+Feature    chr     start    end      flank        plot     arguments
+rs2071278 NA NA NA 10kb yes 7th column and beyond are ignored
+rs2071278 NA NA NA 20kb yes 7th column and beyond are ignored
+GPSM3 NA NA NA 10kb yes 7th column and beyond are ignored
+NA 6 32100000 32190000 NA yes 7th column and beyond are ignored

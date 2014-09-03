@@ -70,7 +70,7 @@ my $q=new CGI::Pretty;
 my $file_region_spec=
 $q->div({-class=>"form-group"},
     $q->label({-class=>"col-sm-3 control-label"},
-	"<a href='http://genome.sph.umich.edu/wiki/LocusZoom#Generating_a_Hit_Spec_File'>HitSpec</a> format supported",
+	"<a href='http://genome.sph.umich.edu/wiki/LocusZoom#Generating_a_Hit_Spec_File'>HitSpec</a> format supported (<a href='/example/example_hitspec.txt'>example</a>)",
 	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"HitSpec is a whitespace-delimited file, meaning multiple continuous spaces/tabs will be considered as just one delimiter. Only first 6 columns are useful. The rest will be ignored. Chromosome names must be numerical (no chr prefix) except for X chromosome.\">".
 	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
 	"</a>",
