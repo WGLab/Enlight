@@ -6,7 +6,10 @@
 {
     color:#C0C0C0;
 }
-.navbar-nav > li > a.navbar_custom:hover,navbar-nav > li > a.navbar_custom:focus{
+.navbar-nav > li > a.navbar_custom:hover,
+.navbar-nav > li > a.navbar_custom:focus,
+.navbar-nav > li > a.navbar_custom:active
+{
     color:#FFFFFF;
 }
 a.navbar-brand.navbar_custom
