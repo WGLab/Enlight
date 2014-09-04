@@ -8,7 +8,7 @@
 }
 .navbar-nav > li > a.navbar_custom:hover,
 .navbar-nav > li > a.navbar_custom:focus,
-.navbar-nav > li > a.navbar_custom:active
+.navbar-nav > li > a.navbar_custom.active
 {
     color:#FFFFFF;
 }
