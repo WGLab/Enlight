@@ -2,3 +2,18 @@
 {
     width:400px;
 }
+.navbar-nav > li > a.navbar_custom
+{
+    color:#C0C0C0;
+}
+.navbar-nav > li > a.navbar_custom:hover,navbar-nav > li > a.navbar_custom:focus{
+    color:#FFFFFF;
+}
+a.navbar-brand.navbar_custom
+{
+    color:#C0C0C0;
+}
+.navbar-brand.navbar_custom:hover,.navbar-brand.navbar_custom:focus
+{
+    color:#FFFFFF;
+}
