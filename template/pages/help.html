@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	<link rel="icon" href="images/favicon.ico">
+	<link rel="icon" href="../images/favicon.ico">
 
 	<title>Enlight</title>
 
@@ -84,10 +84,14 @@ Enlight takes at least two columns of input, the SNP name and P value. After sub
 	<h2 id="exampleinput">Example Input</h2>
 	<img width=600 height=340 src="../images/enlight_example_input.png" class='center'>
 	<h2 id="exampleoutput_plot">Example Output (plot)</h2>
-	<p><b>An example plot showing 1MB and 100KB region around rs10318, which is a known variant showing genome-wide significant association with colorectal cancer. After zooming in, DNase Hypersensitivity Sites (DHS) can be visually identified near some variants that are in high LD with the index SNP. These SNPs might be good candidates for causal variants. Plot summary and legend (not shown here) can be found on the second page of your result PDF file. The rest of the pages are summary plots showing number of variants in each LD interval, chromHMM category, or the variant count within different LD interval for each annotation dat track.</b></p>
+	<p>
+	A typical plot is as follows, showing the association signals for rs2071278 and nearby loci from Well-come Trust Case Control Consortium (WTCCC) Rheumatoid Arthritis study. The color stripe shows the chromHMM segmentation result which combines multiple epigenetic chromatin marks (legend shown below). The three SNPs rs204991, rs204990, rs204989 (all yellow), which are in high LD with the reference SNP, show up in a proposed enhancer region in blood cell lines, GM12878 and K562, but not in non-blood cell lines, HepG2 or HSMM. The UChicago_eQTL panel shows association signal based on data from eQTL browser at University of Chicago. The wgEncodeRegTfbsClusteredV3 panel summarizes a large collection of transcription factor ChIP-seq results, and tfbsConsSites panel describes TFBS conservation across human/mouse/rat.</p>
+	<p>rs2071278 is genome-wide significantly associated with serum complement C3 and C4 levels (Yang, et al., 2012), important measurements in assessment of rheumatoid arthritis (Makinde, et al., 1989). Therefore, rs2071278 is possibly a proxy SNP tagging nearby functional variants. For instance, three SNPs rs204991, rs204990, rs204989 (yellow), all in high LD with rs2071278 (1000 genomes, European population, 2012), are shown to be significantly associated with expression of human leukocyte antigen (HLA) genes by microarray (Zeller, et al., 2010). This finding partly explains their strong associations with rheumatoid arthritis in WTCCC study(Wellcome Trust Case Control, 2007). When strong associations appear near known GWAS hit and are surrounded by interesting epigenetic and other functional features, they perhaps suggest functional importance.
+	</p>
 	<br />
-	<img width=900 height=1400 src="../images/enlight_example_output.png" class='center'>
-	<img width=900 height=700 src="../images/enlight_example_output_summary.png" class='center'>
+	<img width=900 height=1400 id="enlight_example_output" src="../images/enlight_example_output.png" class='center'>
+	<img width=900 height=1400 id="enlight_example_output_heatmap" src="../images/enlight_example_output_heatmap.png" class='center'>
+	<img width=900 height=700 id="enlight_example_output_summary" src="../images/enlight_example_output_summary.png" class='center'>
 	<h2 id="exampleoutput_text">Example Text Annotation</h2>
 	<p><b>If you opt to output ANNOVAR annotation, you will get a '*.hg19_multianno.html' on result page. This is the text annotation for each variant in the input file. ANNOVAR will output gene annotation, minor allele frequency (MAF) from 1000 Genomes project as well as selected UCSC datatracks and other annotation info (eg custome BED file, eQTL etc). If your input file does not have the 5 columns required by ANNOVAR (chr,start,end,alt,ref), Enlight will first convert rsIDs to chromosomal positions according to dbSNP137, and then run annotation.  Sometimes, you will see *.invalid_input files on result page, they contain lines that can't by recognized by ANNOVAR, e.g. lines that don't have chr/start/end.</b></p>
 	<br />
