@@ -91,12 +91,12 @@ Enlight takes at least two columns of input, the SNP name and P value. After sub
 	The explanations for the 2nd and 3rd parts are shown alongside the figures.
 	</p>
 	<br />
-	<h3>Regional plot plus annotation plots</h3>
-	<img width=1150 height=1200 id="enlight_example_output" src="../images/enlight_example_output.png" class='center'>
-	<h3>HiC interaction heatmap</h3>
-	<img width=1150 height=1200 id="enlight_example_output_heatmap" src="../images/enlight_example_output_heatmap.png" class='center'>
-	<h3>Summary plots</h3>
-	<img width=1150 height=1200 id="enlight_example_output_summary" src="../images/enlight_example_output_summary.png" class='center'>
+	<h3 id="enlight_example_output">Regional plot plus annotation plots</h3>
+	<img width=1150 height=1200 src="../images/enlight_example_output.png" class='center'>
+	<h3 id="enlight_example_output_heatmap">HiC interaction heatmap</h3>
+	<img width=1150 height=1200 src="../images/enlight_example_output_heatmap.png" class='center'>
+	<h3 id="enlight_example_output_summary">Summary plots</h3>
+	<img width=1150 height=1200 src="../images/enlight_example_output_summary.png" class='center'>
 	<h2 id="exampleoutput_text">Example Text Annotation</h2>
 	<p><b>If you opt to output ANNOVAR annotation, you will get a '*.hg19_multianno.html' on result page. This is the text annotation for each variant in the input file. ANNOVAR will output gene annotation, minor allele frequency (MAF) from 1000 Genomes project as well as selected UCSC datatracks and other annotation info (eg custome BED file, eQTL etc). If your input file does not have the 5 columns required by ANNOVAR (chr,start,end,alt,ref), Enlight will first convert rsIDs to chromosomal positions according to dbSNP137, and then run annotation.  Sometimes, you will see *.invalid_input files on result page, they contain lines that can't by recognized by ANNOVAR, e.g. lines that don't have chr/start/end.</b></p>
 	<br />
