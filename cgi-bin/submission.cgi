@@ -817,7 +817,7 @@ $page.="\n<hr>";
 $page.= $q->h2("<span title='Plot HiC interaction heatmap'>HiC interaction plot</span>");
 $page.= 
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Plot HiC interaction heatmap?",
+    $q->label({-class=>"col-sm-3 control-label"},"Plot HiC interaction heatmap (<a href='/pages/help.html#enlight_example_output_heatmap'>example</a>)?",
 	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"For details about data source, please go to <a href='pages/faq.html#q3'>FAQ</a>\">".
 	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
 	"</a>",
@@ -881,7 +881,7 @@ $page.="\n<hr>";
 $page.= $q->h2("Generic plot (using UCSC BED tables)");
 $page.= 
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Generic (annotation) plot?",
+    $q->label({-class=>"col-sm-3 control-label"},"Generic (annotation) plot (<a href='/pages/help.html#enlight_example_output'>example</a>)?",
 	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"Histogram underneath the conventional GWAS regional displaying normalized scores. Data comes from UCSC genome browser. See <a href='pages/help.html#exampleoutput_plot'>here</a> for an example. See <a href='pages/faq.html#q2'>here</a> for data source.\">".
 	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
 	"</a>"
