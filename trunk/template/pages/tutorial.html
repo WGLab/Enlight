@@ -81,7 +81,7 @@
 	<h3>1. Load settings for example input</h3>
 	<p>Simply click 'Load settings for example input' button.</p>
 	<h3>2. Load example input</h3>
-	<p>Click 'Load example input' button. If you are curious about the content of input file, click 'example file' in the left column.</p>
+	<p>Click 'Load example input' button.</p>
 	<h3>3. Submit</h3>
 	<p>Click 'Submit' button at the bottom and come back in a few minutes.</p>
 	<br />
@@ -95,6 +95,9 @@
 	<p>An example can be found <a href="../example/example.bed">here</a>. The format of BED is described on <b><a href="http://genome.ucsc.edu/FAQ/FAQformat.html#format1">UCSC</a></b>. The first 5 columns must be chromosome, start, end, name and score, respectively. The content of 'name' column does not matter. The 'score' must be numeric as Enlight relies on it to draw signals. If you download your BED file from UCSC, please remove the first column (BIN column).</p>
 	<h3>Upload and run</h3>
 	<p>Upload your BED file under 'Generic plot' section and submit it.</p>
+	<h2>Plot multiple regions with a HitSpec file</h2>
+	<p>An example can be found <a href="../example/example_hitspec.txt">here</a>. The format of HitSpec is described on <b><a href="http://genome.sph.umich.edu/wiki/LocusZoom#Generating_a_Hit_Spec_File">LocusZoom website</a></b>. The first 6 columns are feature, chromosome, start, end, flanking region and whether to plot, respectively. The 7th column and beyond are omitted by Enlight because customization of plots are not yet available. Chromosome names must be numerical. Names like 1,6 are okay, but chr1 or chr6 are not accepted. After you created the hitspec file, just upload it in the "specify a region" section and plot your input file.
+	</p>
 	<hr>
 	<footer>
 	<p>&copy; Wang Genomics Lab 2013-2014</p>
