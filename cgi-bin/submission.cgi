@@ -17,7 +17,7 @@ my $intro="
 <div class=\"jumbotron\">
 <div class=\"container\">
 <h1>Enlight<br><small>integrating GWAS results with biological annotations</small></h1>
-<p>Enlight draws regional plots for GWAS results, and overlays epigenetic modification, DNase sensitivity site, transcription factor binding annotation onto it. The combined plot will help identify causal variants. Users can also upload custom annotation, obtain text annotation for each SNP.
+<p>Enlight draws regional plots for GWAS results, and overlays epigenetic modification, DNase sensitivity site, transcription factor binding annotation, eQTL information, HiC-seq interaction onto it. The combined plot will help identify causal variants. Users can also upload custom annotation, obtain text annotation for each SNP.
 </p>
 <p><a class=\"btn btn-primary btn-lg\" role=\"button\" href=\"pages/help.html\">Learn more &raquo;</a></p>
 </div>
@@ -840,7 +840,7 @@ $q->div({-class=>'radio'},
 <input type=\"radio\" name=\"interaction_type\" id=\"interaction_type_inter_id\" value=\"interchromosomal\" onclick=\"\$('#interaction_chr_tr_id').show();\" >INTERchromosomal(1Mb)
 </label>
 <label>
-<input type=\"radio\" name=\"interaction_type\" id=\"interaction_type_intra_id\" value=\"intrachromosomal\" onclick=\"\$('#interaction_chr_tr_id').hide();\" >INTRAchromosomal(100Kb)
+<input type=\"radio\" name=\"interaction_type\" id=\"interaction_type_intra_id\" checked=\"checked\" value=\"intrachromosomal\" onclick=\"\$('#interaction_chr_tr_id').hide();\" >INTRAchromosomal(100Kb)
 </label>"),
     ));
 $page.=
@@ -894,7 +894,7 @@ $q->div({-class=>"form-group"},
 $page.=
 $q->div({-class=>"form-group"},
     $q->label({-class=>"col-sm-3 control-label"},"Text annotation?",
-	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"Region-based annotation from ANNOVAR is added for each variant. The annotation includes all data tracks used for generic plot plus 1000 genome MAF (minor allele frequency), overlapping genes, possible amino acid changes etc. See <a href='pages/help.html#exampleout_text'>example</a>.\">".
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"Region-based annotation from ANNOVAR is added for each variant. The annotation includes all data tracks used for generic plot plus 1000 genome MAF (minor allele frequency), overlapping genes, possible amino acid changes etc. See <a href='pages/help.html#exampleoutput_text'>example</a>.\">".
 	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
 	"</a>"
     ),
