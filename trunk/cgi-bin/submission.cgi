@@ -1001,6 +1001,11 @@ $page.= $q->div( {-class=>"form-group"},
 
 #print $c->get_html($public_key);
 $page.= $q->end_form();
+$page.= $q->h4("Reference:");
+$page.= " <ul>
+        <li> Guo Y, Conti D V, Wang K. <a href=\"http://bioinformatics.oxfordjournals.org/content/early/2014/09/26/bioinformatics.btu639.abstract?keytype=ref&ijkey=ICMm1z6EbQwLpIf\">Enlight: web-based integration of GWAS results with biological annotations</a>  <em><strong>Bioinformatics</strong></em>, doi: 10.1093/bioinformatics/btu639, 2014</li>
+	      </ul>
+	      ";
 $page.= $q->h4("Please send questions or comments to <a href=\"mailto:$admin_email\">$admin_email</a>") if $admin_email;
 
 &template2real($page);
