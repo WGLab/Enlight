@@ -131,7 +131,7 @@ sub sendEmail
     } else 
     {
 	$email_body = "Your submission is done: $url\n\n";
-	$email_tail .= "The citation for the above result is: $base_url\n\n";
+	$email_tail .= "The citation for the above result is: Guo Y, Conti D V, Wang K. Enlight: web-based integration of GWAS results with biological annotations Bioinformatics, doi: 10.1093/bioinformatics/btu639, 2014\n\n";
 	$email_tail .= "Questions or comments may be directed to $admin.\n";
 	$email_tail =~ s/(.{1,69})\s/$1\n/g;
     }
