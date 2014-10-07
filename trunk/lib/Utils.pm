@@ -7,6 +7,7 @@ use File::Spec;
 use File::Basename qw/basename/;
 #use Captcha::reCAPTCHA;
 use Email::Sender::Simple qw(sendmail);
+use Email::Sender::Transport::SMTP::TLS; 
 use Email::MIME;
 use Carp;
 
@@ -35,14 +36,14 @@ sub readServConf
 {
     my $conf=shift;
     my %param;
-    open IN,"<",$conf or die "Cannot open server configuration $conf\n";
+    open IN,"<",$conf or croak "Cannot open server configuration $conf\n";
     while (<IN>)
     {
 	next if /^#|^\s*$/;
 	chomp;
 	unless (/(.*?)=(.*)/)
 	{
-	    warn "Malformed configuration\n";
+	    carp "Malformed configuration\n";
 	    return undef;
 	}
 	my ($key,$value)=($1,$2);
@@ -50,7 +51,7 @@ sub readServConf
 	$value=~s/\s+//g;
 	if ($param{$key})
 	{
-	    warn "Duplicate paramter!\n";
+	    carp "Duplicate paramter!\n";
 	    return undef;
 	}
 	next unless $key;
@@ -151,7 +152,13 @@ sub sendEmail
     );
 
     # sendmail dies on failure, no need for return
-    sendmail($message);
+    my $transport = Email::Sender::Transport::SMTP::TLS ->new({
+	    host => 'smtp.gmail.com',
+	    port => 587,
+	    username => 'bioinformgroup',
+	    password => 'kailab221',
+	});
+    sendmail($message,{transport=>$transport});
 }
 
 sub readObj
