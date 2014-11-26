@@ -1,0 +1,2 @@
+echo 'select * from submission order by id' | mysql -uyunfeiguo -penlight221 yunfeiguo_enlight > /tmp/1.txt
+perl -ne 'if (/^(\d+)/ && $1>=711) {@a=split;print $a[3],"\n"}' /tmp/1.txt |sort|uniq|wc
