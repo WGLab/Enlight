@@ -1,13 +1,13 @@
 #download
 #wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/gwasCatalog.txt.gz
-#gunzip gwasCatalog.txt.gz 
+#gunzip gwasCatalog.txt.gz
 
 #extract
-perl -ne 's/[\r\n]+$//;@f=split /\t/,$_,-1;$f[4]=$f[4].";P:".$f[17].";".$f[10];print join("\t",@f[0..4]),"\n"' gwasCatalog.txt > hg19_GWAS_CATALOG_20140820.all.txt
-#addition and subtraction are there to add some 
+#perl -ne 's/[\r\n]+$//;@f=split /\t/,$_,-1;$f[4]=$f[4].";P:".$f[17].";".$f[10];print join("\t",@f[0..4]),"\n"' gwasCatalog.txt > hg19_GWAS_CATALOG_20140820.all.txt
+#remove non-numerical records (for P), multiply it by 1.0001 to add
 #decimal numbers such that R can recognize the 5th column as numeric
-perl -ne 's/[\r\n]+$//;@f=split /\t/,$_,-1;$f[4]=lc $f[17];$f[4]-=1;$f[4]+=1;print join("\t",@f[0..4]),"\n"' gwasCatalog.txt > hg19_GWAS_CATALOG_20140820.txt
+perl -ne 's/[\r\n]+$//;@f=split /\t/,$_,-1;$f[4]=lc $f[17];next unless $f[4]=~/\d/;if($f[4]<1e-100){$f[4]=1e-100};$f[4]=$f[4]*1.0001;print join("\t",@f[0..4]),"\n" if $f[4]!=0;' gwasCatalog.txt > hg19_GWAS_CATALOG_20140820.txt
 
 #liftover
-liftOver -bedPlus=4 -hasBin -tab hg19_GWAS_CATALOG_20140820.all.txt ~/Downloads/liftover/hg19ToHg18.over.chain hg18_GWAS_CATALOG_20140820.all.txt /tmp/11
+#liftOver -bedPlus=4 -hasBin -tab hg19_GWAS_CATALOG_20140820.all.txt ~/Downloads/liftover/hg19ToHg18.over.chain hg18_GWAS_CATALOG_20140820.all.txt /tmp/11
 liftOver -bedPlus=4 -hasBin -tab hg19_GWAS_CATALOG_20140820.txt ~/Downloads/liftover/hg19ToHg18.over.chain hg18_GWAS_CATALOG_20140820.txt /tmp/11
