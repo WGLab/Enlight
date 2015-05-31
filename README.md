@@ -4,4 +4,4 @@ Enlight draws regional plots for GWAS results, and overlays epigenetic modificat
 
 ## Reference
 
-Guo Y, Conti D V, Wang K. Enlight: web-based integration of GWAS results with biological annotations, *Bioinformatics*, 31: 275-276, 2015
+Guo Y, Conti D V, Wang K. [Enlight: web-based integration of GWAS results with biological annotations](http://bioinformatics.oxfordjournals.org/content/31/2/275.long), *Bioinformatics*, 31: 275-276, 2015
