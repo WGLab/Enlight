@@ -85,7 +85,7 @@ sub error
     print $q->start_html(-title=>'An error occured');
     print $q->h1 ("Sorry, an error occured...");
     print $q->p ("ERROR:$msg") if $msg;
-    print $q->p ("Please refer to help page or contanct $email.") if $email;
+    print $q->p ("Please refer to help page or contact $email.") if $email;
     print $q->end_html();
     $|--;
 
