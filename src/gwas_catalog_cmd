@@ -1,6 +1,6 @@
 #download
 #wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/gwasCatalog.txt.gz
-#gunzip gwasCatalog.txt.gz
+#gunzip gwasCatalog.txt.gz 
 
 #extract
 #perl -ne 's/[\r\n]+$//;@f=split /\t/,$_,-1;$f[4]=$f[4].";P:".$f[17].";".$f[10];print join("\t",@f[0..4]),"\n"' gwasCatalog.txt > hg19_GWAS_CATALOG_20140820.all.txt
