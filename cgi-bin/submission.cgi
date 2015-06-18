@@ -706,7 +706,7 @@ $q->div({-class=>"form-group"},
     ));
 $page.= 
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Input (header required; .gz ok)",
+    $q->label({-class=>"col-sm-3 control-label"},"Input (header required; .gz ok; max: 200MB)",
 	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"1st line is header; gzipped format is accepted; for details please read help.\">".
 	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
 	"</a>",
