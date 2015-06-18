@@ -477,7 +477,7 @@ sub regionOperation {
     open (FH, "$outfile.${buildver}_$dbtype1") or die "Error: cannot open file\n";
     while (<FH>) 
     {
-   m/^([^\t]*)\t([^\t]*)\t(\S+\s+\S+\s+\S+\s+\S+\s+\S+).*/ or die "Error: invalid record found in annovar outputfile: $_ at line $.\n";
+	m/^([^\t]*)\t([^\t]*)\t(\S+\s+\S+\s+\S+\s+\S+\s+\S+).*/ or die "Error: invalid record found in annovar outputfile: $_ at line $.\n";
 	my ($db,$anno,$varstring)=($1,$2,$3);
 	$varstring =~ s/\s+/\t/g;
 	#preprocess $anno
