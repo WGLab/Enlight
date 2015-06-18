@@ -1,0 +1,2724 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="images/favicon.ico">
+
+    <title>Enlight</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/jumbotron.css" rel="stylesheet">
+    <link href="css/custom.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+	
+	ga('create', 'UA-50646209-1', 'usc.edu');
+	ga('send', 'pageview');
+	
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+  </head>
+
+<body onload="changeTracks();toggle_single_multi_region();">
+
+    <div class="navbar navbar_custom navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+	  <a class="navbar-brand navbar_custom" href="index.html">Enlight</a>
+        </div>
+	<div class="navbar-collapse collapse">
+	    <ul class="nav navbar-nav">
+		<li ><a class="active navbar_custom" href="index.html">Home</a></li>
+		<li><a class="navbar_custom" href="pages/tutorial.html">Tutorial</a></li>
+		<li><a class="navbar_custom" href="pages/help.html">Help</a></li>
+		<li><a class="navbar_custom" href="pages/faq.html">FAQ</a></li>
+		<li><a class="navbar_custom" href="pages/example.html">Example</a></li>
+		<li class="dropdown">
+		<a href="#" class="navbar_custom dropdown-toggle" data-toggle="dropdown">Related projects <span class="caret"></span></a>
+		<ul class="dropdown-menu" role="menu">
+		    <li><a href="http://icages.usc.edu:5000">iCAGES</a></li>
+		    <li><a href="http://phenolyzer.usc.edu">Phenolyzer</a></li>
+		    <li><a href="http://wannovar.usc.edu">wANNOVAR</a></li>
+		</ul>
+		</li>
+	    </ul>
+	    <div class="navbar-header navbar-right col-md-3" >
+		<a class="title navbar-brand" href="http://genomics.usc.edu"><img src="images/wanglablogo.png" alt="" style="height:100%;"></a>
+	    </div>
+	</div><!--/.nav-collapse -->
+    </div>
+    </div>
+
+
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+<div class="container">
+<h1>Enlight<br><small>integrating GWAS results with biological annotations</small></h1>
+<p>Enlight draws regional plots for GWAS results, and overlays epigenetic modification, DNase sensitivity site, transcription factor binding annotation, eQTL information, HiC-seq interaction onto it. The combined plot will help identify causal variants. Users can also upload custom annotation, obtain text annotation for each SNP.
+</p>
+<p><a class="btn btn-primary btn-lg" role="button" href="pages/help.html">Learn more &raquo;</a></p>
+</div>
+</div>
+    <div id="container_for_main" class="container"><script type="text/javascript"> //<![CDATA[
+
+$(document).ready(function() {
+	$('a.mypopover').popover({html:true});
+});
+function changeTracks()
+{
+    var insertPos=document.getElementById('dataTrackHere');
+    var all=[ {name:'wgEncodeBroadHistoneK562H3k27me3StdPk',cell:'K562',experiment:'ChIP-seq_H3K27me3'},
+{name:'wgEncodeBroadHistoneA549H3k09me3Etoh02Pk',cell:'A549',experiment:'ChIP-seq_H3K9me3'},
+{name:'wgEncodeBroadHistoneA549H3k09acEtoh02Pk',cell:'A549',experiment:'ChIP-seq_H3K9ac'},
+{name:'wgEncodeBroadHistoneK562H3k9acStdPk',cell:'K562',experiment:'ChIP-seq_H3K9ac'},
+{name:'wgEncodeOpenChromDnaseA549Pk',cell:'A549',experiment:'DNase-seq'},
+{name:'wgEncodeBroadHistoneA549H3k79me2Etoh02Pk',cell:'A549',experiment:'ChIP-seq_H3K79me2'},
+{name:'wgEncodeUwDnaseHsmmPkRep1',cell:'HSMM',experiment:'DNase-seq'},
+{name:'wgEncodeUwTfbsMcf7CtcfStdPkRep1',cell:'MCF-7',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeBroadHistoneH1hescH3k4me3StdPk',cell:'H1-hESC',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeBroadHistoneNhekH3k4me3StdPk',cell:'NHEK',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeBroadHistoneHuvecH3k27acStdPk',cell:'HUVEC',experiment:'ChIP-seq_H3K27ac'},
+{name:'wgEncodeBroadHmmGm12878HMM',cell:'GM12878',experiment:'chromHMM'},
+{name:'wgEncodeOpenChromFaireH1hescPk',cell:'H1-hESC',experiment:'FAIRE-seq'},
+{name:'wgEncodeBroadHistoneK562H3k9me3StdPk',cell:'K562',experiment:'ChIP-seq_H3K9me3'},
+{name:'wgEncodeBroadHistoneGm12878H3k4me3StdPk',cell:'GM12878',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeSydhHistoneMcf7H3k09me3UcdPk',cell:'MCF-7',experiment:'ChIP-seq_H3K9me3'},
+{name:'wgEncodeBroadHistoneHsmmH3k27me3StdPk',cell:'HSMM',experiment:'ChIP-seq_H3K27me3'},
+{name:'wgEncodeBroadHistoneGm12878H3k36me3StdPk',cell:'GM12878',experiment:'ChIP-seq_H3K36me3'},
+{name:'wgEncodeBroadHistoneH1hescH3k36me3StdPk',cell:'H1-hESC',experiment:'ChIP-seq_H3K36me3'},
+{name:'wgEncodeUwDnaseNhlfPkRep1',cell:'NHLF',experiment:'DNase-seq'},
+{name:'wgEncodeBroadHistoneK562H3k36me3StdPk',cell:'K562',experiment:'ChIP-seq_H3K36me3'},
+{name:'wgEncodeHaibTfbsHct116CtcfcV0422111PkRep1',cell:'HCT116',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeBroadHistoneNhekH3k27acStdPk',cell:'NHEK',experiment:'ChIP-seq_H3K27ac'},
+{name:'wgEncodeHaibMethylRrbsH1hescHaibSitesRep1',cell:'H1-hESC',experiment:'methyl RRBS'},
+{name:'wgEncodeBroadHistoneNhlfH3k4me1StdPk',cell:'NHLF',experiment:'ChIP-seq_H3K4me1'},
+{name:'wgEncodeUwHistoneCaco2H3k27me3StdPkRep1',cell:'Caco-2',experiment:'ChIP-seq_H3K27me3'},
+{name:'wgEncodeUwTfbsK562CtcfStdPkRep1',cell:'K562',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeBroadHistoneHmecH3k79me2Pk',cell:'HMEC',experiment:'ChIP-seq_H3K79me2'},
+{name:'wgEncodeUwHistoneCaco2H3k36me3StdPkRep1',cell:'Caco-2',experiment:'ChIP-seq_H3K36me3'},
+{name:'wgEncodeSydhHistoneMcf7H3k27acUcdPk',cell:'MCF-7',experiment:'ChIP-seq_H3K27ac'},
+{name:'wgEncodeBroadHistoneHelas3H3k04me1StdPk',cell:'HeLa-S3',experiment:'ChIP-seq_H3K4me1'},
+{name:'wgEncodeBroadHmmHuvecHMM',cell:'HUVEC',experiment:'chromHMM'},
+{name:'wgEncodeSydhTfbsHepg2Tcf7l2UcdPk',cell:'HepG2',experiment:'ChIP-seq_TCF7L2'},
+{name:'wgEncodeSydhHistoneMcf7H3k36me3bUcdPk',cell:'MCF-7',experiment:'ChIP-seq_H3K36me3'},
+{name:'wgEncodeBroadHistoneGm12878H3k79me2StdPk',cell:'GM12878',experiment:'ChIP-seq_H3K79me2'},
+{name:'wgEncodeUwHistoneCaco2H3k4me3StdPkRep1',cell:'Caco-2',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeHaibMethylRrbsHelas3HaibSitesRep1',cell:'HeLa-S3',experiment:'methyl RRBS'},
+{name:'wgEncodeBroadHistoneHsmmH3k4me1StdPk',cell:'HSMM',experiment:'ChIP-seq_H3K4me1'},
+{name:'wgEncodeBroadHistoneK562H3k27acStdPk',cell:'K562',experiment:'ChIP-seq_H3K27ac'},
+{name:'wgEncodeUwDnaseHelas3PkRep1',cell:'HeLa-S3',experiment:'DNase-seq'},
+{name:'wgEncodeBroadHistoneNhlfH3k79me2Pk',cell:'NHLF',experiment:'ChIP-seq_H3K79me2'},
+{name:'wgEncodeBroadHistoneHepg2H3k79me2StdPk',cell:'HepG2',experiment:'ChIP-seq_H3K79me2'},
+{name:'wgEncodeAwgTfbsBroadNhekCtcfUniPk',cell:'NHEK',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeBroadHistoneNhlfH3k4me3StdPk',cell:'NHLF',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeBroadHistoneHelas3H3k09me3Pk',cell:'HeLa-S3',experiment:'ChIP-seq_H3K9me3'},
+{name:'wgEncodeBroadHistoneNhekH3k36me3StdPk',cell:'NHEK',experiment:'ChIP-seq_H3K36me3'},
+{name:'wgEncodeHaibMethylRrbsCaco2UwSitesRep1',cell:'Caco-2',experiment:'methyl RRBS'},
+{name:'wgEncodeBroadHistoneHelas3H3k27me3StdPk',cell:'HeLa-S3',experiment:'ChIP-seq_H3K27me3'},
+{name:'wgEncodeBroadHistoneA549H3k27me3Etoh02Pk',cell:'A549',experiment:'ChIP-seq_H3K27me3'},
+{name:'wgEncodeBroadHistoneH1hescH3k27me3StdPk',cell:'H1-hESC',experiment:'ChIP-seq_H3K27me3'},
+{name:'wgEncodeBroadHistoneHelas3H3k4me3StdPk',cell:'HeLa-S3',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeBroadHistoneHsmmH3k27acStdPk',cell:'HSMM',experiment:'ChIP-seq_H3K27ac'},
+{name:'wgEncodeUwDnaseCaco2PkRep1',cell:'Caco-2',experiment:'DNase-seq'},
+{name:'wgEncodeBroadHistoneHuvecH3k36me3StdPk',cell:'HUVEC',experiment:'ChIP-seq_H3K36me3'},
+{name:'tfbsConsSites',cell:'None',experiment:'TFBS Conservation'},
+{name:'wgEncodeBroadHistoneH1hescH3k9acStdPk',cell:'H1-hESC',experiment:'ChIP-seq_H3K9ac'},
+{name:'wgEncodeBroadHmmH1hescHMM',cell:'H1-hESC',experiment:'chromHMM'},
+{name:'wgEncodeUwTfbsCaco2CtcfStdPkRep1',cell:'Caco-2',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeBroadHistoneH1hescH3k09me3StdPk',cell:'H1-hESC',experiment:'ChIP-seq_H3K9me3'},
+{name:'wgEncodeAwgTfbsUwHelas3CtcfUniPk',cell:'HeLa-S3',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeBroadHistoneHepg2H3k27me3StdPk',cell:'HepG2',experiment:'ChIP-seq_H3K27me3'},
+{name:'wgEncodeBroadHistoneNhekH3k09me3Pk',cell:'NHEK',experiment:'ChIP-seq_H3K9me3'},
+{name:'wgEncodeUwDnaseHmecPkRep1',cell:'HMEC',experiment:'DNase-seq'},
+{name:'wgEncodeOpenChromFaireGm12878Pk',cell:'GM12878',experiment:'FAIRE-seq'},
+{name:'wgEncodeBroadHistoneA549H3k04me3Etoh02Pk',cell:'A549',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeSydhTfbsHct116Tcf7l2UcdPk',cell:'HCT116',experiment:'ChIP-seq_TCF7L2'},
+{name:'wgEncodeBroadHistoneNhlfH3k27me3StdPk',cell:'NHLF',experiment:'ChIP-seq_H3K27me3'},
+{name:'wgEncodeBroadHistoneNhekH3k79me2Pk',cell:'NHEK',experiment:'ChIP-seq_H3K79me2'},
+{name:'wgEncodeBroadHistoneHmecH3k9acStdPk',cell:'HMEC',experiment:'ChIP-seq_H3K9ac'},
+{name:'wgEncodeBroadHistoneHuvecH3k4me3StdPk',cell:'HUVEC',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeBroadHistoneNhekH3k4me1StdPk',cell:'NHEK',experiment:'ChIP-seq_H3K4me1'},
+{name:'wgEncodeBroadHistoneNhlfCtcfStdPk',cell:'NHLF',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeBroadHistoneH1hescH3k79me2StdPk',cell:'H1-hESC',experiment:'ChIP-seq_H3K79me2'},
+{name:'wgEncodeHaibMethylRrbsHepg2DukeSitesRep1',cell:'HepG2',experiment:'methyl RRBS'},
+{name:'wgEncodeUwTfbsA549CtcfStdPkRep1',cell:'A549',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeBroadHistoneNhekH3k27me3StdPk',cell:'NHEK',experiment:'ChIP-seq_H3K27me3'},
+{name:'wgEncodeOpenChromFaireHepg2Pk',cell:'HepG2',experiment:'FAIRE-seq'},
+{name:'wgEncodeOpenChromChipH1hescCtcfPk',cell:'H1-hESC',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeBroadHistoneHepg2H3k27acStdPk',cell:'HepG2',experiment:'ChIP-seq_H3K27ac'},
+{name:'wgEncodeOpenChromChipHepg2CtcfPk',cell:'HepG2',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeBroadHistoneGm12878H3k27acStdPk',cell:'GM12878',experiment:'ChIP-seq_H3K27ac'},
+{name:'wgEncodeBroadHistoneHmecH3k09me3Pk',cell:'HMEC',experiment:'ChIP-seq_H3K9me3'},
+{name:'wgEncodeAwgTfbsBroadGm12878CtcfUniPk',cell:'GM12878',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeUwDnaseK562PkRep1',cell:'K562',experiment:'DNase-seq'},
+{name:'wgEncodeAwgTfbsBroadHsmmCtcfUniPk',cell:'HSMM',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeBroadHistoneHsmmH3k9me3StdPk',cell:'HSMM',experiment:'ChIP-seq_H3K9me3'},
+{name:'wgEncodeBroadHmmK562HMM',cell:'K562',experiment:'chromHMM'},
+{name:'wgEncodeBroadHistoneHuvecH3k4me1StdPk',cell:'HUVEC',experiment:'ChIP-seq_H3K4me1'},
+{name:'wgEncodeOpenChromDnaseGm12878Pk',cell:'GM12878',experiment:'DNase-seq'},
+{name:'wgEncodeBroadHmmHsmmHMM',cell:'HSMM',experiment:'chromHMM'},
+{name:'wgEncodeUwDnaseNhekPkRep1',cell:'NHEK',experiment:'DNase-seq'},
+{name:'wgEncodeBroadHistoneHuvecH3k27me3StdPk',cell:'HUVEC',experiment:'ChIP-seq_H3K27me3'},
+{name:'wgEncodeBroadHistoneNhekH3k9acStdPk',cell:'NHEK',experiment:'ChIP-seq_H3K9ac'},
+{name:'wgEncodeOpenChromDnaseHepg2Pk',cell:'HepG2',experiment:'DNase-seq'},
+{name:'wgEncodeUwHistoneMcf7H3k4me3StdPkRep1',cell:'MCF-7',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeBroadHistoneHelas3H3k9acStdPk',cell:'HeLa-S3',experiment:'ChIP-seq_H3K9ac'},
+{name:'wgEncodeBroadHistoneGm12878H3k9acStdPk',cell:'GM12878',experiment:'ChIP-seq_H3K9ac'},
+{name:'wgEncodeBroadHistoneNhlfH3k9acStdPk',cell:'NHLF',experiment:'ChIP-seq_H3K9ac'},
+{name:'wgEncodeBroadHistoneHepg2H3k9acStdPk',cell:'HepG2',experiment:'ChIP-seq_H3K9ac'},
+{name:'wgEncodeBroadHistoneHuvecH3k9acStdPk',cell:'HUVEC',experiment:'ChIP-seq_H3K9ac'},
+{name:'wgEncodeSydhHistoneHct116H3k04me1UcdPk',cell:'HCT116',experiment:'ChIP-seq_H3K4me1'},
+{name:'wgEncodeBroadHistoneA549H3k04me1Etoh02Pk',cell:'A549',experiment:'ChIP-seq_H3K4me1'},
+{name:'wgEncodeBroadHistoneGm12878H3k27me3StdPk',cell:'GM12878',experiment:'ChIP-seq_H3K27me3'},
+{name:'wgEncodeOpenChromFaireNhekPk',cell:'NHEK',experiment:'FAIRE-seq'},
+{name:'wgEncodeBroadHistoneNhlfH3k27acStdPk',cell:'NHLF',experiment:'ChIP-seq_H3K27ac'},
+{name:'wgEncodeBroadHistoneHelas3H3k27acStdPk',cell:'HeLa-S3',experiment:'ChIP-seq_H3K27ac'},
+{name:'wgEncodeAwgTfbsBroadHmecCtcfUniPk',cell:'HMEC',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeBroadHistoneA549H3k36me3Etoh02Pk',cell:'A549',experiment:'ChIP-seq_H3K36me3'},
+{name:'wgEncodeBroadHmmNhlfHMM',cell:'NHLF',experiment:'chromHMM'},
+{name:'wgEncodeBroadHistoneHelas3H3k36me3StdPk',cell:'HeLa-S3',experiment:'ChIP-seq_H3K36me3'},
+{name:'wgEncodeBroadHistoneH1hescH3k4me1StdPk',cell:'H1-hESC',experiment:'ChIP-seq_H3K4me1'},
+{name:'wgEncodeBroadHistoneH1hescH3k27acStdPk',cell:'H1-hESC',experiment:'ChIP-seq_H3K27ac'},
+{name:'wgEncodeBroadHistoneNhlfH3k09me3Pk',cell:'NHLF',experiment:'ChIP-seq_H3K9me3'},
+{name:'wgEncodeBroadHmmHepg2HMM',cell:'HepG2',experiment:'chromHMM'},
+{name:'wgEncodeOpenChromDnaseHuvecPk',cell:'HUVEC',experiment:'DNase-seq'},
+{name:'wgEncodeUwDnaseMcf7PkRep1',cell:'MCF-7',experiment:'DNase-seq'},
+{name:'wgEncodeHaibMethylRrbsK562HaibSitesRep1',cell:'K562',experiment:'methyl RRBS'},
+{name:'wgEncodeBroadHistoneNhlfH3k36me3StdPk',cell:'NHLF',experiment:'ChIP-seq_H3K36me3'},
+{name:'wgEncodeOpenChromFaireHuvecPk',cell:'HUVEC',experiment:'FAIRE-seq'},
+{name:'wgEncodeHaibMethylRrbsHct116StanfordSitesRep1',cell:'HCT116',experiment:'methyl RRBS'},
+{name:'wgEncodeOpenChromFaireHelas3Pk',cell:'HeLa-S3',experiment:'FAIRE-seq'},
+{name:'wgEncodeSydhTfbsHelas3Tcf7l2UcdPk',cell:'HeLa-S3',experiment:'ChIP-seq_TCF7L2'},
+{name:'wgEncodeBroadHistoneHuvecH3k79me2Pk',cell:'HUVEC',experiment:'ChIP-seq_H3K79me2'},
+{name:'wgEncodeBroadHistoneK562H3k4me1StdPk',cell:'K562',experiment:'ChIP-seq_H3K4me1'},
+{name:'wgEncodeBroadHistoneHsmmH3k79me2StdPk',cell:'HSMM',experiment:'ChIP-seq_H3K79me2'},
+{name:'wgEncodeBroadHistoneHmecH3k36me3StdPk',cell:'HMEC',experiment:'ChIP-seq_H3K36me3'},
+{name:'wgEncodeBroadHistoneA549H3k27acEtoh02Pk',cell:'A549',experiment:'ChIP-seq_H3K27ac'},
+{name:'wgEncodeBroadHistoneHsmmH3k9acStdPk',cell:'HSMM',experiment:'ChIP-seq_H3K9ac'},
+{name:'wgEncodeBroadHmmHmecHMM',cell:'HMEC',experiment:'chromHMM'},
+{name:'wgEncodeBroadHistoneHmecH3k27acStdPk',cell:'HMEC',experiment:'ChIP-seq_H3K27ac'},
+{name:'wgEncodeBroadHistoneHmecH3k4me1StdPk',cell:'HMEC',experiment:'ChIP-seq_H3K4me1'},
+{name:'wgEncodeBroadHistoneHsmmH3k36me3StdPk',cell:'HSMM',experiment:'ChIP-seq_H3K36me3'},
+{name:'wgEncodeRegTfbsClusteredV3',cell:'None',experiment:'TFBS Region'},
+{name:'wgEncodeBroadHistoneHmecH3k27me3StdPk',cell:'HMEC',experiment:'ChIP-seq_H3K27me3'},
+{name:'wgEncodeAwgTfbsHaibGm12878Tcf3Pcr1xUniPk',cell:'GM12878',experiment:'ChIP-seq_TCF3'},
+{name:'wgEncodeSydhHistoneMcf7H3k27me3bUcdPk',cell:'MCF-7',experiment:'ChIP-seq_H3K27me3'},
+{name:'wgEncodeBroadHistoneGm12878H3k9me3StdPk',cell:'GM12878',experiment:'ChIP-seq_H3K9me3'},
+{name:'wgEncodeBroadHistoneHepg2H3k04me1StdPk',cell:'HepG2',experiment:'ChIP-seq_H3K4me1'},
+{name:'wgEncodeBroadHistoneHelas3H3k79me2StdPk',cell:'HeLa-S3',experiment:'ChIP-seq_H3K79me2'},
+{name:'wgEncodeBroadHmmNhekHMM',cell:'NHEK',experiment:'chromHMM'},
+{name:'wgEncodeUwHistoneHct116H3k4me3StdPkRep1',cell:'HCT116',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeBroadHistoneHmecH3k4me3StdPk',cell:'HMEC',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeBroadHistoneGm12878H3k4me1StdPk',cell:'GM12878',experiment:'ChIP-seq_H3K4me1'},
+{name:'wgEncodeBroadHistoneK562H3k4me3StdPk',cell:'K562',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeOpenChromChipHuvecCtcfPk',cell:'HUVEC',experiment:'ChIP-seq_CTCF'},
+{name:'wgEncodeSydhHistoneHct116H3k27acUcdPk',cell:'HCT116',experiment:'ChIP-seq_H3K27ac'},
+{name:'wgEncodeOpenChromFaireA549Pk',cell:'A549',experiment:'FAIRE-seq'},
+{name:'wgEncodeBroadHistoneHepg2H3k4me3StdPk',cell:'HepG2',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeUwDnaseHct116PkRep1',cell:'HCT116',experiment:'DNase-seq'},
+{name:'wgEncodeOpenChromDnaseH1hescPk',cell:'H1-hESC',experiment:'DNase-seq'},
+{name:'wgEncodeBroadHistoneHepg2H3k09me3Pk',cell:'HepG2',experiment:'ChIP-seq_H3K9me3'},
+{name:'wgEncodeBroadHistoneHsmmH3k4me3StdPk',cell:'HSMM',experiment:'ChIP-seq_H3K4me3'},
+{name:'wgEncodeBroadHistoneK562H3k79me2StdPk',cell:'K562',experiment:'ChIP-seq_H3K79me2'},
+{name:'wgEncodeBroadHistoneHepg2H3k36me3StdPk',cell:'HepG2',experiment:'ChIP-seq_H3K36me3'},
+{name:'wgEncodeHaibMethylRrbsMcf7DukeSitesRep1',cell:'MCF-7',experiment:'methyl RRBS'},
+{name:'wgEncodeBroadHistoneHuvecH3k09me3Pk',cell:'HUVEC',experiment:'ChIP-seq_H3K9me3'},
+{name:'wgEncodeHaibMethylRrbsGm12878HaibSitesRep1',cell:'GM12878',experiment:'methyl RRBS'},
+{name:'wgEncodeHaibMethylRrbsA549Dm002p7dHaibSitesRep1',cell:'A549',experiment:'methyl RRBS'} ];
+
+    var cell=document.getElementsByClassName('cell');
+    var experiment=document.getElementsByClassName('experiment');
+
+    var selectedCell=[];
+    var selectedExperiment=[];
+    var tracks=[];
+
+    //get selected cell
+    for (var i=0;i<cell.length;i++)
+    {
+	if (cell[i].checked)
+	{
+	    selectedCell.push(cell[i].value);
+	}
+    }
+
+    //get selected assay
+    for (var i=0;i<experiment.length;i++)
+    {
+	if (experiment[i].checked)
+	{
+	    selectedExperiment.push(experiment[i].value);
+	}
+    }
+
+    //get selected tracks
+    for (var i=0;i<all.length;i++)
+    {
+	if (selectedCell.indexOf(all[i].cell) != -1)
+	{
+	    if (selectedExperiment.indexOf(all[i].experiment) != -1)
+	    {
+		tracks.push(all[i].name);
+	    }
+	}
+    }
+
+    //remove all child nodes while saving custom uploads info
+    while(insertPos.firstChild)
+    {
+	insertPos.removeChild(insertPos.firstChild);
+    }
+
+    //add selected tracks
+    for (var i=0;i<tracks.length;i++)
+    {
+	if (i>19)
+	{
+	    alert('At most 20 tracks can be selected.');
+	    break;
+	}
+	var newrow=document.createElement('div');//for new row
+	var col=document.createElement('div');//for new checkbox container
+	var label=document.createElement('label');
+	var checkbox=document.createElement('input');
+	newrow.class='row';
+	col.class='checkbox';
+	label.innerHTML=tracks[i];
+	checkbox.type='checkbox';
+	checkbox.value=tracks[i];
+	checkbox.name='generic_table';
+	checkbox.checked=true;
+
+	label.appendChild(checkbox);
+	col.appendChild(label);
+	newrow.appendChild(col);
+	insertPos.appendChild(newrow);
+    }
+
+    //add custom tracks upload fields
+    for (var i=0;i<20-tracks.length;i++)
+    {
+	var newrow=document.createElement('div');
+	var col=document.createElement('div');
+	var span=document.createElement('span');
+	var label=document.createElement('label');
+	var upload=document.createElement('input');
+	newrow.class='row';
+	col.class='';
+	span.title='Drag or use Ctrl, Shift to select multiple files';
+	label.innerHTML='';
+	upload.type='file';
+	upload.name='custom_table';
+	upload.multiple='multiple';
+
+	label.appendChild(upload);
+	span.appendChild(label);
+	col.appendChild(span);
+	newrow.appendChild(col);
+	insertPos.appendChild(newrow);
+    }
+}
+
+function response_to_select_region(caller)
+{
+    var region_spec_container=$(caller).parentsUntil("div.single_region_spec_head").siblings().filter("div.region_detail_area");
+    if($(caller).val()=='snp')
+    {
+	$(region_spec_container).find('div.snp_region_spec').show();
+	$(region_spec_container).children().not('.snp_region_spec').hide();
+    }
+    else if ($(caller).val()=='gene')
+    {
+	$(region_spec_container).find('div.gene_region_spec').show();
+	$(region_spec_container).children().not('.gene_region_spec').hide();
+    }
+    else if($(caller).val()=='chr')
+    {
+	$(region_spec_container).find('div.chr_region_spec').show();
+	$(region_spec_container).children().not('.chr_region_spec').hide();
+    }
+}
+
+function response_to_multi_select_region(caller)
+{
+    var file_region_spec_container=$("#file_region_specification_div_id");
+    var manual_region_spec_container=$("#multi_manual_region_specification_div_id");
+
+    if($(caller).val()=='region_file')
+    {
+	$(file_region_spec_container).show();
+	$(manual_region_spec_container).hide();
+    }
+    else if($(caller).val()=='multi_region')
+    {
+	$(manual_region_spec_container).show();
+	$(file_region_spec_container).hide();
+	$(manual_region_spec_container).find("div.single_region_spec_head").each(
+		function()
+		{
+		  var i=$(this).find("div.region_method_area input:checked");
+                      i.trigger("click");
+		}
+	);
+    }
+}
+
+//display and hide single region selection and multi-region selection alternatively
+function toggle_single_multi_region(caller)
+{
+    var single_container=$("#region_specification_div_id");
+    var multi_container=$("#multi_region_specification_div_id");
+    if($('#region_multi_single_button_single_id').prop('checked'))
+    {
+	$(multi_container).hide();
+        $(single_container).show();
+	$(single_container).find("div.region_method_area input:checked").trigger("click");
+    }
+    else if ($('#region_multi_single_button_multi_id').prop('checked'))
+    {
+	$(single_container).hide();
+        $(multi_container).show();
+	$(multi_container).find("div.multi_region_method_area input:checked").trigger("click");
+    }
+}
+
+function clear_datatrack_selection()
+{
+    var cell=document.getElementsByClassName( 'cell');
+    for (var i=0;i<cell.length;i++)
+    {
+	cell[i].checked=false;
+    }
+    var experiment=document.getElementsByClassName( 'experiment');
+    for (var i=0;i<experiment.length;i++)
+    {
+	experiment[i].checked=false;
+    }
+}
+function loadExampleSetting()
+{
+    document.getElementById('qformat_whitespace').checked=true;
+    document.getElementById('markercol_id').value='dbSNP135';
+    document.getElementById('pvalcol_id').value='P';
+    document.getElementById('varAnno_id').value='UChicago_eQTL';
+    document.getElementById('source_ref_pop_id').value='1000G_March2012,hg19,EUR';	
+
+    $("#region_multi_single_button_single_id").prop('checked',true);
+    $("#region_multi_single_button_multi_id").prop('checked',false);
+    toggle_single_multi_region();
+
+    //set snp and flanking, check SNP method, trigger SNP click event
+    $("div.region_detail_area input[name='snpflank']").val("20");
+    $("div.region_detail_area input[name='refsnp']").val("rs2071278");
+    $("div.region_detail_area input[name='snpflank']").
+    parentsUntil("div.single_region_spec_head").
+    siblings().
+    filter("div.region_method_area").
+    find("input[value='snp']").
+    trigger("click");
+    $("div.region_detail_area input[name='snpflank']").
+    parentsUntil("div.single_region_spec_head").
+    siblings().
+    filter("div.region_method_area").
+    find("input[value='snp']").
+    prop('checked',true);
+
+    document.getElementById('generic_toggle_id').checked=true;
+    document.getElementById('anno_toggle_id').checked=true;
+    document.getElementById('avinput_id').checked=false;
+    document.getElementById('ref_hg19').checked=true;
+
+    //set advanced options
+    document.getElementById('ld_toggle_id').checked=true;
+
+    //set interaction options
+    $('#interaction_cell_type_k562_id').prop('checked',true);
+    $('#interaction_cell_type_gm06690_id').prop('checked',false);
+    $('#interaction_type_intra_id').prop('checked',true);
+    $('#interaction_type_intra_id').trigger('click');
+    $('#interaction_type_inter_id').prop('checked',false);
+    $('[name="heatmap_toggle"]').prop('checked',true);
+
+
+    //clear data track selection
+    clear_datatrack_selection();
+    document.getElementById('HSMM').checked=true;	
+    document.getElementById('K562').checked=true;	
+    document.getElementById('HepG2').checked=true;	
+    document.getElementById('GM12878').checked=true;	
+    document.getElementById('None').checked=true;	
+
+    document.getElementById('TFBS Conservation').checked=true;
+    document.getElementById('chromHMM').checked=true;
+    document.getElementById('TFBS Region').checked=true;
+    changeTracks();
+
+    alert('Example settings loaded.');
+}
+function loadExampleInput()
+{
+
+    $('#query_example_label_div_id').show();
+    $('#query_hidden_id').val('1');
+    $('#query_file_div_id').hide();
+
+    alert('Example input loaded.');
+} 
+function hideDetail()
+{
+    document.getElementById('option_detail_id').style.display='none';
+}
+function showDetail()
+{
+    document.getElementById('option_detail_id').style.display='block';
+}
+function check_before_submission()
+{
+   if($('#query_hidden_id').val() == '0')
+   {//we're NOT using example input
+    var query_file=$('#query_file_id').val();
+    var query_url=$('#query_URL_id').val();
+
+    if (query_file.length>0 && query_url.length>0)
+    {
+	alert('Input URL cannot be used with input file!');
+	//abort submission
+	return false;
+    }
+
+    if (query_file.length==0 && query_url.length==0)
+    {
+	alert('No input!');
+	return false;
+    }
+   }
+
+    //check email
+
+    var email=document.getElementById('email_id').value;
+    if (email)
+    {
+    	var email_pattern=/[\w\-\.]+\@[\w\-\.]+\.[\w\-\.]+/;
+
+    	if (! email_pattern.test(email))
+    	{
+    	    alert('Illegal email address!');
+    	    return false;
+    	}
+    } else
+    {
+    //when multiple regions are specified, the job will take a while
+    //user should provide email
+        if($("#region_multi_single_button_multi_id").prop('checked'))
+        {
+            alert('Email must be provided when multiple regions are to be plotted');
+            return false;
+        }
+    }
+
+    //check genome build
+    var ref=document.getElementById('ref_hg19').checked;
+    var ref_ld=document.getElementById('source_ref_pop_id').value.split(',');
+    ref_ld=ref_ld[1];
+
+    if (ref)
+    {
+	ref='hg19';
+    } else
+    {
+	ref='hg18';
+    }
+
+    if (ref != ref_ld)
+    {
+	alert('Reference genome does not match source population');
+	return false;
+    }
+
+    //check marker column
+    var marker=document.getElementById('markercol_id').value;
+
+    if (marker.length==0)
+    {
+	alert('Marker column name is empty!');
+	return false;
+    }
+
+    //check P value column
+    var p_val=document.getElementById('pvalcol_id').value;
+
+    if (p_val.length==0)
+    {
+	alert('P value column name is empty!');
+	return false;
+    }
+
+    //Only letters, numbers, dashes, underscores are allowed in column name
+    var col_pat=/[^\w\-]/;
+
+    if (col_pat.test(p_val) || col_pat.test(marker))
+    {
+	alert('Only letters, numbers, dashes, underscores are allowed in column name.');
+	return false;
+    }
+
+    //check datatracks
+    var generic_toggle=document.getElementById('generic_toggle_id').checked;
+    var anno_toggle=document.getElementById('anno_toggle_id').checked;
+    var datatrack=$('[name="generic_table"]').filter(':checked');
+    var custom_table=document.getElementsByName('custom_table');
+    var custom_table_count=0;
+    $(custom_table).each(function(){
+		    custom_table_count+=this.files.length;
+		    });
+
+    if ( generic_toggle || anno_toggle )
+    {
+	if (datatrack.length==0 && custom_table_count==0)
+	{
+	    alert ("No annotation data tracks selected or uploaded \nwhile generic plot or annotation is enabled.");
+	    return false;
+	}
+    }
+    if ( datatrack.length+custom_table_count>20)
+    {
+	alert('Too many data tracks (max: 20)');
+	return false;
+    }
+
+
+    //region specification
+    var region_pat=/[ \$\t\r\n\*\|\?\>\<\'\"\,\;\:\[\]\{\}]/;
+    var region_method;
+    var return_value=true;
+    var at_least_one=false;
+    
+    //when toggled to multi view, the value of toggler is single and vice versa
+    if ($('#region_multi_single_button_multi_id').prop('checked'))
+    {
+    	region_method=$('#multi_region_specification_div_id').find("input[name^='region_method']:checked");//select input elements with name starting with region_method
+    }
+    else if ($('#region_multi_single_button_single_id').prop('checked'))
+    {
+    	region_method=$('#region_specification_div_id').find("input[name^='region_method']:checked");//select input elements with name starting with region_method
+    }
+    
+    //user must either upload a region specification file
+    //or specify region for each region specification table
+
+	if(! $("input[name='region_file']").val() )
+	{
+		$(region_method).each(
+				function() {
+				var region_spec_container=$(this).parentsUntil("div.single_region_spec_head").siblings().filter("div.region_detail_area");
+				var refsnp=$(region_spec_container).find("input[name^='refsnp']").val();
+				var snpflank=$(region_spec_container).find("input[name^='snpflank']").val();
+				var refgene=$(region_spec_container).find("input[name^='refgene']").val();
+				var geneflank=$(region_spec_container).find("input[name^='geneflank']").val();
+				var generefsnp=$(region_spec_container).find("input[name^='refsnp_for_gene']").val();
+				var chr=$(region_spec_container).find("select[name^='chr']").val();
+				var start=$(region_spec_container).find("input[name^='start']").val();
+				var end=$(region_spec_container).find("input[name^='end']").val();
+				var chrrefsnp=$(region_spec_container).find("input[name^='refsnp_for_chr']").val();
+
+					if ($(this).val() == 'snp')
+					{	
+						if ( (refsnp.length!=0 && snpflank.length==0) || (refsnp.length==0 && snpflank.length!=0) )
+						{
+							alert('Both reference SNP and flanking region must be supplied.');
+							region_spec_container.addClass('has-error');
+							return_value=false;
+							return false;//stop each iteration
+						} else if (region_pat.test(refsnp) || region_pat.test(snpflank))
+						{
+							alert("Illegal characters found in reference SNP or flanking regin\nPlease remove $ ' \" { } [ ] \\ > < : ; , * | and tab, space, newline.");
+							region_spec_container.addClass('has-error');
+							return_value=false;
+							return false;
+						}	
+						if( refsnp.length!=0 && snpflank.length!=0)
+						{
+							at_least_one=true;
+						}
+					} else if ($(this).val() == 'gene')
+					{
+						if ( (refgene.length!=0 && geneflank.length==0) || (refgene.length==0 && geneflank.length!=0) )
+						{
+							alert('Both reference gene and flanking region must be supplied.');
+							region_spec_container.addClass('has-error');
+							return_value=false;
+							return false;
+						} else if (region_pat.test(refgene) || region_pat.test(geneflank) || region_pat.test(generefsnp))
+						{
+							alert("Illegal characters found in reference SNP or flanking regin\nPlease remove $ ' \" { } [ ] \\ > < : ; , * | and tab, space, newline.");
+							region_spec_container.addClass('has-error');
+							return_value=false;
+							return false;
+						}	
+						if( refgene.length!=0 && geneflank.length!=0)
+						{
+							at_least_one=true;
+						}
+					} else if ($(this).val() == 'chr')
+					{
+						if ( (start.length!=0 && end.length==0) || (start.length==0 && end.length!=0) )
+						{
+							alert('Both chromosome start and end must be supplied');
+							region_spec_container.addClass('has-error');
+							return_value=false;
+							return false;
+						} else if (region_pat.test(chr) || region_pat.test(start) || region_pat.test(end) || region_pat.test(chrrefsnp))
+						{
+							alert("Illegal characters found in reference SNP or flanking regin\nPlease remove $ ' \" { } [ ] \\ > < : ; , * | and tab, space, newline.");
+							region_spec_container.addClass('has-error');
+							return_value=false;
+							return false;
+						}	
+						if( start.length!=0 && end.length!=0)
+						{
+							at_least_one=true;
+						}
+					}
+			}
+		);
+                $(document).ready( function() {
+                    //clear has-error status when this field gets focus
+                    $(document).find("div.region_detail_area input").focus( function() {
+                    	   $(document).find("div.region_detail_area").removeClass("has-error");
+                         });
+                 });
+		if(!at_least_one && return_value)
+		{
+			//when return_value is false, an alert has been issued, no need to give more alerts
+			alert('No region is specified!');
+		}
+		return return_value&&at_least_one;
+	} else
+	{
+		return true;
+	}
+}
+
+//]]></script>
+<noscript>
+	<h1>
+		Your browser does not support JavaScript! </br>Please enable JavaScript to use Enlight.
+	</h1>
+</noscript>
+<form method="post" action="/cgi-bin/process.cgi" enctype="multipart/form-data" onsubmit="return check_before_submission();" class="form-horizontal" name="main"><h2>
+	Input
+</h2>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		DEMO
+	</label>
+	<div class="col-sm-7">
+		<input type="button"  value="Load settings for example input" onclick="loadExampleSetting()" class="btn btn-info" /> <input type="button"  value="Load example input" onclick="loadExampleInput()" class="btn btn-info" />
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		Email (mandatory for multi-region) <a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content='Used to receive result link'><span class="glyphicon glyphicon-info-sign" />
+</a>
+	</label>
+	<div class="col-sm-7">
+		<input name="email" placeholder="Enter email to receive result link" id="email_id" class="form-control" type="email" />
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		Input (header required; .gz ok) <a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="1st line is header; gzipped format is accepted; for details please read help."><span class="glyphicon glyphicon-info-sign" />
+</a>
+	</label>
+	<div class="col-sm-7">
+		<div id="query_file_div_id">
+			<input class="form-control" type="file" id="query_file_id" name="query" />
+			<strong>
+				OR
+			</strong>
+			<input id="query_URL_id" name="query_URL" placeholder="Paste URL here" class="form-control" type="url" />
+		</div>
+		<div style="display:none" id="query_example_label_div_id">
+			<input value="" name="example_upload" id="query_hidden_id" class="form-control" type="hidden" />
+			<span id="query_example_label">
+				Example input loaded
+			</span>
+		</div>
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		Field delimiter
+	</label>
+	<div class="col-sm-7">
+		<div class="radio">
+			<label>
+				 <input type="radio" name="qformat" value="whitespace" checked="checked" id="qformat_whitespace" />whitespace
+			</label>
+			<label>
+				 <input type="radio" name="qformat" value="tab" id="qformat_whitespace" />tab
+			</label>
+			<label>
+				 <input type="radio" name="qformat" value="space" id="qformat_whitespace" />space
+			</label>
+			<label>
+				 <input type="radio" name="qformat" value="comma" id="qformat_whitespace" />comma
+			</label>
+		</div>
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		Marker column (case-sensitive)
+	</label>
+	<div class="col-sm-7">
+		<input type="text" name="markercol"  id="markercol_id" class="form-control" placeholder="Enter marker column name here" />
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		P value column (case-sensitive) <a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="P value can be written either as decimal numbers or in scientific notation"><span class="glyphicon glyphicon-info-sign" />
+</a>
+	</label>
+	<div class="col-sm-7">
+		<input type="text" name="pvalcol"  placeholder="Enter marker column name here" class="form-control" id="pvalcol_id" />
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		Genome build
+	</label>
+	<div class="col-sm-7">
+		<div class="radio">
+			<label>
+					<input type="radio" name="ref" value="hg18">hg18
+					</label>
+					<label>
+					<input type="radio" name="ref" id="ref_hg19" value="hg19" checked="checked">hg19
+					</label>
+		</div>
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		LD source/Population <a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="This option determines the population data used towards calculation of Linkage Disequilibrium (LD). The genome version must match the genome build you specified earlier."><span class="glyphicon glyphicon-info-sign" />
+</a>
+	</label>
+	<div class="col-sm-7">
+		<select name="source_ref_pop"  class="form-control" id="source_ref_pop_id">
+		<option value="1000G_Aug2009,hg18,CEU">1000G_Aug2009,hg18,CEU</option>
+		<option value="1000G_Aug2009,hg18,JPT+CHB">1000G_Aug2009,hg18,JPT+CHB</option>
+		<option value="1000G_Aug2009,hg18,YRI">1000G_Aug2009,hg18,YRI</option>
+		<option value="1000G_June2010,hg18,CEU">1000G_June2010,hg18,CEU</option>
+		<option value="1000G_June2010,hg18,JPT+CHB">1000G_June2010,hg18,JPT+CHB</option>
+		<option value="1000G_June2010,hg18,YRI">1000G_June2010,hg18,YRI</option>
+		<option value="1000G_March2012,hg19,AFR">1000G_March2012,hg19,AFR</option>
+		<option value="1000G_March2012,hg19,AMR">1000G_March2012,hg19,AMR</option>
+		<option value="1000G_March2012,hg19,ASN">1000G_March2012,hg19,ASN</option>
+		<option selected="selected" value="1000G_March2012,hg19,EUR">1000G_March2012,hg19,EUR</option>
+		<option value="1000G_Nov2010,hg19,AFR">1000G_Nov2010,hg19,AFR</option>
+		<option value="1000G_Nov2010,hg19,ASN">1000G_Nov2010,hg19,ASN</option>
+		<option value="1000G_Nov2010,hg19,EUR">1000G_Nov2010,hg19,EUR</option>
+		<option value="hapmap,hg18,CEU">hapmap,hg18,CEU</option>
+		<option value="hapmap,hg18,JPT+CHB">hapmap,hg18,JPT+CHB</option>
+		<option value="hapmap,hg18,YRI">hapmap,hg18,YRI</option>
+		</select>
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		Mark variants in database: <a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="A XY-plot will be drawn indicating the strength of association for a SNP if it appears in the database you selected."><span class="glyphicon glyphicon-info-sign" />
+</a>
+	</label>
+	<div class="col-sm-7">
+		<select name="varAnno"  id="varAnno_id" class="form-control">
+		<option value="GTEX-140712.Brain_Cerebellum">GTEX-140712.Brain_Cerebellum</option>
+		<option value="GTEX-140712.Brain_Frontal_Cortex">GTEX-140712.Brain_Frontal_Cortex</option>
+		<option value="GTEX-140712.Brain_Pons">GTEX-140712.Brain_Pons</option>
+		<option value="GTEX-140712.Brain_Temporal_Cortex">GTEX-140712.Brain_Temporal_Cortex</option>
+		<option value="GTEX-140712.Liver">GTEX-140712.Liver</option>
+		<option value="GTEX-140712.Lymphoblastoid_RNAseq">GTEX-140712.Lymphoblastoid_RNAseq</option>
+		<option value="GTEX-140712.Lymphoblastoid_microarray">GTEX-140712.Lymphoblastoid_microarray</option>
+		<option value="GWAS_CATALOG_20140820">GWAS_CATALOG_20140820</option>
+		<option value="UChicago_eQTL">UChicago_eQTL</option>
+		<option selected="selected" value="NULL">NULL</option>
+		</select>
+	</div>
+</div>
+<div class="form-group">
+	<div class="col-sm-offset-3">
+		<input type="submit" name=".submit" class="btn btn-primary" />
+	</div>
+</div>
+
+<hr><h2>
+	<span title='plot region'>Specify a region</span>
+</h2>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		How many regions?
+	</label>
+	<div class="col-sm-7">
+		<div class="radio">
+			<label>
+				    <input type="radio" name="region_multi_single_button" id="region_multi_single_button_multi_id" value="multi" onclick="toggle_single_multi_region();" >multiple
+				    </label>
+				    <label>
+				    <input type="radio" name="region_multi_single_button" id="region_multi_single_button_single_id" checked="checked" value="single" onclick="toggle_single_multi_region();" >single
+				    </label>
+		</div>
+	</div>
+</div>
+<div style="display:none" id="region_specification_div_id">
+	<div class="single_region_spec_head">
+		<div class="region_method_area form-group">
+			<label class="col-sm-3 control-label">
+				Specification method
+			</label>
+			<div class="col-sm-7">
+				<div class="radio">
+					<label><input type='radio' name='region_method' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP</label>
+				</div>
+				<div class="radio">
+					<label><input type='radio' name='region_method' onclick='response_to_select_region(this)' value='gene'>Reference Gene</label>
+				</div>
+				<div class="radio">
+					<label><input type='radio' name='region_method' onclick='response_to_select_region(this)' value='chr'> Chromosomal Region</label>
+				</div>
+			</div>
+		</div>
+		<div class="region_detail_area">
+			<div class="snp_region_spec">
+				<div class="form-group">
+					<label class="col-sm-3 control-label">
+						Index SNP
+					</label>
+					<div class="col-sm-7">
+						<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp" />
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">
+						Flanking region (Kb)
+					</label>
+					<div class="col-sm-7">
+						<input name="snpflank" class="form-control" type="text" placeholder="Enter flanking size" value="" />
+					</div>
+				</div>
+			</div>
+			<div class="gene_region_spec">
+				<div class="form-group">
+					<label class="col-sm-3 control-label">
+						Reference Gene
+					</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" value="" placeholder="Enter reference gene" name="refgene" />
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">
+						Flanking region (Kb)
+					</label>
+					<div class="col-sm-7">
+						<input value="" placeholder="Enter flanking size" type="text" class="form-control" name="geneflank" />
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">
+						Optional index SNP
+					</label>
+					<div class="col-sm-7">
+						<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp_for_gene" />
+						<small>
+							Default is the SNP with smallest P value
+						</small>
+					</div>
+				</div>
+			</div>
+			<div class="chr_region_spec">
+				<div class="form-group">
+					<label class="col-sm-3 control-label">
+						Chromosome
+					</label>
+					<div class="col-sm-7">
+						<select name="chr"  class="form-control">
+						<option selected="selected" value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+						<option value="10">10</option>
+						<option value="11">11</option>
+						<option value="12">12</option>
+						<option value="13">13</option>
+						<option value="14">14</option>
+						<option value="15">15</option>
+						<option value="16">16</option>
+						<option value="17">17</option>
+						<option value="18">18</option>
+						<option value="19">19</option>
+						<option value="20">20</option>
+						<option value="21">21</option>
+						<option value="22">22</option>
+						<option value="X">X</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">
+						Start (Mb)
+					</label>
+					<div class="col-sm-7">
+						<input class="form-control" type="text" value="" placeholder="Enter start position" name="start" />
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">
+						End (Mb)
+					</label>
+					<div class="col-sm-7">
+						<input name="end" type="text" class="form-control" placeholder="Enter end position" value="" />
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">
+						Optional index SNP
+					</label>
+					<div class="col-sm-7">
+						<input type="text" class="form-control" value="" placeholder="Enter SNP name" name="refsnp_for_chr" />
+						<small>
+							Default is the SNP with smallest P value
+						</small>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div style="display:none" id="multi_region_specification_div_id">
+	<div class="multi_region_method_area">
+		<div class="form-group">
+			<label class="col-sm-3 control-label">
+				How to select multiple regions? <a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="You can select multiple regions for plotting either by entering regions one by one, or by uploading a HitSpec file."><span class="glyphicon glyphicon-info-sign" />
+</a>
+			</label>
+			<div class="col-sm-7">
+				<div class="radio">
+					<label><input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' checked value='multi_region'>Manually Specify multi-region</label>
+				</div>
+				<div class="radio">
+					<label><input type='radio' name='multi_region_method' onclick='response_to_multi_select_region(this)' value='region_file'>Region Spefication File</label>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="multi_region_detail_area">
+		<div id="file_region_specification_div_id">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">
+					<a href='http://genome.sph.umich.edu/wiki/LocusZoom#Generating_a_Hit_Spec_File'>HitSpec</a> format supported (<a href='/example/example_hitspec.txt'>example</a>) <a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="HitSpec is a whitespace-delimited file, meaning multiple continuous spaces/tabs will be considered as just one delimiter. Only first 6 columns are useful. The rest will be ignored. Chromosome names must be numerical (no chr prefix) except for X chromosome."><span class="glyphicon glyphicon-info-sign" />
+</a>
+				</label>
+				<div class="col-sm-7">
+					<input type="file" class="form-control" name="region_file" />
+					<small>
+						7th column and beyond are IGNORED
+					</small>
+				</div>
+			</div>
+		</div>
+		<div id="multi_manual_region_specification_div_id">
+			<div>
+				<div><div><div class="single_region_spec_head">
+					<div class="region_method_area form-group">
+						<label class="col-sm-3 control-label">
+							Specification method
+						</label>
+						<div class="col-sm-7">
+							<div class="radio">
+								<label><input type='radio' name='region_method0' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method0' onclick='response_to_select_region(this)' value='gene'>Reference Gene</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method0' onclick='response_to_select_region(this)' value='chr'> Chromosomal Region</label>
+							</div>
+						</div>
+					</div>
+					<div class="region_detail_area">
+						<div class="snp_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp0" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input name="snpflank0" class="form-control" type="text" placeholder="Enter flanking size" value="" />
+								</div>
+							</div>
+						</div>
+						<div class="gene_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Reference Gene
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter reference gene" name="refgene0" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter flanking size" type="text" class="form-control" name="geneflank0" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp_for_gene0" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+						<div class="chr_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Chromosome
+								</label>
+								<div class="col-sm-7">
+									<select name="chr0"  class="form-control">
+									<option selected="selected" value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									<option value="11">11</option>
+									<option value="12">12</option>
+									<option value="13">13</option>
+									<option value="14">14</option>
+									<option value="15">15</option>
+									<option value="16">16</option>
+									<option value="17">17</option>
+									<option value="18">18</option>
+									<option value="19">19</option>
+									<option value="20">20</option>
+									<option value="21">21</option>
+									<option value="22">22</option>
+									<option value="X">X</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Start (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input class="form-control" type="text" value="" placeholder="Enter start position" name="start0" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									End (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input name="end0" type="text" class="form-control" placeholder="Enter end position" value="" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter SNP name" name="refsnp_for_chr0" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				</div><div><div class="single_region_spec_head">
+					<div class="region_method_area form-group">
+						<label class="col-sm-3 control-label">
+							Specification method
+						</label>
+						<div class="col-sm-7">
+							<div class="radio">
+								<label><input type='radio' name='region_method1' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method1' onclick='response_to_select_region(this)' value='gene'>Reference Gene</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method1' onclick='response_to_select_region(this)' value='chr'> Chromosomal Region</label>
+							</div>
+						</div>
+					</div>
+					<div class="region_detail_area">
+						<div class="snp_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp1" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input name="snpflank1" class="form-control" type="text" placeholder="Enter flanking size" value="" />
+								</div>
+							</div>
+						</div>
+						<div class="gene_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Reference Gene
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter reference gene" name="refgene1" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter flanking size" type="text" class="form-control" name="geneflank1" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp_for_gene1" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+						<div class="chr_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Chromosome
+								</label>
+								<div class="col-sm-7">
+									<select name="chr1"  class="form-control">
+									<option selected="selected" value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									<option value="11">11</option>
+									<option value="12">12</option>
+									<option value="13">13</option>
+									<option value="14">14</option>
+									<option value="15">15</option>
+									<option value="16">16</option>
+									<option value="17">17</option>
+									<option value="18">18</option>
+									<option value="19">19</option>
+									<option value="20">20</option>
+									<option value="21">21</option>
+									<option value="22">22</option>
+									<option value="X">X</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Start (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input class="form-control" type="text" value="" placeholder="Enter start position" name="start1" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									End (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input name="end1" type="text" class="form-control" placeholder="Enter end position" value="" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter SNP name" name="refsnp_for_chr1" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				</div><div><div class="single_region_spec_head">
+					<div class="region_method_area form-group">
+						<label class="col-sm-3 control-label">
+							Specification method
+						</label>
+						<div class="col-sm-7">
+							<div class="radio">
+								<label><input type='radio' name='region_method2' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method2' onclick='response_to_select_region(this)' value='gene'>Reference Gene</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method2' onclick='response_to_select_region(this)' value='chr'> Chromosomal Region</label>
+							</div>
+						</div>
+					</div>
+					<div class="region_detail_area">
+						<div class="snp_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp2" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input name="snpflank2" class="form-control" type="text" placeholder="Enter flanking size" value="" />
+								</div>
+							</div>
+						</div>
+						<div class="gene_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Reference Gene
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter reference gene" name="refgene2" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter flanking size" type="text" class="form-control" name="geneflank2" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp_for_gene2" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+						<div class="chr_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Chromosome
+								</label>
+								<div class="col-sm-7">
+									<select name="chr2"  class="form-control">
+									<option selected="selected" value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									<option value="11">11</option>
+									<option value="12">12</option>
+									<option value="13">13</option>
+									<option value="14">14</option>
+									<option value="15">15</option>
+									<option value="16">16</option>
+									<option value="17">17</option>
+									<option value="18">18</option>
+									<option value="19">19</option>
+									<option value="20">20</option>
+									<option value="21">21</option>
+									<option value="22">22</option>
+									<option value="X">X</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Start (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input class="form-control" type="text" value="" placeholder="Enter start position" name="start2" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									End (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input name="end2" type="text" class="form-control" placeholder="Enter end position" value="" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter SNP name" name="refsnp_for_chr2" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				</div></div><div><div><div class="single_region_spec_head">
+					<div class="region_method_area form-group">
+						<label class="col-sm-3 control-label">
+							Specification method
+						</label>
+						<div class="col-sm-7">
+							<div class="radio">
+								<label><input type='radio' name='region_method3' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method3' onclick='response_to_select_region(this)' value='gene'>Reference Gene</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method3' onclick='response_to_select_region(this)' value='chr'> Chromosomal Region</label>
+							</div>
+						</div>
+					</div>
+					<div class="region_detail_area">
+						<div class="snp_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp3" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input name="snpflank3" class="form-control" type="text" placeholder="Enter flanking size" value="" />
+								</div>
+							</div>
+						</div>
+						<div class="gene_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Reference Gene
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter reference gene" name="refgene3" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter flanking size" type="text" class="form-control" name="geneflank3" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp_for_gene3" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+						<div class="chr_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Chromosome
+								</label>
+								<div class="col-sm-7">
+									<select name="chr3"  class="form-control">
+									<option selected="selected" value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									<option value="11">11</option>
+									<option value="12">12</option>
+									<option value="13">13</option>
+									<option value="14">14</option>
+									<option value="15">15</option>
+									<option value="16">16</option>
+									<option value="17">17</option>
+									<option value="18">18</option>
+									<option value="19">19</option>
+									<option value="20">20</option>
+									<option value="21">21</option>
+									<option value="22">22</option>
+									<option value="X">X</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Start (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input class="form-control" type="text" value="" placeholder="Enter start position" name="start3" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									End (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input name="end3" type="text" class="form-control" placeholder="Enter end position" value="" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter SNP name" name="refsnp_for_chr3" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				</div><div><div class="single_region_spec_head">
+					<div class="region_method_area form-group">
+						<label class="col-sm-3 control-label">
+							Specification method
+						</label>
+						<div class="col-sm-7">
+							<div class="radio">
+								<label><input type='radio' name='region_method4' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method4' onclick='response_to_select_region(this)' value='gene'>Reference Gene</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method4' onclick='response_to_select_region(this)' value='chr'> Chromosomal Region</label>
+							</div>
+						</div>
+					</div>
+					<div class="region_detail_area">
+						<div class="snp_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp4" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input name="snpflank4" class="form-control" type="text" placeholder="Enter flanking size" value="" />
+								</div>
+							</div>
+						</div>
+						<div class="gene_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Reference Gene
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter reference gene" name="refgene4" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter flanking size" type="text" class="form-control" name="geneflank4" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp_for_gene4" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+						<div class="chr_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Chromosome
+								</label>
+								<div class="col-sm-7">
+									<select name="chr4"  class="form-control">
+									<option selected="selected" value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									<option value="11">11</option>
+									<option value="12">12</option>
+									<option value="13">13</option>
+									<option value="14">14</option>
+									<option value="15">15</option>
+									<option value="16">16</option>
+									<option value="17">17</option>
+									<option value="18">18</option>
+									<option value="19">19</option>
+									<option value="20">20</option>
+									<option value="21">21</option>
+									<option value="22">22</option>
+									<option value="X">X</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Start (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input class="form-control" type="text" value="" placeholder="Enter start position" name="start4" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									End (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input name="end4" type="text" class="form-control" placeholder="Enter end position" value="" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter SNP name" name="refsnp_for_chr4" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				</div><div><div class="single_region_spec_head">
+					<div class="region_method_area form-group">
+						<label class="col-sm-3 control-label">
+							Specification method
+						</label>
+						<div class="col-sm-7">
+							<div class="radio">
+								<label><input type='radio' name='region_method5' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method5' onclick='response_to_select_region(this)' value='gene'>Reference Gene</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method5' onclick='response_to_select_region(this)' value='chr'> Chromosomal Region</label>
+							</div>
+						</div>
+					</div>
+					<div class="region_detail_area">
+						<div class="snp_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp5" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input name="snpflank5" class="form-control" type="text" placeholder="Enter flanking size" value="" />
+								</div>
+							</div>
+						</div>
+						<div class="gene_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Reference Gene
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter reference gene" name="refgene5" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter flanking size" type="text" class="form-control" name="geneflank5" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp_for_gene5" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+						<div class="chr_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Chromosome
+								</label>
+								<div class="col-sm-7">
+									<select name="chr5"  class="form-control">
+									<option selected="selected" value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									<option value="11">11</option>
+									<option value="12">12</option>
+									<option value="13">13</option>
+									<option value="14">14</option>
+									<option value="15">15</option>
+									<option value="16">16</option>
+									<option value="17">17</option>
+									<option value="18">18</option>
+									<option value="19">19</option>
+									<option value="20">20</option>
+									<option value="21">21</option>
+									<option value="22">22</option>
+									<option value="X">X</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Start (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input class="form-control" type="text" value="" placeholder="Enter start position" name="start5" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									End (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input name="end5" type="text" class="form-control" placeholder="Enter end position" value="" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter SNP name" name="refsnp_for_chr5" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				</div></div><div><div><div class="single_region_spec_head">
+					<div class="region_method_area form-group">
+						<label class="col-sm-3 control-label">
+							Specification method
+						</label>
+						<div class="col-sm-7">
+							<div class="radio">
+								<label><input type='radio' name='region_method6' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method6' onclick='response_to_select_region(this)' value='gene'>Reference Gene</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method6' onclick='response_to_select_region(this)' value='chr'> Chromosomal Region</label>
+							</div>
+						</div>
+					</div>
+					<div class="region_detail_area">
+						<div class="snp_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp6" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input name="snpflank6" class="form-control" type="text" placeholder="Enter flanking size" value="" />
+								</div>
+							</div>
+						</div>
+						<div class="gene_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Reference Gene
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter reference gene" name="refgene6" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter flanking size" type="text" class="form-control" name="geneflank6" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp_for_gene6" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+						<div class="chr_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Chromosome
+								</label>
+								<div class="col-sm-7">
+									<select name="chr6"  class="form-control">
+									<option selected="selected" value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									<option value="11">11</option>
+									<option value="12">12</option>
+									<option value="13">13</option>
+									<option value="14">14</option>
+									<option value="15">15</option>
+									<option value="16">16</option>
+									<option value="17">17</option>
+									<option value="18">18</option>
+									<option value="19">19</option>
+									<option value="20">20</option>
+									<option value="21">21</option>
+									<option value="22">22</option>
+									<option value="X">X</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Start (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input class="form-control" type="text" value="" placeholder="Enter start position" name="start6" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									End (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input name="end6" type="text" class="form-control" placeholder="Enter end position" value="" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter SNP name" name="refsnp_for_chr6" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				</div><div><div class="single_region_spec_head">
+					<div class="region_method_area form-group">
+						<label class="col-sm-3 control-label">
+							Specification method
+						</label>
+						<div class="col-sm-7">
+							<div class="radio">
+								<label><input type='radio' name='region_method7' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method7' onclick='response_to_select_region(this)' value='gene'>Reference Gene</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method7' onclick='response_to_select_region(this)' value='chr'> Chromosomal Region</label>
+							</div>
+						</div>
+					</div>
+					<div class="region_detail_area">
+						<div class="snp_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp7" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input name="snpflank7" class="form-control" type="text" placeholder="Enter flanking size" value="" />
+								</div>
+							</div>
+						</div>
+						<div class="gene_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Reference Gene
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter reference gene" name="refgene7" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter flanking size" type="text" class="form-control" name="geneflank7" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp_for_gene7" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+						<div class="chr_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Chromosome
+								</label>
+								<div class="col-sm-7">
+									<select name="chr7"  class="form-control">
+									<option selected="selected" value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									<option value="11">11</option>
+									<option value="12">12</option>
+									<option value="13">13</option>
+									<option value="14">14</option>
+									<option value="15">15</option>
+									<option value="16">16</option>
+									<option value="17">17</option>
+									<option value="18">18</option>
+									<option value="19">19</option>
+									<option value="20">20</option>
+									<option value="21">21</option>
+									<option value="22">22</option>
+									<option value="X">X</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Start (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input class="form-control" type="text" value="" placeholder="Enter start position" name="start7" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									End (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input name="end7" type="text" class="form-control" placeholder="Enter end position" value="" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter SNP name" name="refsnp_for_chr7" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				</div><div><div class="single_region_spec_head">
+					<div class="region_method_area form-group">
+						<label class="col-sm-3 control-label">
+							Specification method
+						</label>
+						<div class="col-sm-7">
+							<div class="radio">
+								<label><input type='radio' name='region_method8' onclick='response_to_select_region(this)' value='snp' checked >Reference SNP</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method8' onclick='response_to_select_region(this)' value='gene'>Reference Gene</label>
+							</div>
+							<div class="radio">
+								<label><input type='radio' name='region_method8' onclick='response_to_select_region(this)' value='chr'> Chromosomal Region</label>
+							</div>
+						</div>
+					</div>
+					<div class="region_detail_area">
+						<div class="snp_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp8" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input name="snpflank8" class="form-control" type="text" placeholder="Enter flanking size" value="" />
+								</div>
+							</div>
+						</div>
+						<div class="gene_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Reference Gene
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter reference gene" name="refgene8" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Flanking region (Kb)
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter flanking size" type="text" class="form-control" name="geneflank8" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input value="" placeholder="Enter SNP name" class="form-control" type="text" name="refsnp_for_gene8" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+						<div class="chr_region_spec">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Chromosome
+								</label>
+								<div class="col-sm-7">
+									<select name="chr8"  class="form-control">
+									<option selected="selected" value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									<option value="11">11</option>
+									<option value="12">12</option>
+									<option value="13">13</option>
+									<option value="14">14</option>
+									<option value="15">15</option>
+									<option value="16">16</option>
+									<option value="17">17</option>
+									<option value="18">18</option>
+									<option value="19">19</option>
+									<option value="20">20</option>
+									<option value="21">21</option>
+									<option value="22">22</option>
+									<option value="X">X</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Start (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input class="form-control" type="text" value="" placeholder="Enter start position" name="start8" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									End (Mb)
+								</label>
+								<div class="col-sm-7">
+									<input name="end8" type="text" class="form-control" placeholder="Enter end position" value="" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">
+									Optional index SNP
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="form-control" value="" placeholder="Enter SNP name" name="refsnp_for_chr8" />
+									<small>
+										Default is the SNP with smallest P value
+									</small>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				</div></div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="form-group">
+	<div class="col-sm-offset-3">
+		<input type="submit" name=".submit" class="btn btn-primary" />
+	</div>
+</div>
+
+<hr><h2>
+	<span title='Plot HiC interaction heatmap'>HiC interaction plot</span>
+</h2>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		Plot HiC interaction heatmap (<a href='pages/help.html#enlight_example_output_heatmap'>example</a>)? <a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="For details about data source, please go to <a href='pages/faq.html#q3'>FAQ</a>"><span class="glyphicon glyphicon-info-sign" />
+		</a>
+	</label>
+	<div class="col-sm-7">
+		<div class="checkbox">
+			<label>
+				 <input type="checkbox" name="heatmap_toggle" value="on" checked="checked" id="heatmap_toggle_id" />check for yes
+			</label>
+		</div>
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		Interaction type (resolution) <a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="You can plot with either interchromosomal or intrachromosomal data. The number in parentheses indicate the resolution of data."><span class="glyphicon glyphicon-info-sign" />
+</a>
+	</label>
+	<div class="col-sm-7">
+		<div class="radio">
+			<label>
+			<input type="radio" name="interaction_type" id="interaction_type_inter_id" value="interchromosomal" onclick="$('#interaction_chr_tr_id').show();" >INTERchromosomal(1Mb)
+			</label>
+			<label>
+			<input type="radio" name="interaction_type" id="interaction_type_intra_id" checked="checked" value="intrachromosomal" onclick="$('#interaction_chr_tr_id').hide();" >INTRAchromosomal(100Kb)
+			</label>
+		</div>
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		Cell line
+	</label>
+	<div class="col-sm-7">
+		<div class="radio">
+			<label>
+				    <input type="radio" name="interaction_cell_type" id="interaction_cell_type_k562_id" value="k562" >K562</label><a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="Established from pleural effusion of 53 year old female with chronic myelogenous leukaemia in terminal blast crisis. Population highly undifferentiated and of the granulocytic series. Can be used as a highly sensitive target for the in vitro natural killer assay. Recent studies have shown the K562 blasts are multipotential, hematopoietic malignant cells that spontaneously differentiate into recognisable progenitors of the erythrocyte, granulocyte and monocytic series.--SigmaAldrich"><span class="glyphicon glyphicon-info-sign" />
+</a>
+				    <label>
+				    <input type="radio" name="interaction_cell_type" id="interaction_cell_type_gm06690_id" value="gm06690" checked="checked">GM06690</label><a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="EBV-transformed lymphoblastoid cell line"><span class="glyphicon glyphicon-info-sign" />
+</a>
+		</div>
+	</div>
+</div>
+<div style="display:none" id="interaction_chr_tr_id">
+	<div class="form-group">
+		<label class="col-sm-3 control-label">
+			Chromosome
+		</label>
+		<div class="col-sm-7">
+			<select class="form-control" name='interaction_chr' ><option value='1'>1</option>
+			<option value='2'>2</option>
+			<option value='3'>3</option>
+			<option value='4'>4</option>
+			<option value='5'>5</option>
+			<option value='6'>6</option>
+			<option value='7'>7</option>
+			<option value='8'>8</option>
+			<option value='9'>9</option>
+			<option value='10'>10</option>
+			<option value='11'>11</option>
+			<option value='12'>12</option>
+			<option value='13'>13</option>
+			<option value='14'>14</option>
+			<option value='15'>15</option>
+			<option value='16'>16</option>
+			<option value='17'>17</option>
+			<option value='18'>18</option>
+			<option value='19'>19</option>
+			<option value='20'>20</option>
+			<option value='21'>21</option>
+			<option value='22'>22</option>
+			<option value='X'>X</option></select>
+		</div>
+	</div>
+</div>
+<div class="form-group">
+	<div class="col-sm-offset-3">
+		<input type="submit" name=".submit" class="btn btn-primary" />
+	</div>
+</div>
+
+<hr><h2>
+	Generic plot (using UCSC BED tables)
+</h2>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		Generic (annotation) plot (<a href='pages/help.html#enlight_example_output'>example</a>)? <a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="Histogram underneath the conventional GWAS regional displaying normalized scores. Data comes from UCSC genome browser. See <a href='pages/help.html#exampleoutput_plot'>here</a> for an example. See <a href='pages/faq.html#q2'>here</a> for data source."><span class="glyphicon glyphicon-info-sign" />
+		</a>
+	</label>
+	<div class="col-sm-7">
+		<div class="checkbox">
+			<label>
+				 <input type="checkbox" name="generic_toggle" value="on" checked="checked" id="generic_toggle_id" />check for yes
+			</label>
+		</div>
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		Text annotation? <a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="Region-based annotation from ANNOVAR is added for each variant. The annotation includes all data tracks used for generic plot plus 1000 genome MAF (minor allele frequency), overlapping genes, possible amino acid changes etc. See <a href='pages/help.html#exampleoutput_text'>example</a>."><span class="glyphicon glyphicon-info-sign" />
+		</a>
+	</label>
+	<div class="col-sm-7">
+		<div class="checkbox">
+			<label>
+				 <input type="checkbox" name="anno_toggle" value="on" id="anno_toggle_id" />check for yes
+			</label>
+		</div>
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		Input file in ANNOVAR format? <a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="If your input file conforms to ANNOVAR format, i.e., has chromosome, start, end, reference allele, alternative allele as the first 5 columns, check the box."><span class="glyphicon glyphicon-info-sign" />
+</a>
+	</label>
+	<div class="col-sm-7">
+		<div class="checkbox">
+			<label>
+				 <input type="checkbox" name="avinput" value="on" id="avinput_id" />check for yes
+			</label>
+		</div>
+	</div>
+</div>
+<div class="form-group">
+	<label class="col-sm-3 control-label">
+		More options (output LD) <a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content="Show advanced options, such as whether to output linkage disequilibrium between each variant and the reference SNP. You can use this feature as a convenient LD calculator. LD is calculated by PLINK."><span class="glyphicon glyphicon-info-sign" />
+</a>
+	</label>
+	<div class="col-sm-7">
+		<div class="radio">
+			<label>
+				    <input type="radio" name="detail_toggle" value="show" onclick="showDetail()">show
+				    </label>
+				    <label>
+				    <input type="radio" name="detail_toggle" value="hide" onclick="hideDetail()" checked="checked">hide
+				    </label>
+		</div>
+	</div>
+</div>
+<div class="form-group">
+	<div style="display:none" class="col-sm-offset-3 col-sm-7 bg-info" id="option_detail_id">
+		<div class="checkbox">
+			<label>
+				 <input type="checkbox" name="ld_toggle" value="on" checked="checked" id="ld_toggle_id" />Output linkage disequilibrium (only works with SINGLE region, written in input file)
+			</label>
+		</div>
+	</div>
+</div>
+<div class="form-group">
+	<div class="col-sm-offset-2">
+		<h4>
+			Please upload your own files <b style="color:red">AFTER</b> selecting data tracks.</b><br>
+		</h4>
+	</div>
+</div>
+<div class="row">
+	<label class="col-sm-offset-1 col-sm-2 ">
+		Cell line
+	</label>
+	<label class="col-sm-3 ">
+		Experiment type
+	</label>
+	<label class="col-sm-5 ">
+		<p>Data Tracks (BED format[<a class='button' href="/example/example.bed">example</a>]; gzipped ok; max: 20)
+	</label>
+</div>
+<div class="form-group">
+	<div class="row">
+		<div class="col-sm-offset-1 col-sm-2">
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='A549' class= 'cell' value='A549' onchange='changeTracks()'/>A549</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Human lung carcinoma cell line
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='Caco-2' class= 'cell' value='Caco-2' onchange='changeTracks()'/>Caco-2</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Human colorectal adenocarcinoma cell line
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='GM12878' class= 'cell' value='GM12878' onchange='changeTracks()'/>GM12878</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Human lymphoblastoid cell line
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='H1-hESC' class= 'cell' value='H1-hESC' onchange='changeTracks()'/>H1-hESC</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="H1 human embryonic stem cells
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='HCT116' class= 'cell' value='HCT116' onchange='changeTracks()'/>HCT116</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Human colorectal carcinoma
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='HMEC' class= 'cell' value='HMEC' onchange='changeTracks()'/>HMEC</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Human Mammary Epithelial Cell
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='HSMM' class= 'cell' value='HSMM' onchange='changeTracks()'/>HSMM</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Human Skeletal Muscle Myoblasts
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='HUVEC' class= 'cell' value='HUVEC' onchange='changeTracks()'/>HUVEC</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Human umbilical vein endothelial cell
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='HeLa-S3' class= 'cell' value='HeLa-S3' onchange='changeTracks()'/>HeLa-S3</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Human cervical cancer cell line
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='HepG2' class= 'cell' value='HepG2' onchange='changeTracks()'/>HepG2</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Human hepatoma cell line
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='K562' class= 'cell' value='K562' onchange='changeTracks()'/>K562</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Human chronic myelogenous leukemia cell line
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='MCF-7' class= 'cell' value='MCF-7' onchange='changeTracks()'/>MCF-7</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Human breast cancer cell line
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='NHEK' class= 'cell' value='NHEK' onchange='changeTracks()'/>NHEK</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Normal Human Epidermal Keratinocytes
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='NHLF' class= 'cell' value='NHLF' onchange='changeTracks()'/>NHLF</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Normal human lung fibroblasts
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-7'><label><input type='checkbox' id='None' class= 'cell' value='None' onchange='changeTracks()'/>None</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="Not a specific cell line. Used for non-cell-specific tracks, such as TFBS region
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-3">
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='ChIP-seq_CTCF' class= 'experiment' value='ChIP-seq_CTCF' onchange='changeTracks()'/>ChIP-seq_CTCF</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track reports the enrichment of CTCF binding measured by ChIP-seq. CTCF is a transcription regulator that could bind to insulator sequence.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='ChIP-seq_H3K27ac' class= 'experiment' value='ChIP-seq_H3K27ac' onchange='changeTracks()'/>ChIP-seq_H3K27ac</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track reports the enrichment of an active epigenetic marker for enhancer measured by ChIP-seq.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='ChIP-seq_H3K27me3' class= 'experiment' value='ChIP-seq_H3K27me3' onchange='changeTracks()'/>ChIP-seq_H3K27me3</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track reports the enrichment of a repressive epigenetic marker measured by ChIP-seq.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='ChIP-seq_H3K36me3' class= 'experiment' value='ChIP-seq_H3K36me3' onchange='changeTracks()'/>ChIP-seq_H3K36me3</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track reports the enrichment of an active epigenetic marker for transcription elongation measured by ChIP-seq.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='ChIP-seq_H3K4me1' class= 'experiment' value='ChIP-seq_H3K4me1' onchange='changeTracks()'/>ChIP-seq_H3K4me1</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track reports the enrichment of an active epigenetic marker for enhancer measured by ChIP-seq.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='ChIP-seq_H3K4me3' class= 'experiment' value='ChIP-seq_H3K4me3' onchange='changeTracks()'/>ChIP-seq_H3K4me3</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track reports the enrichment of an active epigenetic marker for promoter measured by ChIP-seq.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='ChIP-seq_H3K79me2' class= 'experiment' value='ChIP-seq_H3K79me2' onchange='changeTracks()'/>ChIP-seq_H3K79me2</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track reports the enrichment of an active epigenetic marker for transcription elongation measured by ChIP-seq.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='ChIP-seq_H3K9ac' class= 'experiment' value='ChIP-seq_H3K9ac' onchange='changeTracks()'/>ChIP-seq_H3K9ac</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track reports the enrichment of an active epigenetic marker for promoter measured by ChIP-seq.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='ChIP-seq_H3K9me3' class= 'experiment' value='ChIP-seq_H3K9me3' onchange='changeTracks()'/>ChIP-seq_H3K9me3</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track reports the enrichment of a repressive epigenetic marker measured by ChIP-seq.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='ChIP-seq_TCF3' class= 'experiment' value='ChIP-seq_TCF3' onchange='changeTracks()'/>ChIP-seq_TCF3</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track reports the enrichment of TCF3 binding measured by ChIP-seq. TCF3 is a transcription factor.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='ChIP-seq_TCF7L2' class= 'experiment' value='ChIP-seq_TCF7L2' onchange='changeTracks()'/>ChIP-seq_TCF7L2</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track reports the enrichment of TCF7L2 binding measured by ChIP-seq. TCF7L2 is a transcription factor in Wnt pathway.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='DNase-seq' class= 'experiment' value='DNase-seq' onchange='changeTracks()'/>DNase-seq</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track reports DNase Hyper-sensitivity Sites measured by DNase-seq. Regions with higher scores are more likely to be accessible by enzymes.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='FAIRE-seq' class= 'experiment' value='FAIRE-seq' onchange='changeTracks()'/>FAIRE-seq</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track reports nucleosome-depleted regions of the genome measured by FAIRE-seq. Regions with higher scores are more likely to be accessible by enzymes.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='TFBS Conservation' class= 'experiment' value='TFBS Conservation' onchange='changeTracks()'/>TFBS Conservation</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track contains the location and score of transcription factor binding sites conserved in the human/mouse/rat alignment.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='TFBS Region' class= 'experiment' value='TFBS Region' onchange='changeTracks()'/>TFBS Region</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track shows regions where transcription factors, proteins responsible for modulating gene transcription, bind to DNA as assayed by ChIP-seq.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='chromHMM' class= 'experiment' value='chromHMM' onchange='changeTracks()'/>chromHMM</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="This track displays a chromatin state segmentation for each cell line. The states were computed integrating multiple ChIP-seq data sets using HMM method.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="checkbox">
+					<div class='col-sm-8'><label><input type='checkbox' id='methyl RRBS' class= 'experiment' value='methyl RRBS' onchange='changeTracks()'/>methyl RRBS</label></div> <div class=''><a class='mypopover' tabindex='0' 
+			data-trigger='focus' data-toggle='popover' 
+			data-content="The track reports the percentage of DNA molecules that exhibit cytosine methylation at specific CpG dinucleotides. The score in this track reports the number of sequencing reads obtained for each CpG, which is often called 'coverage'. The score is capped at 1000, so any CpGs that were covered by more than 1000 sequencing reads have a score of 1000.
+"><span class="glyphicon glyphicon-info-sign" />
+</a></div>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-5">
+			<div id="dataTrackHere" />
+		</div>
+	</div>
+</div>
+
+<br><br><div class="form-group">
+	<div class="col-sm-offset-3">
+		<input type="submit" name=".submit" class="btn btn-lg btn-primary" /> <input type="reset"  name=".reset" class="col-sm-offset-1 btn btn-lg btn-primary" />
+	</div>
+</div>
+<div><input type="hidden" name=".cgifields" value="anno_toggle"  /><input type="hidden" name=".cgifields" value="heatmap_toggle"  /><input type="hidden" name=".cgifields" value="avinput"  /><input type="hidden" name=".cgifields" value="qformat"  /><input type="hidden" name=".cgifields" value="ld_toggle"  /><input type="hidden" name=".cgifields" value="generic_toggle"  /></div>
+</form><h4>
+	Reference:
+</h4>
+ <ul>
+        <li> Guo Y, Conti D V, Wang K. <a href="http://bioinformatics.oxfordjournals.org/content/early/2014/09/26/bioinformatics.btu639.abstract?keytype=ref&ijkey=ICMm1z6EbQwLpIf">Enlight: web-based integration of GWAS results with biological annotations</a>  <em><strong>Bioinformatics</strong></em>, doi: 10.1093/bioinformatics/btu639, 2014</li>
+	      </ul>
+	      <h4>
+	Please send questions or comments to <a href="mailto:yunfeigu@usc.edu">yunfeigu@usc.edu</a>
+</h4>
+
+      <hr>
+      <footer>
+        <p>&copy; Wang Genomics Lab 2013-2014</p>
+      </footer>
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+  </body>
+</html>
