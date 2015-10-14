@@ -2094,6 +2094,9 @@ grid.summary=function(args,metal,genscore,category_anno)
     genericNo=length(genericNames);
     categoryNo=length(categoryNames);
 
+    print(2096);
+    print(genericNo);
+    print(categoryNo);
     if (! args[['showCategory']])
     {
 	categoryNo=0;
@@ -2107,6 +2110,9 @@ grid.summary=function(args,metal,genscore,category_anno)
     ldRemain=1; #this is fixed, just for LD categorization plot
     genericRemain=genericNo;
     categoryRemain=categoryNo;
+    print(2109);
+    print(genericNo);
+    print(categoryNo);
     maxPlotPerPage=3;
     #layout
     #######################################################
@@ -2678,6 +2684,8 @@ if ( is.null(args[['reload']]) ) {
 	    #    print (paste("Empty generic table: ",names(genscore)[i],sep=""));
 	    #}
 	}
+	print(2684);
+	print(genscore);
     } else
     {
 	genscore=NULL;
@@ -2714,6 +2722,8 @@ if ( is.null(args[['reload']]) ) {
 		print (paste("Empty category annotation table: ",names(category_anno)[i],sep=""));
 	    }
 	}
+	print(2722);
+	print(category_anno);
     } else
     {
 	category_anno=NULL;
@@ -2741,12 +2751,12 @@ if ( is.null(args[['reload']]) ) {
 				      function(col){
 					  unlist(lapply( strsplit(col,","),
 							function(elem)
-							{max(elem)}
+							{max(as.numeric(elem))}
 							)
 					  )}
 				      ));
-	print(str(xyplotData));
 	colnames(xyplotData)=xyplotcol;#column names are not set automatically
+	print(str(xyplotData));
 	for (i in 1:length(names(xyplotData)))
 	{
 	    #convert string to numerical value, if in scientific notation, convert to plain decimal numbers

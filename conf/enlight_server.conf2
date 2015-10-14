@@ -1,0 +1,102 @@
+#Enlight Server configuration
+
+######################
+#one option per line in 'key=value' fashion
+#spaces NOT allowed
+#make the settings agree with m2zfast.conf!
+#keys must NOT be changed
+#all paths must be ABSOLUTE FULL path
+######################
+
+#FREQUENTLY USED CONFIGURATIONS
+#administer email
+admin=yunfeigu@usc.edu
+#job administration database
+dbname=yunfeiguo_enlight
+#database user name
+dbuser=yunfeiguo
+#database password
+dbpassword=enlight221
+#RECAPTCHA public key
+#public_key=
+#RECAPTCHA private key
+#private_key=
+#locuszoom executable path
+locuszoom_exe=/home/yunfeiguo/enlight/bin/locuszoom2
+#python 2.7 bin folder or leave it blank to use default
+python_bin=
+#ANNOVAR exe directory
+annovar_bin=/home/yunfeiguo/Downloads/annovar
+#ANNOVAR database directory
+annovar_dir=/home/yunfeiguo/Downloads/annovar/humandb
+#output dir, this folder MUST be mapped to '/output' URL-path,eg, on Apache,
+#Alias /output /var/www/html/enlight/output
+outdir=/home/yunfeiguo/enlight/output
+#error log file
+serverlog=/home/yunfeiguo/enlight/log/error.log
+#database file (copy is for custom datatrack upload)
+hg19db=/home/yunfeiguo/enlight/data/database/enlight_hg19.db
+hg18db=/home/yunfeiguo/enlight/data/database/enlight_hg18.db
+hg19rs=/home/yunfeiguo/enlight/data/database/hg19_snp137_rs.txt
+hg18rs=/home/yunfeiguo/enlight/data/database/hg18_snp137_rs.txt
+#chromHMM legend
+hmmLegend=/home/yunfeiguo/enlight/conf/chromHMM_legend.txt
+#datatrack list file
+trackList=/home/yunfeiguo/enlight/conf/datatracks.txt
+#cell description file
+cellDesc=/home/yunfeiguo/enlight/conf/cellDesc.txt
+#experiment description file
+expDesc=/home/yunfeiguo/enlight/conf/expDesc.txt
+#annotation database names for variants (comma-separated)
+#WARNING: each database must also have a database (*_existence as prefix) with the name column filled with 'y' character, this is to mark variants in regional plots
+#keep the names short for easy display
+varAnnoList=GTEx_eQTL_11162013,UChgo_eQTL_11162013,GWAS_CAT_11242013
+
+
+#LESS VARIABLE CONFIGURATIONS
+#temporary dir
+tmp=/tmp
+#max number of running jobs per ip
+maxperip=4
+#max upload size (in MB)
+maxupload=200
+#max number of jobs running simultaneously. Note however, by design actual number of running instances could exceed this limit, so it's better to set it to a low value
+maxjobnum=6
+#max number of finished (or aborted) jobs stored on server (no data, only results)
+maxjobhist=200
+#waiting time (seconds) for a job before it tries to rerun
+waittime=10
+#max time a job can run (in seconds)
+max_run_time=36000
+#max time a job can remain as 'running' status, this is for removing jobs no longer possibly active
+maxtime=108000
+#submission table name
+tablename=submission
+
+
+####################################################
+#ANALYSIS PARAMEMTERS
+#default flanking region (KB)
+flank_default=200
+#default max number of generic plots allowed
+generic_table_max=20
+
+####################################################
+#LD source, Genome build, Population
+#keys MUST be numerical, items separated by comma
+1=1000G_March2012,hg19,EUR
+2=1000G_March2012,hg19,ASN
+3=1000G_March2012,hg19,AFR
+4=1000G_March2012,hg19,AMR
+5=1000G_Nov2010,hg19,EUR
+6=1000G_Nov2010,hg19,ASN
+7=1000G_Nov2010,hg19,AFR
+8=1000G_Aug2009,hg18,CEU
+9=1000G_Aug2009,hg18,JPT+CHB
+10=1000G_Aug2009,hg18,YRI
+11=1000G_June2010,hg18,CEU
+12=1000G_June2010,hg18,JPT+CHB
+13=1000G_June2010,hg18,YRI
+14=hapmap,hg18,CEU
+15=hapmap,hg18,JPT+CHB
+16=hapmap,hg18,YRI

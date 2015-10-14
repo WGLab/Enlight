@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Enlight</title>
+<meta name="keywords" content="green jelly, theme, free templates, nivo image slider, website, templatemo, CSS, HTML" />
+<meta name="description" content="Green Jelly Theme, free CSS template provided by templatemo.com" />
+<link href="../css/templatemo_style.css" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="../css/nivo-slider.css" type="text/css" media="screen" />
+
+<script language="javascript" type="text/javascript">
+function clearText(field)
+{
+    if (field.defaultValue == field.value) field.value = '';
+    else if (field.value == '') field.value = field.defaultValue;
+}
+</script>
+
+<link rel="stylesheet" type="text/css" href="../css/ddsmoothmenu.css" />
+
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../js/ddsmoothmenu.js">
+
+/***********************************************
+* Smooth Navigational Menu- (c) Dynamic Drive DHTML code library (www.dynamicdrive.com)
+* This notice MUST stay intact for legal use
+* Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
+***********************************************/
+
+</script>
+
+<script type="text/javascript">
+
+ddsmoothmenu.init({
+	mainmenuid: "templatemo_menu", //menu DIV id
+	orientation: 'h', //Horizontal or vertical menu: Set to "h" or "v"
+	classname: 'ddsmoothmenu', //class added to menu's outer DIV
+	//customtheme: ["#1c5a80", "#18374a"],
+	contentsource: "markup" //"markup" or ["container_id", "path_to_menu_file"]
+})
+
+</script>
+  
+</head>
+<body>
+
+<div id="templatemo_wrapper">
+	<div id="templatemo_header"></div> <!-- end of header -->
+      <div id="templatemo_menu" class="ddsmoothmenu">
+        <ul>
+            <li><a href="../index.html" >Home</a></li>
+            <li><a href="tutorial.html" >Tutorial</a></li>
+            <li><a href="help.html" class="selected">Help</a></li>
+            <li><a href="pipeline.html">Pipeline</a> </li>
+            </ul>
+        <br style="clear: left" />
+    </div> <!-- end of menu -->
+    
+    <script type="text/javascript" src="../js/jquery-1.4.3.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.nivo.slider.js"></script>
+    <script type="text/javascript">
+    $(window).load(function() {
+    $('#slider').nivoSlider();
+    });
+    </script>
+    
+    <div id="templatemo_main"><br class="cleaner" />
+	<h2>Example Input</h2>
+	<img width=600 height=340 src="../images/enlight_example_input.png" class='center'>
+	<h2>Example Plot</h2>
+	<p><b>An example plot showing 1MB and 100KB region around rs10318, which is a known variant showing genome-wide significant association with colorectal cancer. After zooming in, DNase Hypersensitivity Sites (DHS) can be visually identified near some variants that are in high LD with the index SNP. These SNPs might be good candidates for causal variants. Plot summary and legend (not shown here) can be found on the second page of your result PDF file.</b></p>
+	<br />
+	<img width=900 height=1311 src="../images/enlight_example_output.png" class='center'>
+	<h2>Example Text Annotation</h2>
+<<<<<<< .mine
+	<p><b>If you opt to output ANNOVAR annotation, you will get a '*.hg19_multianno.txt' on result page. This is the text annotation for each variant in the input file. ANNOVAR will output gene annotation, minor allele frequency (MAF) from 1000 Genomes project as well as selected UCSC datatracks and other annotation info (eg custome BED file, eQTL etc). If your input file does not have the 5 columns required by ANNOVAR (chr,start,end,alt,ref), Enlight will first convert rsIDs to chromosomal positions according to dbSNP137, and then run annotation. Sometimes, you will see *.invalid_input files on result page, they contain lines that can't by recognized by ANNOVAR, e.g. lines that don't have chr/start/end.</b></p>
+=======
+	<p><b>If you opt to output ANNOVAR annotation, you will get a '*.hg19_multianno.txt' on result page. This is the text annotation for each variant in the input file. ANNOVAR will output gene annotation, minor allele frequency (MAF) from 1000 Genomes project as well as selected UCSC datatracks and other annotation info (eg custome BED file, eQTL etc). If your input file does not have the 5 columns required by ANNOVAR (chr,start,end,alt,ref), Enlight will first convert rsIDs to chromosomal positions according to dbSNP137, and then run annotation.  Sometimes, you will see *.invalid_input files on result page, they contain lines that can't by recognized by ANNOVAR, e.g. lines that don't have chr/start/end.</b></p>
+>>>>>>> .r250
+	<br />
+	<img width=900 height=300 src="../images/enlight_example_text_output.png" class='center'>
+	<p>NOTE: The above output has been adjusted for display purposes. Actual results will differ.</p>
+	<br /><br />
+
+
+    </div> <!-- end of main -->
+    
+    <div id="templatemo_footer">
+      <div class="cleaner"></div>
+    </div> <!-- end of footer -->
+</div>
+
+<div id="templatemo_cr_bar_wrapper">
+	<div id="templatemo_cr_bar">
+    	Copyright © 2013 <a href="http://genomics.usc.edu">USC Wang Lab</a> | Designed by <a href="http://www.templatemo.com" target="_parent">Free CSS Templates</a>
+    </div>
+</div>
+
+
+<script type='text/javascript' src='../js/logging.js'></script>
+</body>
+</html>

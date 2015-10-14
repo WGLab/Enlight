@@ -408,7 +408,8 @@ sub geneOperation {
     while (<FUNCTION>) 
     {
 	s/[\r\n]+$//;
-	m/^(\S+)\t([^\t]+)\t(\S+\s+\S+\s+\S+\s+\S+\s+\S+).*/ or die "Error: invalid record found in annovar outputfile: <$_>\n";
+	#m/^(\S+)\t([^\t]+)\t(\S+\s+\S+\s+\S+\s+\S+\s+\S+).*/ or die "Error: invalid record found in annovar outputfile: <$_>\n";
+	m/^(\S+)\t([^\t]+)\t(\S+\s+\S+\s+\S+\s+\S+\s+\S+).*/ or die "Error: invalid record found in annovar outputfile: <$_>";
 	my ($function, $gene, $varstring) = ($1, $2, $3);
 	$varstring =~ s/\s+/\t/g;
 	$varanno{$varstring}{"Func.$protocol"}=$function;

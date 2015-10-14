@@ -38,8 +38,8 @@ GetOptions(
 #delete tables from a specific db
 my $executedb="$RealBin/../src/executeDB.py";
 my $annovar="annotate_variation.pl";
-my $liftover="liftOver";
-my $hg19to18chain="hg19ToHg18.over.chain";
+my $liftover="/home/yunfeiguo/Downloads/liftover/liftOver";
+my $hg19to18chain="/home/yunfeiguo/Downloads/liftover/hg19ToHg18.over.chain";
 my %chr2no=(
     'chr1' => '1', 'chr2' => '2', 'chr3' => '3', 'chr4' => '4',
     'chr5' => '5', 'chr6' => '6', 'chr7' => '7', 'chr8' => '8',
@@ -121,7 +121,7 @@ if (@ins)
 }
 
 #cleanup
-unlink @unlink;
+!system("rm -rf @unlink") or die "Failed to clean @unlink: $!\n";
 
 ##########################SUBROUTINES########################
 sub bed2generic
