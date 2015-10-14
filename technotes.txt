@@ -5,7 +5,7 @@ after everything is set, run 'cgi-bin/submission.cgi' and copy all files out of 
 chmod 733 output
 chmod 733 log/error.log
 SQLite3 must be installed and put in system PATH because LocusZoom utilizes this database engine.
-DBI DBD::mysql IPC::System::Simple Email::Sender::Simple Email::MIME perl modules are required. Don't forget to tell all CGIs where libs are located by changing PERL5LIB variable
+CGI DBI DBD::mysql IPC::System::Simple Email::Sender::Simple Email::MIME perl modules are required. Don't forget to tell all CGIs where libs are located by changing PERL5LIB variable
 to force all queued and running jobs quit, just put '1' in jobClean() subroutine and submit a dummy job, all jobs will quit before this dummy job runs
 make sure to have functional locuszoom and table_annovar.pl before setting up the server
 read and modify enlight_server.conf and m2zfast.conf wherever necessary
@@ -15,3 +15,31 @@ make sure annotate_variation.pl at the beginning of your PATH
 make the installation folder as the document root for apache (or its virtual host)
 install ucsc liftOver program, download chain file (modify annodb_admin accordingly)
 download hg19 and hg18 builds of refgene, 1000g2012apr databases for ANNOVAR
+modify enlight/conf/m2zfast.conf to make sure plink and newfugue paths are correct
+change perl5lib path in cgi-bin/process.cgi to make sure the local modules can be found 
+
+######
+commands for setting up Enlight
+wget http://www.cpan.org/src/5.0/perl-5.22.0.tar.gz
+tar -xzf perl-5.22.0.tar.gz
+cd perl-5.22.0
+./Configure -des -Dprefix=$HOME/localperl
+make
+make test
+make install
+cd ..
+~/localperl/bin/cpan CGI DBI DBD::mysql IPC::System::Simple Email::Sender::Simple Email::MIME Email::Sender::Transport::SMTP::TLS DBD::mysql Array::Transpose
+wget https://www.python.org/ftp/python/2.7.10/Python-2.7.10.tgz
+gunzip Python-2.7.10.tgz 
+tar xvf Python-2.7.10.tar 
+cd Python-2.7.10
+./configure --prefix=$HOME/localpython
+make && make install
+chmod 733 enlight/output
+chmod 733 enlight/log/error.log
+
+
+#########
+for MySQL
+mysql -u yunfeiguo -p
+use yunfeiguo_enlight #or any other database name
