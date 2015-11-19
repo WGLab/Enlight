@@ -3,3 +3,13 @@ data
 *.pyc
 *.pyo
 output
+2015Feb_grant/*
+paper/*
+bin/formatter_new
+biomatrix_work/
+cgi-bin/test
+example/ashg_poster/
+lib/Utils2.pm
+process2.cgi
+tmp/
+
