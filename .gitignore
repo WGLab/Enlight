@@ -3,3 +3,5 @@ data
 *.pyc
 *.pyo
 output
+2015Feb_grant/*
+paper/*
