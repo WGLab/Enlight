@@ -13,7 +13,9 @@ my $usage=
 	delim2tab	replace all commas by tab
 	rs2avinput 	remove header and convert rsID to AVINPUT format
 	addbin		add BIN column as 1st column, delimiter is TAB
-	rmcol		remove specific column assuming tab-delimited input with only one such column\n";
+	rmcol		remove specific column assuming tab-delimited input with only one such column
+	chheader	add user_ prefix to headers if it is not present, this will distinguish user-defined
+			cols from newly added cols\n";
 die $usage if @ARGV<1;
 my $op=shift @ARGV;
 
@@ -35,12 +37,20 @@ if ($op eq 'delim2tab')
 } elsif ($op eq 'rmcol')
 {
     &rmcol(@ARGV);
+} elsif ($op eq 'chheader')
+{
+    &chheader(@ARGV);
 }else
 {
     die $usage;
 }
 
 #-------------------------------------------------------------------------
+sub chheader
+{
+	my ($in,$out) = @_;
+	!system("perl -i -ane 'if(\$.==1){for \$i(\@F){\$i=~s/^/user_/ unless \$i=~/^user_/;};print join(\"\\t\",\@F),\"\\n\";}else{s/[\\r\\n]+\$//;print \$_,\"\\n\"}' $in && mv $in $out") or die "perl or mv:$!\n";
+}
 sub addbin
 {
     die "$PROGRAM addbin <input> <output>\n" unless @ARGV==2;

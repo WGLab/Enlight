@@ -177,7 +177,10 @@ sub jobClean
 	    my ($id, $access)=@{$row};
 	    chdir $outdir or die "Cannot enter $outdir\n";
 	    push @clean,$id;
-	    ! system("rm -rf $access") or die ("Cannot remove $access: $!");
+	    if (-d $access or -e $access or -l $access) 
+	    {
+		    ! system("rm -rf $access") or die ("Cannot remove $access: $!");
+	    }
 	}
     }
     if ($force)
@@ -190,8 +193,10 @@ sub jobClean
 	    my ($id, $access,$status)=@{$row};
 	    chdir $outdir or die "Cannot enter $outdir\n";
 	    push @clean,$id;
-	    ! system("rm -rf $access") or die ("Cannot remove $access: $!")
-	    							if $status=~/r/;
+	    if (-d $access or -e $access or -l $access) 
+	    {
+		    ! system("rm -rf $access") or die ("Cannot remove $access: $!") if $status=~/r/;
+	    }
 	}
     }
     map {$dbh->do("UPDATE $tablename SET status = 'c' WHERE id = '$_'")} @clean;
