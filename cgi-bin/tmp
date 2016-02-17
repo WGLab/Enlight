@@ -1,0 +1,478 @@
+[Sun Apr 13 04:19:50 2014] [error] [client 66.249.64.27] File does not exist: /var/www/html/enlight2/robots.txt
+[Sun Apr 13 07:23:30 2014] [error] [client 157.55.35.35] File does not exist: /var/www/html/enlight2/robots.txt
+[Mon Apr 14 05:07:06 2014] [error] [client 65.55.24.245] File does not exist: /var/www/html/enlight2/robots.txt
+[Mon Apr 14 08:49:48 2014] [error] [client 193.62.202.242] File does not exist: /var/www/html/enlight2/favicon.ico, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:05 2014] [error] [client 193.62.202.242] [Mon Apr 14 09:25:05 2014] process.cgi: !!!!!, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:05 2014] [error] [client 193.62.202.242] [Mon Apr 14 09:25:05 2014] process.cgi: INSERT INTO submission (date, time, ip, query, filesize,status, access, param) VALUES ('04/14/2014','09:25:04','193.62.202.242','/tmp/3179026525.6039305145.tmp',10656,'q','yskdqbh83vdceyxf',' showAnnot=TRUE annotPch="24,1" annotOrder="y,n" annotName="GTEx_eQTL_11162013" annotCol="GTEx_eQTL_11162013_existence" --metal rs10318.txt --build hg19 --markercol dbSNP135 --source 1000G_March2012 --category wgEncodeBroadHmmHepg2HMM categoryKey=/home/yunfeiguo/enlight/conf/chromHMM_legend.txt --generic wgEncodeUwDnaseHct116PkRep1,wgEncodeOpenChromDnaseHepg2Pk,wgEncodeUwDnaseCaco2PkRep1 --pop EUR --flank 50kb --refsnp rs10318 --pvalcol p --delim tab --plotonly --db /home/yunfeiguo/enlight/data/database/enlight_hg19.db --write-ld-to LD_Rsquare'), referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:05 2014] [error] [client 193.62.202.242] [Mon Apr 14 09:25:05 2014] process.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/formatter delim2tab whitespace /tmp/3179026525.6039305145.tmp /tmp/31790.2tab, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:05 2014] [error] [client 193.62.202.242] [Mon Apr 14 09:25:05 2014] process.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/formatter rs2avinput /tmp/31790.2tab /tmp/31790.rs2avinput dbSNP135 /home/yunfeiguo/enlight/data/database/hg19_snp137_rs.txt, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:15 2014] [error] [client 193.62.202.242] [Mon Apr 14 09:25:15 2014] process.cgi: ENLIGHT RUNNING: cp /tmp/31790.rs2avinput rs10318.txt, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:15 2014] [error] [client 193.62.202.242] [Mon Apr 14 09:25:15 2014] process.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/table_annovar.pl rs10318.txt /home/yunfeiguo/Downloads/annovar/humandb -protocol GTEx_eQTL_11162013_existence -operation r -nastring n -buildver hg19 -remove -otherinfo -haveheader, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:15 2014] [error] [client 193.62.202.242] -----------------------------------------------------------------, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:15 2014] [error] [client 193.62.202.242] NOTICE: Processing operation=r protocol=GTEx_eQTL_11162013_existence, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:15 2014] [error] [client 193.62.202.242] , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:15 2014] [error] [client 193.62.202.242] NOTICE: Running with system command <annotate_variation.pl -regionanno  -dbtype GTEx_eQTL_11162013_existence -buildver hg19 -outfile rs10318.txt /tmp/31812.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:15 2014] [error] [client 193.62.202.242] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_GTEx_eQTL_11162013_existence.txt ... , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:16 2014] [error] [client 193.62.202.242] Done with 60584 regions, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:16 2014] [error] [client 193.62.202.242] NOTICE: Finished region-based annotation on 588 genetic variants in /tmp/31812.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:16 2014] [error] [client 193.62.202.242] NOTICE: Output files were written to rs10318.txt.hg19_GTEx_eQTL_11162013_existence, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:16 2014] [error] [client 193.62.202.242] NOTICE: output file is written to rs10318.txt.hg19_multianno.txt, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:16 2014] [error] [client 193.62.202.242] [Mon Apr 14 09:25:16 2014] process.cgi: ENLIGHT RUNNING: mv -f rs10318.txt.hg19_multianno.txt rs10318.txt, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:16 2014] [error] [client 193.62.202.242] [Mon Apr 14 09:25:16 2014] process.cgi: ENLIGHT RUNNING: /home/yunfeiguo/enlight/bin/locuszoom  showAnnot=TRUE annotPch=24,1 annotOrder=y,n annotName=GTEx_eQTL_11162013 annotCol=GTEx_eQTL_11162013_existence --metal rs10318.txt --build hg19 --markercol dbSNP135 --source 1000G_March2012 --category wgEncodeBroadHmmHepg2HMM categoryKey=/home/yunfeiguo/enlight/conf/chromHMM_legend.txt --generic wgEncodeUwDnaseHct116PkRep1,wgEncodeOpenChromDnaseHepg2Pk,wgEncodeUwDnaseCaco2PkRep1 --pop EUR --flank 50kb --refsnp rs10318 --pvalcol p --delim tab --plotonly --db /home/yunfeiguo/enlight/data/database/enlight_hg19.db --write-ld-to LD_Rsquare, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:48 2014] [error] [client 193.62.202.242] Warning: could not locate LD cache database, tried: ../ld_cache.db, creating new one.., referer: http://enlight.usc.edu/
+[Mon Apr 14 09:25:48 2014] [error] [client 193.62.202.242] Creating new LD cache branch for current LD source/population/build.., referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:54 2014] [error] [client 193.62.202.242] Error: SQL query failed, error was: no such table: var_annot, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:54 2014] [error] [client 193.62.202.242] Error: SQL query failed, error was: no such table: snp_set, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:54 2014] [error] [client 193.62.202.242] LD information written to /var/www/html/enlight2/output/yskdqbh83vdceyxf/rs10318.txt, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:55 2014] [error] [client 193.62.202.242] Loading required package: grid, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:55 2014] [error] [client 193.62.202.242] Loading required package: lattice, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:55 2014] [error] [client 193.62.202.242] Loading required package: methods, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Warning messages:, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] 1: In validDetails.text(x) : NAs introduced by coercion, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] 2: In validDetails.text(x) : NAs introduced by coercion, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] +---------------------------------------------+, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | LocusZoom 1.1 mod (09/30/2013)              |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | Plot regional association results           |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | from GWA scans or candidate gene studies    |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | and sequence annotations\t\t       |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] +---------------------------------------------+, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Loading settings.., referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Options in effect are:, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] +----------+-------------------------------------------------------+, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] |  Option  |                         Value                         |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] +----------+-------------------------------------------------------+, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | metal    | rs10318.txt                                           |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | refsnp   | rs10318                                               |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | flank    | 50000                                                 |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | build    | hg19                                                  |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | pop      | EUR                                                   |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | source   | 1000G_March2012                                       |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | snpset   | Illu1M                                                |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | db       | /home/yunfeiguo/enlight/data/database/enlight_hg19.db |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | cache    | ../ld_cache.db                                        |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | plotonly | True                                                  |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] +----------+-------------------------------------------------------+, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Plotting parameters in effect are:, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] +-------------+--------------------------------------------------+, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] |    Option   |                      Value                       |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] +-------------+--------------------------------------------------+, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | annotName   | GTEx_eQTL_11162013                               |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | categoryKey | /home/yunfeiguo/enlight/conf/chromHMM_legend.txt |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | markerCol   | dbSNP135                                         |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | annotOrder  | y,n                                              |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | annotPch    | 24,1                                             |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | pvalCol     | p                                                |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | showAnnot   | TRUE                                             |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] | annotCol    | GTEx_eQTL_11162013_existence                     |, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] +-------------+--------------------------------------------------+, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Using /var/www/html/enlight2/bin/locuszoom.R.., referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Beginning plotting sequence for: rs10318, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Extracting region of interest (chr15:32975979-33075979) from metal file.., referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] 338, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] 339, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Finding pairwise LD with rs10318.., referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Source: 1000G_March2012 | Population: EUR | Build: hg19, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Using /home/yunfeiguo/Downloads/plink-1.07-x86_64/plink to compute LD.., referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Grabbing annotations from SQLite database.., referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Creating plot.., referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] 338, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] 339, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] cleanup() called for files: , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] .. /var/www/html/enlight2/output/yskdqbh83vdceyxf/rs10318.txt.withld, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] DEBUG: locuszoom.R command: /var/www/html/enlight2/bin/locuszoom.R metal=temp_pocull_chr15:32975979-33075979_tmptkuRAN clobber=F clean=F refsnp=chr15:33025979 refsnpName=rs10318 ld=templd_rs10318_140414-092654.txt chr=15 start=32975979 end=33075979 showAnnot="TRUE" annotPch="24,1" annotOrder="y,n" annotName="GTEx_eQTL_11162013" annotCol="GTEx_eQTL_11162013_existence" categoryKey="/home/yunfeiguo/enlight/conf/chromHMM_legend.txt" markerCol="dbSNP135" pvalCol="p" build=hg19 alreadyTransformed=TRUE category=1397492814_31819_wgEncodeBroadHmmHepg2HMM.txt generic=1397492814_31819_wgEncodeUwDnaseHct116PkRep1.txt,1397492814_31819_wgEncodeOpenChromDnaseHepg2Pk.txt,1397492814_31819_wgEncodeUwDnaseCaco2PkRep1.txt snpsetFile=NULL annot=NULL recomb=recomb_in_region_1397492814_31819_recomb_rate.txt refFlat=refflat_in_region_1397492814_31819_refFlat.txt, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Deleting temporary files.., referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] cleanup() called for files: , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] .. templd_rs10318_140414-092654.txt, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] .. temp_pocull_chr15:32975979-33075979_tmptkuRAN, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] .. 1397492814_31819_wgEncodeBroadHmmHepg2HMM.txt, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] .. 1397492814_31819_wgEncodeUwDnaseHct116PkRep1.txt,1397492814_31819_wgEncodeOpenChromDnaseHepg2Pk.txt,1397492814_31819_wgEncodeUwDnaseCaco2PkRep1.txt, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] .. recomb_in_region_1397492814_31819_recomb_rate.txt, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] .. refflat_in_region_1397492814_31819_refFlat.txt, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Time required: 0d:0h:1m:40s, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] [Mon Apr 14 09:26:57 2014] process.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/formatter rmcol rs10318.txt GTEx_eQTL_11162013_existence, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Removing GTEx_eQTL_11162013_existence column from rs10318.txt., referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] Assume unique column; tab-delimited, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:57 2014] [error] [client 193.62.202.242] [Mon Apr 14 09:26:57 2014] process.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/table_annovar.pl rs10318.txt /home/yunfeiguo/Downloads/annovar/humandb -protocol refGene,1000g2012apr_all,GTEx_eQTL_11162013,wgEncodeBroadHmmHepg2HMM,wgEncodeOpenChromDnaseHepg2Pk,wgEncodeUwDnaseCaco2PkRep1,wgEncodeUwDnaseHct116PkRep1 -operation g,f,r,r,r5,r5,r5 -buildver hg19 -remove -otherinfo -haveheader, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:58 2014] [error] [client 193.62.202.242] -----------------------------------------------------------------, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:58 2014] [error] [client 193.62.202.242] NOTICE: Processing operation=g protocol=refGene, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:26:58 2014] [error] [client 193.62.202.242] NOTICE: Reading gene annotation from /home/yunfeiguo/Downloads/annovar/humandb/hg19_refGene.txt ... , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:00 2014] [error] [client 193.62.202.242] Done with 43057 transcripts (including 7798 without coding sequence annotation) for 23931 unique genes, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:00 2014] [error] [client 193.62.202.242] NOTICE: Finished gene-based annotation on 393 genetic variants in /tmp/31894.anno.tmp (including 3 with invalid format written to rs10318.txt.refGene.invalid_input), referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:00 2014] [error] [client 193.62.202.242] NOTICE: Output files were written to rs10318.txt.refGene.variant_function, rs10318.txt.refGene.exonic_variant_function, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:00 2014] [error] [client 193.62.202.242] -----------------------------------------------------------------, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:00 2014] [error] [client 193.62.202.242] NOTICE: Processing operation=f protocol=1000g2012apr_all, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:00 2014] [error] [client 193.62.202.242] , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:00 2014] [error] [client 193.62.202.242] NOTICE: Running system command <annotate_variation.pl -filter -dbtype 1000g2012apr_all -buildver hg19 -outfile rs10318.txt /tmp/31894.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:01 2014] [error] [client 193.62.202.242] NOTICE: Variants matching filtering criteria are written to rs10318.txt.hg19_ALL.sites.2012_04_dropped, other variants are written to rs10318.txt.hg19_ALL.sites.2012_04_filtered, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:01 2014] [error] [client 193.62.202.242] NOTICE: Processing next batch with 390 unique variants in 393 input lines, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:11 2014] [error] [client 193.62.202.242] NOTICE: Database index loaded. Total number of bins is 2793037 and the number of bins to be scanned is 95, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:11 2014] [error] [client 193.62.202.242] NOTICE: Scanning filter database /home/yunfeiguo/Downloads/annovar/humandb/hg19_ALL.sites.2012_04.txt..., referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:11 2014] [error] [client 193.62.202.242] Done, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:13 2014] [error] [client 193.62.202.242] NOTICE: Variants with invalid input format were written to rs10318.txt.invalid_input, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:13 2014] [error] [client 193.62.202.242] -----------------------------------------------------------------, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:13 2014] [error] [client 193.62.202.242] NOTICE: Processing operation=r protocol=GTEx_eQTL_11162013, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:13 2014] [error] [client 193.62.202.242] , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:13 2014] [error] [client 193.62.202.242] NOTICE: Running with system command <annotate_variation.pl -regionanno  -dbtype GTEx_eQTL_11162013 -buildver hg19 -outfile rs10318.txt /tmp/31894.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:13 2014] [error] [client 193.62.202.242] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_GTEx_eQTL_11162013.txt ... , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:14 2014] [error] [client 193.62.202.242] Done with 60584 regions, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:14 2014] [error] [client 193.62.202.242] NOTICE: Finished region-based annotation on 393 genetic variants in /tmp/31894.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:14 2014] [error] [client 193.62.202.242] NOTICE: Output files were written to rs10318.txt.hg19_GTEx_eQTL_11162013, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:14 2014] [error] [client 193.62.202.242] -----------------------------------------------------------------, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:14 2014] [error] [client 193.62.202.242] NOTICE: Processing operation=r protocol=wgEncodeBroadHmmHepg2HMM, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:14 2014] [error] [client 193.62.202.242] , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:14 2014] [error] [client 193.62.202.242] NOTICE: Running with system command <annotate_variation.pl -regionanno  -dbtype wgEncodeBroadHmmHepg2HMM -buildver hg19 -outfile rs10318.txt /tmp/31894.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:14 2014] [error] [client 193.62.202.242] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_wgEncodeBroadHmmHepg2HMM.txt ... , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:22 2014] [error] [client 193.62.202.242] Done with 546343 regions, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:22 2014] [error] [client 193.62.202.242] NOTICE: Finished region-based annotation on 393 genetic variants in /tmp/31894.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:22 2014] [error] [client 193.62.202.242] NOTICE: Output files were written to rs10318.txt.hg19_wgEncodeBroadHmmHepg2HMM, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:23 2014] [error] [client 193.62.202.242] -----------------------------------------------------------------, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:23 2014] [error] [client 193.62.202.242] NOTICE: Processing operation=r5 protocol=wgEncodeOpenChromDnaseHepg2Pk, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:23 2014] [error] [client 193.62.202.242] , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:23 2014] [error] [client 193.62.202.242] NOTICE: Running with system command <annotate_variation.pl -regionanno  -colsWanted 5  -dbtype wgEncodeOpenChromDnaseHepg2Pk -buildver hg19 -outfile rs10318.txt /tmp/31894.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:23 2014] [error] [client 193.62.202.242] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_wgEncodeOpenChromDnaseHepg2Pk.txt ... , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:25 2014] [error] [client 193.62.202.242] Done with 116018 regions, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:25 2014] [error] [client 193.62.202.242] NOTICE: Finished region-based annotation on 393 genetic variants in /tmp/31894.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:25 2014] [error] [client 193.62.202.242] NOTICE: Output files were written to rs10318.txt.hg19_wgEncodeOpenChromDnaseHepg2Pk, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:25 2014] [error] [client 193.62.202.242] -----------------------------------------------------------------, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:25 2014] [error] [client 193.62.202.242] NOTICE: Processing operation=r5 protocol=wgEncodeUwDnaseCaco2PkRep1, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:25 2014] [error] [client 193.62.202.242] , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:25 2014] [error] [client 193.62.202.242] NOTICE: Running with system command <annotate_variation.pl -regionanno  -colsWanted 5  -dbtype wgEncodeUwDnaseCaco2PkRep1 -buildver hg19 -outfile rs10318.txt /tmp/31894.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:25 2014] [error] [client 193.62.202.242] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_wgEncodeUwDnaseCaco2PkRep1.txt ... , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:27 2014] [error] [client 193.62.202.242] Done with 122479 regions, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:27 2014] [error] [client 193.62.202.242] NOTICE: Finished region-based annotation on 393 genetic variants in /tmp/31894.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:27 2014] [error] [client 193.62.202.242] NOTICE: Output files were written to rs10318.txt.hg19_wgEncodeUwDnaseCaco2PkRep1, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:27 2014] [error] [client 193.62.202.242] -----------------------------------------------------------------, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:27 2014] [error] [client 193.62.202.242] NOTICE: Processing operation=r5 protocol=wgEncodeUwDnaseHct116PkRep1, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:27 2014] [error] [client 193.62.202.242] , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:27 2014] [error] [client 193.62.202.242] NOTICE: Running with system command <annotate_variation.pl -regionanno  -colsWanted 5  -dbtype wgEncodeUwDnaseHct116PkRep1 -buildver hg19 -outfile rs10318.txt /tmp/31894.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:27 2014] [error] [client 193.62.202.242] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_wgEncodeUwDnaseHct116PkRep1.txt ... , referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:29 2014] [error] [client 193.62.202.242] Done with 114060 regions, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:29 2014] [error] [client 193.62.202.242] NOTICE: Finished region-based annotation on 393 genetic variants in /tmp/31894.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:29 2014] [error] [client 193.62.202.242] NOTICE: Output files were written to rs10318.txt.hg19_wgEncodeUwDnaseHct116PkRep1, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:29 2014] [error] [client 193.62.202.242] NOTICE: output file is written to rs10318.txt.hg19_multianno.txt, referer: http://enlight.usc.edu/
+[Mon Apr 14 09:27:29 2014] [error] [client 193.62.202.242] [Mon Apr 14 09:27:29 2014] process.cgi: ENLIGHT RUNNING: rm -f ld_cache.db, referer: http://enlight.usc.edu/
+[Mon Apr 14 14:17:56 2014] [error] [client 66.249.76.143] File does not exist: /var/www/html/enlight2/robots.txt
+[Mon Apr 14 17:54:12 2014] [error] [client 157.55.32.186] File does not exist: /var/www/html/enlight2/robots.txt
+[Tue Apr 15 05:13:42 2014] [error] [client 66.249.70.233] File does not exist: /var/www/html/enlight2/robots.txt
+[Tue Apr 15 05:13:42 2014] [error] [client 66.249.70.233] File does not exist: /var/www/html/enlight2/favicon.ico
+[Tue Apr 15 05:42:22 2014] [error] [client 157.56.93.42] File does not exist: /var/www/html/enlight2/robots.txt
+[Tue Apr 15 09:52:38 2014] [error] [client 193.62.218.79] File does not exist: /var/www/html/enlight2/favicon.ico
+[Tue Apr 15 17:23:44 2014] [error] [client 157.56.92.147] File does not exist: /var/www/html/enlight2/robots.txt
+[Wed Apr 16 04:53:39 2014] [error] [client 157.56.92.160] File does not exist: /var/www/html/enlight2/robots.txt
+[Wed Apr 16 07:36:32 2014] [error] [client 178.154.243.114] File does not exist: /var/www/html/enlight2/robots.txt
+[Wed Apr 16 22:10:38 2014] [error] [client 23.242.98.94] File does not exist: /var/www/html/enlight2/favicon.ico
+[Thu Apr 17 03:57:09 2014] [error] [client 157.55.34.94] File does not exist: /var/www/html/enlight2/robots.txt
+[Thu Apr 17 15:32:26 2014] [error] [client 207.151.120.4] File does not exist: /var/www/html/enlight2/favicon.ico
+[Thu Apr 17 15:32:44 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:32:44 2014] process2.cgi: Can't locate Email/Sender/Simple.pm in @INC (@INC contains: /var/www/html/enlight2/cgi-bin/../lib /usr/local/lib64/perl5 /usr/local/share/perl5 /usr/lib64/perl5/vendor_perl /usr/share/perl5/vendor_perl /usr/lib64/perl5 /usr/share/perl5 .) at /var/www/html/enlight2/cgi-bin/../lib/Utils.pm line 9., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:32:44 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:32:44 2014] process2.cgi: BEGIN failed--compilation aborted at /var/www/html/enlight2/cgi-bin/../lib/Utils.pm line 9., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:32:44 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:32:44 2014] process2.cgi: Compilation failed in require at /var/www/html/enlight2/cgi-bin/process2.cgi line 11., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:32:44 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:32:44 2014] process2.cgi: BEGIN failed--compilation aborted at /var/www/html/enlight2/cgi-bin/process2.cgi line 11., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:34:09 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:34:09 2014] process2.cgi: syntax error at /var/www/html/enlight2/cgi-bin/process2.cgi line 275, near """;", referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:34:09 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:34:09 2014] process2.cgi: Execution of /var/www/html/enlight2/cgi-bin/process2.cgi aborted due to compilation errors., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:11 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:35:11 2014] process2.cgi: !!!!!, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:11 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:35:11 2014] process2.cgi: INSERT INTO submission (date, time, ip, query, filesize,status, access, param) VALUES ('04/17/2014','15:35:10','207.151.120.4','/tmp/251863389.05517558693.tmp',10656,'q','dhiu9sdockoid73d',' showAnnot=TRUE annotPch="24,1" annotOrder="y,n" annotName="GTEx_eQTL_11162013" annotCol="GTEx_eQTL_11162013_existence" --metal rs10318.txt.hg19_multianno.txt --build hg19 --markercol dbSNP135 --source 1000G_March2012 --category wgEncodeBroadHmmHepg2HMM categoryKey=/home/yunfeiguo/enlight/conf/chromHMM_legend.txt --generic wgEncodeOpenChromDnaseHepg2Pk,wgEncodeUwDnaseCaco2PkRep1,wgEncodeUwDnaseHct116PkRep1 --pop EUR --flank 50kb --refsnp rs10318 --pvalcol p --delim tab --plotonly --db /home/yunfeiguo/enlight/data/database/enlight_hg19.db --write-ld-to LD_Rsquare'), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:11 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:35:11 2014] process2.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/formatter delim2tab whitespace /tmp/251863389.05517558693.tmp /tmp/25186.2tab, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:11 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:35:11 2014] process2.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/formatter rs2avinput /tmp/25186.2tab /tmp/25186.rs2avinput dbSNP135 /home/yunfeiguo/enlight/data/database/hg19_snp137_rs.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:20 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:35:20 2014] process2.cgi: ENLIGHT RUNNING: cp /tmp/25186.rs2avinput rs10318.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:20 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:35:20 2014] process2.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/table_annovar.pl rs10318.txt /home/yunfeiguo/Downloads/annovar/humandb -protocol GTEx_eQTL_11162013_existence -operation r -nastring n -buildver hg19 -remove -otherinfo -haveheader, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:21 2014] [error] [client 207.151.120.4] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:21 2014] [error] [client 207.151.120.4] NOTICE: Processing operation=r protocol=GTEx_eQTL_11162013_existence, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:21 2014] [error] [client 207.151.120.4] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:21 2014] [error] [client 207.151.120.4] NOTICE: Running with system command <annotate_variation.pl -regionanno  -dbtype GTEx_eQTL_11162013_existence -buildver hg19 -outfile rs10318.txt /tmp/25200.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:21 2014] [error] [client 207.151.120.4] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_GTEx_eQTL_11162013_existence.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:21 2014] [error] [client 207.151.120.4] Done with 60584 regions, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:21 2014] [error] [client 207.151.120.4] NOTICE: Finished region-based annotation on 588 genetic variants in /tmp/25200.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:21 2014] [error] [client 207.151.120.4] NOTICE: Output files were written to rs10318.txt.hg19_GTEx_eQTL_11162013_existence, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:21 2014] [error] [client 207.151.120.4] NOTICE: output file is written to rs10318.txt.hg19_multianno.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:21 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:35:21 2014] process2.cgi: ENLIGHT RUNNING: mv -f rs10318.txt.hg19_multianno.txt rs10318.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:21 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:35:21 2014] process2.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/table_annovar.pl rs10318.txt /home/yunfeiguo/Downloads/annovar/humandb -protocol refGene,1000g2012apr_all,GTEx_eQTL_11162013,wgEncodeBroadHmmHepg2HMM,wgEncodeOpenChromDnaseHepg2Pk,wgEncodeUwDnaseCaco2PkRep1,wgEncodeUwDnaseHct116PkRep1 -operation g,f,r,r,r5,r5,r5 -buildver hg19 -remove -otherinfo -haveheader, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:21 2014] [error] [client 207.151.120.4] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:21 2014] [error] [client 207.151.120.4] NOTICE: Processing operation=g protocol=refGene, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:22 2014] [error] [client 207.151.120.4] NOTICE: Reading gene annotation from /home/yunfeiguo/Downloads/annovar/humandb/hg19_refGene.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:24 2014] [error] [client 207.151.120.4] Done with 43057 transcripts (including 7798 without coding sequence annotation) for 23931 unique genes, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:24 2014] [error] [client 207.151.120.4] NOTICE: Reading FASTA sequences from /home/yunfeiguo/Downloads/annovar/humandb/hg19_refGeneMrna.fa ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:25 2014] [error] [client 207.151.120.4] Done with 2 sequences, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:25 2014] [error] [client 207.151.120.4] WARNING: A total of 279 sequences will be ignored due to lack of correct ORF annotation, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:25 2014] [error] [client 207.151.120.4] NOTICE: Finished gene-based annotation on 588 genetic variants in /tmp/25206.anno.tmp (including 3 with invalid format written to rs10318.txt.refGene.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:25 2014] [error] [client 207.151.120.4] NOTICE: Output files were written to rs10318.txt.refGene.variant_function, rs10318.txt.refGene.exonic_variant_function, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:25 2014] [error] [client 207.151.120.4] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:25 2014] [error] [client 207.151.120.4] NOTICE: Processing operation=f protocol=1000g2012apr_all, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:25 2014] [error] [client 207.151.120.4] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:25 2014] [error] [client 207.151.120.4] NOTICE: Running system command <annotate_variation.pl -filter -dbtype 1000g2012apr_all -buildver hg19 -outfile rs10318.txt /tmp/25206.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:25 2014] [error] [client 207.151.120.4] NOTICE: Variants matching filtering criteria are written to rs10318.txt.hg19_ALL.sites.2012_04_dropped, other variants are written to rs10318.txt.hg19_ALL.sites.2012_04_filtered, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:25 2014] [error] [client 207.151.120.4] NOTICE: Processing next batch with 585 unique variants in 588 input lines, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:36 2014] [error] [client 207.151.120.4] NOTICE: Database index loaded. Total number of bins is 2793037 and the number of bins to be scanned is 125, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:36 2014] [error] [client 207.151.120.4] NOTICE: Scanning filter database /home/yunfeiguo/Downloads/annovar/humandb/hg19_ALL.sites.2012_04.txt..., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:36 2014] [error] [client 207.151.120.4] Done, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:38 2014] [error] [client 207.151.120.4] NOTICE: Variants with invalid input format were written to rs10318.txt.invalid_input, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:38 2014] [error] [client 207.151.120.4] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:38 2014] [error] [client 207.151.120.4] NOTICE: Processing operation=r protocol=GTEx_eQTL_11162013, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:38 2014] [error] [client 207.151.120.4] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:38 2014] [error] [client 207.151.120.4] NOTICE: Running with system command <annotate_variation.pl -regionanno  -dbtype GTEx_eQTL_11162013 -buildver hg19 -outfile rs10318.txt /tmp/25206.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:38 2014] [error] [client 207.151.120.4] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_GTEx_eQTL_11162013.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:39 2014] [error] [client 207.151.120.4] Done with 60584 regions, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:39 2014] [error] [client 207.151.120.4] NOTICE: Finished region-based annotation on 588 genetic variants in /tmp/25206.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:39 2014] [error] [client 207.151.120.4] NOTICE: Output files were written to rs10318.txt.hg19_GTEx_eQTL_11162013, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:39 2014] [error] [client 207.151.120.4] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:39 2014] [error] [client 207.151.120.4] NOTICE: Processing operation=r protocol=wgEncodeBroadHmmHepg2HMM, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:39 2014] [error] [client 207.151.120.4] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:39 2014] [error] [client 207.151.120.4] NOTICE: Running with system command <annotate_variation.pl -regionanno  -dbtype wgEncodeBroadHmmHepg2HMM -buildver hg19 -outfile rs10318.txt /tmp/25206.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:39 2014] [error] [client 207.151.120.4] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_wgEncodeBroadHmmHepg2HMM.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:47 2014] [error] [client 207.151.120.4] Done with 546343 regions, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:47 2014] [error] [client 207.151.120.4] NOTICE: Finished region-based annotation on 588 genetic variants in /tmp/25206.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:47 2014] [error] [client 207.151.120.4] NOTICE: Output files were written to rs10318.txt.hg19_wgEncodeBroadHmmHepg2HMM, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:48 2014] [error] [client 207.151.120.4] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:48 2014] [error] [client 207.151.120.4] NOTICE: Processing operation=r5 protocol=wgEncodeOpenChromDnaseHepg2Pk, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:48 2014] [error] [client 207.151.120.4] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:48 2014] [error] [client 207.151.120.4] NOTICE: Running with system command <annotate_variation.pl -regionanno  -colsWanted 5  -dbtype wgEncodeOpenChromDnaseHepg2Pk -buildver hg19 -outfile rs10318.txt /tmp/25206.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:48 2014] [error] [client 207.151.120.4] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_wgEncodeOpenChromDnaseHepg2Pk.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:50 2014] [error] [client 207.151.120.4] Done with 116018 regions, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:50 2014] [error] [client 207.151.120.4] NOTICE: Finished region-based annotation on 588 genetic variants in /tmp/25206.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:50 2014] [error] [client 207.151.120.4] NOTICE: Output files were written to rs10318.txt.hg19_wgEncodeOpenChromDnaseHepg2Pk, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:50 2014] [error] [client 207.151.120.4] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:50 2014] [error] [client 207.151.120.4] NOTICE: Processing operation=r5 protocol=wgEncodeUwDnaseCaco2PkRep1, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:50 2014] [error] [client 207.151.120.4] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:50 2014] [error] [client 207.151.120.4] NOTICE: Running with system command <annotate_variation.pl -regionanno  -colsWanted 5  -dbtype wgEncodeUwDnaseCaco2PkRep1 -buildver hg19 -outfile rs10318.txt /tmp/25206.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:50 2014] [error] [client 207.151.120.4] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_wgEncodeUwDnaseCaco2PkRep1.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:51 2014] [error] [client 207.151.120.4] Done with 122479 regions, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:51 2014] [error] [client 207.151.120.4] NOTICE: Finished region-based annotation on 588 genetic variants in /tmp/25206.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:51 2014] [error] [client 207.151.120.4] NOTICE: Output files were written to rs10318.txt.hg19_wgEncodeUwDnaseCaco2PkRep1, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:52 2014] [error] [client 207.151.120.4] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:52 2014] [error] [client 207.151.120.4] NOTICE: Processing operation=r5 protocol=wgEncodeUwDnaseHct116PkRep1, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:52 2014] [error] [client 207.151.120.4] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:52 2014] [error] [client 207.151.120.4] NOTICE: Running with system command <annotate_variation.pl -regionanno  -colsWanted 5  -dbtype wgEncodeUwDnaseHct116PkRep1 -buildver hg19 -outfile rs10318.txt /tmp/25206.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:52 2014] [error] [client 207.151.120.4] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_wgEncodeUwDnaseHct116PkRep1.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:53 2014] [error] [client 207.151.120.4] Done with 114060 regions, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:53 2014] [error] [client 207.151.120.4] NOTICE: Finished region-based annotation on 588 genetic variants in /tmp/25206.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:53 2014] [error] [client 207.151.120.4] NOTICE: Output files were written to rs10318.txt.hg19_wgEncodeUwDnaseHct116PkRep1, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:53 2014] [error] [client 207.151.120.4] NOTICE: output file is written to rs10318.txt.hg19_multianno.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:35:53 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:35:53 2014] process2.cgi: ENLIGHT RUNNING: /home/yunfeiguo/enlight/bin/locuszoom  showAnnot=TRUE annotPch=24,1 annotOrder=y,n annotName=GTEx_eQTL_11162013 annotCol=GTEx_eQTL_11162013_existence --metal rs10318.txt.hg19_multianno.txt --build hg19 --markercol dbSNP135 --source 1000G_March2012 --category wgEncodeBroadHmmHepg2HMM categoryKey=/home/yunfeiguo/enlight/conf/chromHMM_legend.txt --generic wgEncodeOpenChromDnaseHepg2Pk,wgEncodeUwDnaseCaco2PkRep1,wgEncodeUwDnaseHct116PkRep1 --pop EUR --flank 50kb --refsnp rs10318 --pvalcol p --delim tab --plotonly --db /home/yunfeiguo/enlight/data/database/enlight_hg19.db --write-ld-to LD_Rsquare, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:36:26 2014] [error] [client 207.151.120.4] Warning: could not locate LD cache database, tried: ../ld_cache.db, creating new one.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:36:26 2014] [error] [client 207.151.120.4] Creating new LD cache branch for current LD source/population/build.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:32 2014] [error] [client 207.151.120.4] Error: SQL query failed, error was: no such table: var_annot, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:32 2014] [error] [client 207.151.120.4] Error: SQL query failed, error was: no such table: snp_set, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:32 2014] [error] [client 207.151.120.4] LD information written to /var/www/html/enlight2/output/dhiu9sdockoid73d/rs10318.txt.hg19_multianno.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:33 2014] [error] [client 207.151.120.4] Loading required package: grid, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:33 2014] [error] [client 207.151.120.4] Loading required package: lattice, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:33 2014] [error] [client 207.151.120.4] Loading required package: methods, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Error in if ((mid - left) > (right - mid)) { : , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4]   missing value where TRUE/FALSE needed, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Calls: zplot -> AutoLegendSide, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Execution halted, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Error: locuszoom.R did not complete successfully. Check logs for more information., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] +---------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | LocusZoom 1.1 mod (09/30/2013)              |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | Plot regional association results           |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | from GWA scans or candidate gene studies    |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | and sequence annotations\t\t       |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] +---------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Loading settings.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Options in effect are:, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] +----------+-------------------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] |  Option  |                         Value                         |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] +----------+-------------------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | metal    | rs10318.txt.hg19_multianno.txt                        |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | refsnp   | rs10318                                               |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | flank    | 50000                                                 |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | build    | hg19                                                  |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | pop      | EUR                                                   |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | source   | 1000G_March2012                                       |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | snpset   | Illu1M                                                |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | db       | /home/yunfeiguo/enlight/data/database/enlight_hg19.db |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | cache    | ../ld_cache.db                                        |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | plotonly | True                                                  |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] +----------+-------------------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Plotting parameters in effect are:, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] +-------------+--------------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] |    Option   |                      Value                       |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] +-------------+--------------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | annotName   | GTEx_eQTL_11162013                               |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | categoryKey | /home/yunfeiguo/enlight/conf/chromHMM_legend.txt |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | markerCol   | dbSNP135                                         |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | annotOrder  | y,n                                              |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | annotPch    | 24,1                                             |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | pvalCol     | p                                                |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | showAnnot   | TRUE                                             |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] | annotCol    | GTEx_eQTL_11162013_existence                     |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] +-------------+--------------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Using /var/www/html/enlight2/bin/locuszoom.R.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Beginning plotting sequence for: rs10318, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Extracting region of interest (chr15:32975979-33075979) from metal file.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] 338, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] 339, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Finding pairwise LD with rs10318.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Source: 1000G_March2012 | Population: EUR | Build: hg19, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Using /home/yunfeiguo/Downloads/plink-1.07-x86_64/plink to compute LD.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Grabbing annotations from SQLite database.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Creating plot.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] 338, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] 339, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] cleanup() called for files: , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] .. /var/www/html/enlight2/output/dhiu9sdockoid73d/rs10318.txt.hg19_multianno.txt.withld, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] DEBUG: locuszoom.R command: /var/www/html/enlight2/bin/locuszoom.R metal=temp_pocull_chr15:32975979-33075979_tmpHazniu clobber=F clean=F refsnp=chr15:33025979 refsnpName=rs10318 ld=templd_rs10318_140417-153732.txt chr=15 start=32975979 end=33075979 showAnnot="TRUE" annotPch="24,1" annotOrder="y,n" annotName="GTEx_eQTL_11162013" annotCol="GTEx_eQTL_11162013_existence" categoryKey="/home/yunfeiguo/enlight/conf/chromHMM_legend.txt" markerCol="dbSNP135" pvalCol="p" build=hg19 alreadyTransformed=TRUE category=1397774252_25218_wgEncodeBroadHmmHepg2HMM.txt generic=1397774252_25218_wgEncodeOpenChromDnaseHepg2Pk.txt,1397774252_25218_wgEncodeUwDnaseCaco2PkRep1.txt,1397774252_25218_wgEncodeUwDnaseHct116PkRep1.txt snpsetFile=NULL annot=NULL recomb=recomb_in_region_1397774252_25218_recomb_rate.txt refFlat=refflat_in_region_1397774252_25218_refFlat.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:37:35 2014] process2.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/formatter rmcol rs10318.txt GTEx_eQTL_11162013_existence, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Removing GTEx_eQTL_11162013_existence column from rs10318.txt., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] Assume unique column; tab-delimited, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 15:37:35 2014] [error] [client 207.151.120.4] [Thu Apr 17 15:37:35 2014] process2.cgi: ENLIGHT RUNNING: rm -f ld_cache.db, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:00 2014] [error] [client 128.125.249.211] [Thu Apr 17 16:11:00 2014] process2.cgi: Cannot open server configuration /var/www/html/enlight2/cgi-bin/../conf/enlight_server2.conf, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:35 2014] [error] [client 128.125.249.211] [Thu Apr 17 16:11:35 2014] process2.cgi: !!!!!, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:35 2014] [error] [client 128.125.249.211] [Thu Apr 17 16:11:35 2014] process2.cgi: INSERT INTO submission (date, time, ip, query, filesize,status, access, param) VALUES ('04/17/2014','16:11:35','128.125.249.211','/tmp/2557212499.3239162396.tmp',10656,'q','m0ka0jgew0jka2d6',' showAnnot=TRUE annotPch="24,1" annotOrder="y,n" annotName="GTEx_eQTL_11162013" annotCol="GTEx_eQTL_11162013_existence" --metal rs10318.txt.hg19_multianno.txt --build hg19 --markercol dbSNP135 --source 1000G_March2012 --category wgEncodeBroadHmmHepg2HMM categoryKey=/home/yunfeiguo/enlight/conf/chromHMM_legend.txt --generic wgEncodeOpenChromDnaseHepg2Pk,wgEncodeUwDnaseCaco2PkRep1,wgEncodeUwDnaseHct116PkRep1 --pop EUR --flank 50kb --refsnp rs10318 --pvalcol p --delim tab --plotonly --db /home/yunfeiguo/enlight/data/database/enlight_hg19.db --write-ld-to LD_Rsquare'), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:35 2014] [error] [client 128.125.249.211] [Thu Apr 17 16:11:35 2014] process2.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/formatter delim2tab whitespace /tmp/2557212499.3239162396.tmp /tmp/25572.2tab, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:35 2014] [error] [client 128.125.249.211] [Thu Apr 17 16:11:35 2014] process2.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/formatter rs2avinput /tmp/25572.2tab /tmp/25572.rs2avinput dbSNP135 /home/yunfeiguo/enlight/data/database/hg19_snp137_rs.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:42 2014] [error] [client 128.125.249.211] [Thu Apr 17 16:11:42 2014] process2.cgi: ENLIGHT RUNNING: cp /tmp/25572.rs2avinput rs10318.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:42 2014] [error] [client 128.125.249.211] [Thu Apr 17 16:11:42 2014] process2.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/table_annovar.pl rs10318.txt /home/yunfeiguo/Downloads/annovar/humandb -protocol GTEx_eQTL_11162013_existence -operation r -nastring n -buildver hg19 -remove -otherinfo -haveheader, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] NOTICE: Processing operation=r protocol=GTEx_eQTL_11162013_existence, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] NOTICE: Running with system command <annotate_variation.pl -regionanno  -dbtype GTEx_eQTL_11162013_existence -buildver hg19 -outfile rs10318.txt /tmp/25588.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_GTEx_eQTL_11162013_existence.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] Done with 60584 regions, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] NOTICE: Finished region-based annotation on 588 genetic variants in /tmp/25588.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] NOTICE: Output files were written to rs10318.txt.hg19_GTEx_eQTL_11162013_existence, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] NOTICE: output file is written to rs10318.txt.hg19_multianno.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] [Thu Apr 17 16:11:43 2014] process2.cgi: ENLIGHT RUNNING: mv -f rs10318.txt.hg19_multianno.txt rs10318.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] [Thu Apr 17 16:11:43 2014] process2.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/table_annovar.pl rs10318.txt /home/yunfeiguo/Downloads/annovar/humandb -protocol refGene,1000g2012apr_all,GTEx_eQTL_11162013,wgEncodeBroadHmmHepg2HMM,wgEncodeOpenChromDnaseHepg2Pk,wgEncodeUwDnaseCaco2PkRep1,wgEncodeUwDnaseHct116PkRep1 -operation g,f,r,r,r5,r5,r5 -buildver hg19 -remove -otherinfo -haveheader, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] NOTICE: Processing operation=g protocol=refGene, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:43 2014] [error] [client 128.125.249.211] NOTICE: Reading gene annotation from /home/yunfeiguo/Downloads/annovar/humandb/hg19_refGene.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:46 2014] [error] [client 128.125.249.211] Done with 43057 transcripts (including 7798 without coding sequence annotation) for 23931 unique genes, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:46 2014] [error] [client 128.125.249.211] NOTICE: Reading FASTA sequences from /home/yunfeiguo/Downloads/annovar/humandb/hg19_refGeneMrna.fa ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:46 2014] [error] [client 128.125.249.211] Done with 2 sequences, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:46 2014] [error] [client 128.125.249.211] WARNING: A total of 279 sequences will be ignored due to lack of correct ORF annotation, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:46 2014] [error] [client 128.125.249.211] NOTICE: Finished gene-based annotation on 588 genetic variants in /tmp/25594.anno.tmp (including 3 with invalid format written to rs10318.txt.refGene.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:46 2014] [error] [client 128.125.249.211] NOTICE: Output files were written to rs10318.txt.refGene.variant_function, rs10318.txt.refGene.exonic_variant_function, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:47 2014] [error] [client 128.125.249.211] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:47 2014] [error] [client 128.125.249.211] NOTICE: Processing operation=f protocol=1000g2012apr_all, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:47 2014] [error] [client 128.125.249.211] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:47 2014] [error] [client 128.125.249.211] NOTICE: Running system command <annotate_variation.pl -filter -dbtype 1000g2012apr_all -buildver hg19 -outfile rs10318.txt /tmp/25594.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:47 2014] [error] [client 128.125.249.211] NOTICE: Variants matching filtering criteria are written to rs10318.txt.hg19_ALL.sites.2012_04_dropped, other variants are written to rs10318.txt.hg19_ALL.sites.2012_04_filtered, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:47 2014] [error] [client 128.125.249.211] NOTICE: Processing next batch with 585 unique variants in 588 input lines, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:56 2014] [error] [client 128.125.249.211] NOTICE: Database index loaded. Total number of bins is 2793037 and the number of bins to be scanned is 125, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:56 2014] [error] [client 128.125.249.211] NOTICE: Scanning filter database /home/yunfeiguo/Downloads/annovar/humandb/hg19_ALL.sites.2012_04.txt..., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:57 2014] [error] [client 128.125.249.211] Done, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:59 2014] [error] [client 128.125.249.211] NOTICE: Variants with invalid input format were written to rs10318.txt.invalid_input, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:59 2014] [error] [client 128.125.249.211] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:59 2014] [error] [client 128.125.249.211] NOTICE: Processing operation=r protocol=GTEx_eQTL_11162013, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:59 2014] [error] [client 128.125.249.211] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:59 2014] [error] [client 128.125.249.211] NOTICE: Running with system command <annotate_variation.pl -regionanno  -dbtype GTEx_eQTL_11162013 -buildver hg19 -outfile rs10318.txt /tmp/25594.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:11:59 2014] [error] [client 128.125.249.211] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_GTEx_eQTL_11162013.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:00 2014] [error] [client 128.125.249.211] Done with 60584 regions, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:00 2014] [error] [client 128.125.249.211] NOTICE: Finished region-based annotation on 588 genetic variants in /tmp/25594.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:00 2014] [error] [client 128.125.249.211] NOTICE: Output files were written to rs10318.txt.hg19_GTEx_eQTL_11162013, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:00 2014] [error] [client 128.125.249.211] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:00 2014] [error] [client 128.125.249.211] NOTICE: Processing operation=r protocol=wgEncodeBroadHmmHepg2HMM, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:00 2014] [error] [client 128.125.249.211] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:00 2014] [error] [client 128.125.249.211] NOTICE: Running with system command <annotate_variation.pl -regionanno  -dbtype wgEncodeBroadHmmHepg2HMM -buildver hg19 -outfile rs10318.txt /tmp/25594.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:00 2014] [error] [client 128.125.249.211] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_wgEncodeBroadHmmHepg2HMM.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:08 2014] [error] [client 128.125.249.211] Done with 546343 regions, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:08 2014] [error] [client 128.125.249.211] NOTICE: Finished region-based annotation on 588 genetic variants in /tmp/25594.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:08 2014] [error] [client 128.125.249.211] NOTICE: Output files were written to rs10318.txt.hg19_wgEncodeBroadHmmHepg2HMM, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:09 2014] [error] [client 128.125.249.211] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:09 2014] [error] [client 128.125.249.211] NOTICE: Processing operation=r5 protocol=wgEncodeOpenChromDnaseHepg2Pk, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:09 2014] [error] [client 128.125.249.211] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:09 2014] [error] [client 128.125.249.211] NOTICE: Running with system command <annotate_variation.pl -regionanno  -colsWanted 5  -dbtype wgEncodeOpenChromDnaseHepg2Pk -buildver hg19 -outfile rs10318.txt /tmp/25594.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:09 2014] [error] [client 128.125.249.211] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_wgEncodeOpenChromDnaseHepg2Pk.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:10 2014] [error] [client 128.125.249.211] Done with 116018 regions, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:10 2014] [error] [client 128.125.249.211] NOTICE: Finished region-based annotation on 588 genetic variants in /tmp/25594.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:10 2014] [error] [client 128.125.249.211] NOTICE: Output files were written to rs10318.txt.hg19_wgEncodeOpenChromDnaseHepg2Pk, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:10 2014] [error] [client 128.125.249.211] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:10 2014] [error] [client 128.125.249.211] NOTICE: Processing operation=r5 protocol=wgEncodeUwDnaseCaco2PkRep1, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:10 2014] [error] [client 128.125.249.211] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:10 2014] [error] [client 128.125.249.211] NOTICE: Running with system command <annotate_variation.pl -regionanno  -colsWanted 5  -dbtype wgEncodeUwDnaseCaco2PkRep1 -buildver hg19 -outfile rs10318.txt /tmp/25594.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:11 2014] [error] [client 128.125.249.211] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_wgEncodeUwDnaseCaco2PkRep1.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:12 2014] [error] [client 128.125.249.211] Done with 122479 regions, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:12 2014] [error] [client 128.125.249.211] NOTICE: Finished region-based annotation on 588 genetic variants in /tmp/25594.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:12 2014] [error] [client 128.125.249.211] NOTICE: Output files were written to rs10318.txt.hg19_wgEncodeUwDnaseCaco2PkRep1, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:12 2014] [error] [client 128.125.249.211] -----------------------------------------------------------------, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:12 2014] [error] [client 128.125.249.211] NOTICE: Processing operation=r5 protocol=wgEncodeUwDnaseHct116PkRep1, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:12 2014] [error] [client 128.125.249.211] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:12 2014] [error] [client 128.125.249.211] NOTICE: Running with system command <annotate_variation.pl -regionanno  -colsWanted 5  -dbtype wgEncodeUwDnaseHct116PkRep1 -buildver hg19 -outfile rs10318.txt /tmp/25594.anno.tmp /home/yunfeiguo/Downloads/annovar/humandb>, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:12 2014] [error] [client 128.125.249.211] NOTICE: Reading annotation database /home/yunfeiguo/Downloads/annovar/humandb/hg19_wgEncodeUwDnaseHct116PkRep1.txt ... , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:14 2014] [error] [client 128.125.249.211] Done with 114060 regions, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:14 2014] [error] [client 128.125.249.211] NOTICE: Finished region-based annotation on 588 genetic variants in /tmp/25594.anno.tmp (including 3 with invalid format written to rs10318.txt.invalid_input), referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:14 2014] [error] [client 128.125.249.211] NOTICE: Output files were written to rs10318.txt.hg19_wgEncodeUwDnaseHct116PkRep1, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:14 2014] [error] [client 128.125.249.211] NOTICE: output file is written to rs10318.txt.hg19_multianno.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:14 2014] [error] [client 128.125.249.211] [Thu Apr 17 16:12:14 2014] process2.cgi: ENLIGHT RUNNING: /home/yunfeiguo/enlight/bin/locuszoom2  showAnnot=TRUE annotPch=24,1 annotOrder=y,n annotName=GTEx_eQTL_11162013 annotCol=GTEx_eQTL_11162013_existence --metal rs10318.txt.hg19_multianno.txt --build hg19 --markercol dbSNP135 --source 1000G_March2012 --category wgEncodeBroadHmmHepg2HMM categoryKey=/home/yunfeiguo/enlight/conf/chromHMM_legend.txt --generic wgEncodeOpenChromDnaseHepg2Pk,wgEncodeUwDnaseCaco2PkRep1,wgEncodeUwDnaseHct116PkRep1 --pop EUR --flank 50kb --refsnp rs10318 --pvalcol p --delim tab --plotonly --db /home/yunfeiguo/enlight/data/database/enlight_hg19.db --write-ld-to LD_Rsquare, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:14 2014] [error] [client 128.125.249.211] Warning: could not locate LD cache database, tried: ../ld_cache.db, creating new one.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:12:14 2014] [error] [client 128.125.249.211] Creating new LD cache branch for current LD source/population/build.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:20 2014] [error] [client 128.125.249.211] Error: SQL query failed, error was: no such table: var_annot, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:20 2014] [error] [client 128.125.249.211] Error: SQL query failed, error was: no such table: snp_set, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:20 2014] [error] [client 128.125.249.211] LD information written to /var/www/html/enlight2/output/m0ka0jgew0jka2d6/rs10318.txt.hg19_multianno.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:21 2014] [error] [client 128.125.249.211] Loading required package: grid, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:21 2014] [error] [client 128.125.249.211] Loading required package: lattice, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:21 2014] [error] [client 128.125.249.211] Loading required package: methods, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Error in if ((mid - left) > (right - mid)) { : , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211]   missing value where TRUE/FALSE needed, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Calls: zplot -> AutoLegendSide, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Execution halted, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Error: locuszoom.R did not complete successfully. Check logs for more information., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] +---------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | LocusZoom 1.1 mod (09/30/2013)              |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | Plot regional association results           |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | from GWA scans or candidate gene studies    |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | and sequence annotations\t\t       |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] +---------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Loading settings.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Options in effect are:, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] +----------+-------------------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] |  Option  |                         Value                         |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] +----------+-------------------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | metal    | rs10318.txt.hg19_multianno.txt                        |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | refsnp   | rs10318                                               |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | flank    | 50000                                                 |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | build    | hg19                                                  |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | pop      | EUR                                                   |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | source   | 1000G_March2012                                       |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | snpset   | Illu1M                                                |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | db       | /home/yunfeiguo/enlight/data/database/enlight_hg19.db |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | cache    | ../ld_cache.db                                        |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | plotonly | True                                                  |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] +----------+-------------------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Plotting parameters in effect are:, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] +-------------+--------------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] |    Option   |                      Value                       |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] +-------------+--------------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | annotName   | GTEx_eQTL_11162013                               |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | categoryKey | /home/yunfeiguo/enlight/conf/chromHMM_legend.txt |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | markerCol   | dbSNP135                                         |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | annotOrder  | y,n                                              |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | annotPch    | 24,1                                             |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | pvalCol     | p                                                |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | showAnnot   | TRUE                                             |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] | annotCol    | GTEx_eQTL_11162013_existence                     |, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] +-------------+--------------------------------------------------+, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Using /var/www/html/enlight2/bin/locuszoom.R.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Beginning plotting sequence for: rs10318, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Extracting region of interest (chr15:32975979-33075979) from metal file.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] 338, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] 339, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Finding pairwise LD with rs10318.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Source: 1000G_March2012 | Population: EUR | Build: hg19, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Using /home/yunfeiguo/Downloads/plink-1.07-x86_64/plink to compute LD.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Grabbing annotations from SQLite database.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Creating plot.., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] 338, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] 339, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] cleanup() called for files: , referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] .. /var/www/html/enlight2/output/m0ka0jgew0jka2d6/rs10318.txt.hg19_multianno.txt.withld, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] DEBUG: locuszoom.R command: /var/www/html/enlight2/bin/locuszoom.R metal=temp_pocull_chr15:32975979-33075979_tmpRydjdX clobber=F clean=F refsnp=chr15:33025979 refsnpName=rs10318 ld=templd_rs10318_140417-161320.txt chr=15 start=32975979 end=33075979 showAnnot="TRUE" annotPch="24,1" annotOrder="y,n" annotName="GTEx_eQTL_11162013" annotCol="GTEx_eQTL_11162013_existence" categoryKey="/home/yunfeiguo/enlight/conf/chromHMM_legend.txt" markerCol="dbSNP135" pvalCol="p" build=hg19 alreadyTransformed=TRUE category=1397776400_25608_wgEncodeBroadHmmHepg2HMM.txt generic=1397776400_25608_wgEncodeOpenChromDnaseHepg2Pk.txt,1397776400_25608_wgEncodeUwDnaseCaco2PkRep1.txt,1397776400_25608_wgEncodeUwDnaseHct116PkRep1.txt snpsetFile=NULL annot=NULL recomb=recomb_in_region_1397776400_25608_recomb_rate.txt refFlat=refflat_in_region_1397776400_25608_refFlat.txt, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] [Thu Apr 17 16:13:22 2014] process2.cgi: ENLIGHT RUNNING: /var/www/html/enlight2/cgi-bin/../bin/formatter rmcol rs10318.txt GTEx_eQTL_11162013_existence, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Removing GTEx_eQTL_11162013_existence column from rs10318.txt., referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] Assume unique column; tab-delimited, referer: http://enlight.usc.edu/html/index.html
+[Thu Apr 17 16:13:22 2014] [error] [client 128.125.249.211] [Thu Apr 17 16:13:22 2014] process2.cgi: ENLIGHT RUNNING: rm -f ld_cache.db, referer: http://enlight.usc.edu/html/index.html

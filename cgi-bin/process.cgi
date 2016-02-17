@@ -13,7 +13,7 @@ use Control;
 
 BEGIN
 {
-        $ENV{PERL5LIB}=($ENV{PERL5LIB} ? $ENV{PERL5LIB}:"")."/path/to/perllib";
+    $ENV{PERL5LIB}=($ENV{PERL5LIB} ? $ENV{PERL5LIB}:"");
 }
 
 chdir File::Spec->catdir($RealBin,"..") or &Utils::error ("Cannot enter installation directory\n"); #go to installation dir for safety
@@ -212,7 +212,10 @@ if ($anno_toggle || $varAnno)
 #'input' now becomes 'filename'
 {
     $filename=~s/\.csv$/.txt/i;
-    push @command,"cp $input $filename";
+    #add user_ prefix for distinguishing, headers are really naughty!
+    push @command,"$RealBin/../bin/formatter chheader $input $filename";
+    $markercol =~ s/^/user_/ unless $markercol =~/^user_/;
+    $pvalcol =~ s/^/user_/ unless $pvalcol =~/^user_/;
 }
 
 if ($varAnno)
