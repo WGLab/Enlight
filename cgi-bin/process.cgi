@@ -746,7 +746,7 @@ sub opt_check
     &Utils::error("Too many generic tracks (max: $generic_table_max)\n",$log,$admin_email) if (@generic_table + (grep {$_} $q->param('custom_table')) ) > $generic_table_max;
     if ( $generic_toggle || $anno_toggle )
     {
-	unless (@generic_table || %custom_table)
+	unless (@generic_table || $q->param('custom_table'))
 	{
 	    &Utils::error("No annotation data tracks selected or uploaded while generic plot or annotation is enabled\n",$log,$admin_email) 
 	}
