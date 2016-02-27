@@ -47,7 +47,7 @@ as.filename <- function(x) {
 # modify column names the way R does
 #
 char2Rname <- function(x) {
-    x <- gsub('-','.',x);
+    #x <- gsub('-','.',x);
     x <- gsub('=','.',x);
     x <- gsub('\ ','.',x);
     return(x)
