@@ -528,9 +528,9 @@ sub checkBED
 	    s/[\r\n]+$//;
 	    next if /^(track|#|browser|\s)/i; #skip header
 	    my @f=split (/\t/,$_,-1);
-	    &Utils::error("Expect at least 5 columns in BED\n",$log,$admin_email) if @f<5;
-	    &Utils::error("Expect 2nd and 3rd columns are numerical in BED\n",$log,$admin_email) unless $f[1]=~/^\d+$/ && $f[2]=~/^\d+$/;
-	    &Utils::error("Expect 5th column is score in BED\n",$log,$admin_email) unless $f[4]=~/^\d+$/;
+	    &Utils::error("Expect at least 5 columns in BED $i\n",$log,$admin_email) if @f<5;
+	    &Utils::error("Expect 2nd and 3rd columns are numerical in BED $i\n",$log,$admin_email) unless $f[1]=~/^\d+$/ && $f[2]=~/^\d+$/;
+	    &Utils::error("Expect 5th column is numeric score in BED $i\n",$log,$admin_email) unless $f[4]=~/^\d+\.?\d*$/;
 	}
 	close IN;
     }
