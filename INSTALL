@@ -1,3 +1,5 @@
+#Download
+git clone --recursive git@github.com:WGLab/Enlight.git
 #use build.pl to replace system default perl with local perl, assuming local perl has installed all necessary dependencies
 ./build.pl path_to_local_perl
 run cgi-bin/submission.cgi to generate webpages, then move the webpages to desired locations.
