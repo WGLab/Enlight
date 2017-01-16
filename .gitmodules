@@ -1,0 +1,3 @@
+[submodule "bin/TDS"]
+	path = bin/TDS
+	url = git@github.com:WGLab/TDS.git
