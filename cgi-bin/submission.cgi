@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use CGI::Pretty;
+use CGI;
 use CGI::Carp qw/fatalsToBrowser/;
 use FindBin qw/$RealBin/;
 use lib "$RealBin/../lib";
@@ -63,7 +63,7 @@ my $qformat_default="whitespace";
 my @chr=(1..22,'X');
 
 my $page;
-my $q=new CGI::Pretty;
+my $q=new CGI;
 
 ##################REGION SPECIFICATION HTML CODE##############################
 #HTML code for single region specification
