@@ -502,10 +502,12 @@ function check_before_submission()
 
     //check marker column
     var marker=document.getElementById('markercol_id').value;
+    var chrcolname = document.getElementById('chrcol_id').value;
+    var poscolname = document.getElementById('poscol_id').value;
 
-    if (marker.length==0)
+    if (marker.length==0 && (chrcolname.length == 0 || poscolname.length == 0))
     {
-	alert('Marker column name is empty!');
+	alert('Marker column name or one of chromosome and position columns is empty!');
 	return false;
     }
 
@@ -733,9 +735,29 @@ $q->div({-class=>"form-group"},
     ));
 $page.=
 $q->div({-class=>"form-group"},
-    $q->label({-class=>"col-sm-3 control-label"},"Marker column (case-sensitive)"),
+    $q->label({-class=>"col-sm-3 control-label"},"Marker(rsID) column (case-sensitive)"),
     $q->div({-class=>"col-sm-7"},
 	    $q->textfield(-class=>"form-control",-name=>'markercol',-id=>'markercol_id',-default=>'',-placeholder=>"Enter marker column name here")
+    ));
+$page.=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Alternative to rsID: Chromosome column (case-sensitive)",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"If rsID is unavailable, chromosome column + position column can be used.\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>",
+    ),
+    $q->div({-class=>"col-sm-7"},
+	    $q->textfield(-class=>"form-control",-name=>'chrcol',-id=>'chrcol_id',-default=>'',-placeholder=>"Enter chromosome column name here")
+    ));
+$page.=
+$q->div({-class=>"form-group"},
+    $q->label({-class=>"col-sm-3 control-label"},"Alternative to rsID: Position column (case-sensitive)",
+	"<a class='mypopover' tabindex='0' data-trigger='focus' data-toggle='popover' data-content=\"If rsID is unavailable, chromosome column + position column can be used.\">".
+	$q->span({-class=>"glyphicon glyphicon-info-sign"}).
+	"</a>",
+    ),
+    $q->div({-class=>"col-sm-7"},
+	    $q->textfield(-class=>"form-control",-name=>'poscol',-id=>'poscol_id',-default=>'',-placeholder=>"Enter position column name here")
     ));
 $page.=
 $q->div({-class=>"form-group"},
@@ -745,7 +767,7 @@ $q->div({-class=>"form-group"},
 	"</a>",
     ),
     $q->div({-class=>"col-sm-7"},
-	    $q->textfield(-class=>"form-control",-name=>'pvalcol',-id=>'pvalcol_id',-default=>'',-placeholder=>"Enter marker column name here")
+	    $q->textfield(-class=>"form-control",-name=>'pvalcol',-id=>'pvalcol_id',-default=>'',-placeholder=>"Enter P-value column name here")
     ));
 $page.=
 $q->div({-class=>"form-group"},
