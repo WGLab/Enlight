@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use DBI;
 use File::Spec;
 
 my $BUCKET_NUM=10000;
@@ -15,7 +16,9 @@ my $usage=
 	addbin		add BIN column as 1st column, delimiter is TAB
 	rmcol		remove specific column assuming tab-delimited input with only one such column
 	chheader	add user_ prefix to headers if it is not present, this will distinguish user-defined
-			cols from newly added cols\n";
+			cols from newly added cols
+	chrpos2rsID	take a SQLite database containing snp chr-pos-rsID table(snp_pos), chr and pos column
+			column names, append rsID to end of each line, assuming tab-delimited\n";
 die $usage if @ARGV<1;
 my $op=shift @ARGV;
 
@@ -40,12 +43,52 @@ if ($op eq 'delim2tab')
 } elsif ($op eq 'chheader')
 {
     &chheader(@ARGV);
-}else
+} elsif ($op eq 'chrpos2rsID') {
+    &chrpos2rsID(@ARGV);
+} else
 {
     die $usage;
 }
 
 #-------------------------------------------------------------------------
+sub chrpos2rsID {
+    die "$PROGRAM chrpos2rsID <db> <chrcol> <poscol> <input> <output>\n" unless @ARGV==5;
+    my $sqlite_db = shift;
+    my $chr_colname = shift;
+    my $pos_colname = shift;
+    my $input = shift;
+    my $output = shift;
+    my $rs_colname = "enlight_rsID";
+    my $snp_pos_table = "snp_pos";
+
+    my %colname2idx;
+    my $dbh = DBI->connect("DBI:SQLite:$sqlite_db", "", "", { RaiseError => 1 })
+	or die $DBI::errstr;
+
+    open IN,'<',$input or die "failed to read $input: $!\n";
+    open OUT,'>',$output or die "failed to write to $output:$!\n";
+    my $header = <IN>;
+    chomp $header;
+    %colname2idx = &parse_header($header);
+    print OUT "$header\t$rs_colname\n";
+    while (<IN>) {
+	my @f = split /\t/;
+	my $chr = $f[$colname2idx{$chr_colname}];
+	my $pos = $f[$colname2idx{$pos_colname}];
+#sqlite> select * from snp_pos where chr=9 and pos=34494674 union select * from snp_pos where chr=1 and pos=9107403;
+#rs10814115|9|34494674
+#rs78467629|1|9107403
+	my $sql_select = "select snp from $snp_pos_table where chr=$chr AND pos=$pos";
+	my $rsID = &query_sqlite($dbh, $sql_select);
+	if ($rsID) {
+	    print OUT "$_\t$rsID\n";
+	}
+    }
+    close IN;
+    close OUT;
+    $dbh->disconnect();
+    warn "chrpos2rsID done\n";
+}
 sub chheader
 {
 	my ($in,$out) = @_;
@@ -541,4 +584,24 @@ sub rmcol
     close OUT;
 
     !system("mv -f $out $in") or die "Failed to rename $in: $!\n";
+}
+sub parse_header{
+#take a tab-delimited header, return field-index mapping	
+	my $header = shift;
+	my @f = split /\t/,$header;
+	return map {($f[$_],$_)} 0..$#f;
+}
+
+sub query_sqlite {
+	#given database handle and a select statement
+	#return a single line of result
+	my $dbh = shift;
+	my $query = shift;
+	my $query_handle = $dbh->prepare($query);
+	if ($query_handle->execute() < 0) {
+		warn "$DBI::errstr\n";
+		return "";
+	} else {
+		return $query_handle->fetch->[0];
+	}
 }
