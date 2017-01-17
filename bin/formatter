@@ -72,6 +72,7 @@ sub chrpos2rsID {
     %colname2idx = &parse_header($header);
     print OUT "$header\t$rs_colname\n";
     while (<IN>) {
+	chomp;
 	my @f = split /\t/;
 	my $chr = $f[$colname2idx{$chr_colname}];
 	my $pos = $f[$colname2idx{$pos_colname}];
