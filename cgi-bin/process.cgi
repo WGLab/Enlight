@@ -5,22 +5,19 @@ use warnings;
 use CGI qw/:standard/;
 use CGI::Carp qw/fatalsToBrowser/;
 use DBI;
+use DBD::SQLite;
 use FindBin qw/$RealBin/;
 use File::Spec;
 use lib "$RealBin/../lib";
 use Utils;
 use Control;
 
-BEGIN
-{
-    $ENV{PERL5LIB}=($ENV{PERL5LIB} ? $ENV{PERL5LIB}:"");
-}
-
 chdir File::Spec->catdir($RealBin,"..") or &Utils::error ("Cannot enter installation directory\n"); #go to installation dir for safety
 
 my %server_conf=&Utils::readServConf(File::Spec->catfile($RealBin,"../conf/enlight_server.conf"))
     or &Utils::error ("Reading server configuration file failed!\n");
 
+my $rsID_colname = "enlight_rsID";
 my $EXAMPLE_LOC="example/exampleinput.txt";
 my $EXAMPLE_NAME="exampleinput.txt";
 $CGI::POST_MAX = 1024 * 1024 * ($server_conf{'maxupload'}||200);
@@ -83,6 +80,8 @@ my %custom_table;
 my $user_email=$q->param('email'); 
 my $file_format=$q->param('qformat');
 my $markercol=$q->param('markercol');
+my $chrcol=$q->param('chrcol');
+my $poscol=$q->param('poscol');
 my $source_ref_pop=$q->param('source_ref_pop');
 my ($ld_source,$ld_ref,$ld_pop)=split(',',$source_ref_pop);
 
@@ -115,7 +114,7 @@ my $varAnno=$q->param('varAnno') eq 'NULL'? undef:$q->param('varAnno'); #eQTL db
 &modFileName;
 
 &checkBED(%custom_table) if %custom_table;
-&checkHeader($input,$markercol,$pvalcol);
+&checkHeader($input,($markercol ? $markercol : ($chrcol,$poscol)),$pvalcol);
 
 #check and save region specification
 &process_region_spec(\%region_spec);
@@ -193,6 +192,16 @@ $param.=" legendScale=".(1-0.03*@generic_table);#decrease LD legend as number of
     {
 	push @command, "$RealBin/../bin/formatter delim2tab $file_format $input $tmp";
 	$input=$tmp;
+    }
+}
+
+#convert chr:pos to rsID here
+{
+    my $tmp="/tmp/$$.2rsID";
+    unless($markercol) {
+	push @command, "$RealBin/../bin/formatter_dev chrpos2rsID ".($ref eq 'hg18'? $hg18mindb : $hg19mindb)." $chrcol $poscol $input $tmp";
+	$input=$tmp;
+	$markercol = $rsID_colname;
     }
 }
 
@@ -752,12 +761,13 @@ sub opt_check
 	}
     }
     &Utils::error("Genome builds don't match ($ref vs $source_ref_pop).\n",$log,$admin_email) unless (lc($ld_ref) eq lc($ref));
-    &Utils::error("No marker column\n",$log,$admin_email) unless $markercol;
+    &Utils::error("No marker column or chr+pos columns:$markercol,$chrcol,$poscol,$filename,".$q->param()."\n",$log,$admin_email) unless ($markercol or ($chrcol and $poscol));
     &Utils::error("No P value column\n",$log,$admin_email) unless $pvalcol;
-    &Utils::error("Only letters, numbers, dashes, underscores are allowed in column name\n",$log,$admin_email) if $markercol=~/[^\w\-]/ or $pvalcol=~/[^\w\-]/;
+    &Utils::error("Only letters, numbers, dashes, underscores are allowed in column name\n",$log,$admin_email) if $markercol=~/[^\w\-]/ or $pvalcol=~/[^\w\-]/ or $chrcol=~/[^\w\-]/ or $poscol=~/[^\w\-]/;
     &Utils::error ("No genome build or illegal genome build: $ref\n",$log,$admin_email) unless $ref=~/^hg1[89]$/;
     &Utils::error ("Either upload from local, or specify a file via URL. Cannot do both.\n",$log,$admin_email) if ($query_url && $filename);
     &Utils::error ("Illegal characters found in URL: \\,\' not allowed.\n",$log,$admin_email) if ($query_url && $query_url=~/[\\']/);
+    &Utils::error ("Either a marker column name or a chromosome column plus a position column, not both\n",$log,$admin_email) if ($markercol and ($chrcol or $poscol));
 }
 
 #generate correct parameters for interaction plot
