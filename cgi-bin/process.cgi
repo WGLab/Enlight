@@ -199,7 +199,7 @@ $param.=" legendScale=".(1-0.03*@generic_table);#decrease LD legend as number of
 {
     my $tmp="/tmp/$$.2rsID";
     unless($markercol) {
-	push @command, "$RealBin/../bin/formatter_dev chrpos2rsID ".($ref eq 'hg18'? $hg18mindb : $hg19mindb)." $chrcol $poscol $input $tmp";
+	push @command, "$RealBin/../bin/formatter chrpos2rsID ".($ref eq 'hg18'? $hg18mindb : $hg19mindb)." $chrcol $poscol $input $tmp";
 	$input=$tmp;
 	$markercol = $rsID_colname;
     }
